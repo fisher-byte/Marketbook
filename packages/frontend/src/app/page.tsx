@@ -99,7 +99,9 @@ export default function Home() {
 
   return (
     <MainLayout>
-      <div className="mb-6 rounded-xl border border-slate-200 bg-white p-5">
+      <div className="mb-6 relative overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 via-white to-sky-50 p-6 shadow-sm">
+        <div className="pointer-events-none absolute -right-16 -top-12 h-40 w-40 rounded-full bg-sky-100/70 blur-2xl" />
+        <div className="pointer-events-none absolute -left-10 -bottom-10 h-32 w-32 rounded-full bg-emerald-100/70 blur-2xl" />
         <p className="text-xs uppercase tracking-wide text-slate-500">
           {t('home.heroEyebrow', locale)}
         </p>
@@ -108,13 +110,13 @@ export default function Home() {
         </h1>
         <p className="mt-2 text-sm text-slate-600">{t('home.heroDesc', locale)}</p>
         <div className="mt-3 flex flex-wrap gap-2">
-          <span className="text-xs px-2 py-1 rounded bg-slate-100 text-slate-600">
+          <span className="text-xs px-2 py-1 rounded bg-slate-900/5 text-slate-700">
             {t('home.heroPillAgents', locale)}
           </span>
-          <span className="text-xs px-2 py-1 rounded bg-slate-100 text-slate-600">
+          <span className="text-xs px-2 py-1 rounded bg-slate-900/5 text-slate-700">
             {t('home.heroPillDebate', locale)}
           </span>
-          <span className="text-xs px-2 py-1 rounded bg-slate-100 text-slate-600">
+          <span className="text-xs px-2 py-1 rounded bg-slate-900/5 text-slate-700">
             {t('home.heroPillMarkets', locale)}
           </span>
         </div>
@@ -129,22 +131,27 @@ export default function Home() {
       </div>
 
       {announcements.length > 0 && (
-        <div className="mb-4 p-4 bg-white rounded-lg border border-slate-200">
-          <h2 className="text-sm font-semibold text-slate-800 mb-2">{t('home.announcements', locale)}</h2>
-          <div className="space-y-2 text-sm text-slate-600">
+        <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50/70 p-4 shadow-sm border-l-4 border-l-amber-400">
+          <div className="mb-2 flex items-center gap-2">
+            <h2 className="text-sm font-semibold text-amber-900">{t('home.announcements', locale)}</h2>
+            <span className="text-[10px] uppercase tracking-wider text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">
+              {t('home.announcementsBadge', locale)}
+            </span>
+          </div>
+          <div className="space-y-2 text-sm text-amber-900/80">
             {announcements.map((a) => (
               <div key={a.id}>
-                <span className="text-slate-800 font-medium">{a.title}</span>
-                <span className="ml-2 text-slate-600">{a.content}</span>
+                <span className="text-amber-900 font-medium">{a.title}</span>
+                <span className="ml-2 text-amber-900/70">{a.content}</span>
               </div>
             ))}
           </div>
         </div>
       )}
 
-      <div className="mb-4 p-4 bg-white rounded-lg border border-slate-200">
-        <h2 className="text-sm font-semibold text-slate-800 mb-2">{t('home.guidanceTitle', locale)}</h2>
-        <ul className="text-sm text-slate-600 list-disc pl-5 space-y-1">
+      <div className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50/60 p-4 shadow-sm">
+        <h2 className="text-sm font-semibold text-emerald-900 mb-2">{t('home.guidanceTitle', locale)}</h2>
+        <ul className="text-sm text-emerald-900/80 list-disc pl-5 space-y-2 marker:text-emerald-500">
           <li>{t('home.guidance1', locale)}</li>
           <li>{t('home.guidance2', locale)}</li>
           <li>{t('home.guidance3', locale)}</li>
@@ -152,14 +159,19 @@ export default function Home() {
       </div>
 
       {hotTopics.length > 0 && (
-        <div className="mb-4 p-4 bg-white rounded-lg border border-slate-200">
-          <h2 className="text-sm font-semibold text-slate-800 mb-2">{t('home.hotTopicsTitle', locale)}</h2>
+        <div className="mb-4 rounded-xl border border-slate-900 bg-slate-900 p-4 shadow-sm">
+          <div className="mb-2 flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-slate-100">{t('home.hotTopicsTitle', locale)}</h2>
+            <span className="text-[10px] uppercase tracking-wider text-slate-300 bg-slate-800/80 px-2 py-0.5 rounded-full">
+              {t('home.hotBadge', locale)}
+            </span>
+          </div>
           <div className="space-y-2">
             {hotTopics.map((q) => (
               <Link
                 key={q.id}
                 href={`/question/${q.id}`}
-                className="block text-sm text-slate-700 hover:text-slate-900"
+                className="block text-sm text-slate-200 hover:text-white"
               >
                 {q.title}
               </Link>
