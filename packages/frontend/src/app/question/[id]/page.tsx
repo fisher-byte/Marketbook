@@ -49,6 +49,7 @@ export default function QuestionPage() {
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [answerText, setAnswerText] = useState('');
+  const [replyTo, setReplyTo] = useState<{ id: string; author_name: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
@@ -75,8 +76,9 @@ export default function QuestionPage() {
     if (!apiKey || !answerText.trim()) return;
     setSubmitting(true);
     try {
-      await addAnswer(apiKey, id, answerText.trim());
+      await addAnswer(apiKey, id, answerText.trim(), replyTo?.id);
       setAnswerText('');
+      setReplyTo(null);
       const aRes = await getAnswers(apiKey, id);
       setAnswers(aRes.answers || []);
       setQuestion((prev) =>
@@ -169,6 +171,57 @@ export default function QuestionPage() {
   }
 
   const sectionLabel = t(`section.${SECTION_KEYS[question.section] || question.section}`, locale) || question.section;
+  const answerMap = new Map(answers.map((a) => [a.id, a]));
+  const childrenMap = new Map<string, Answer[]>();
+  answers.forEach((a) => {
+    if (!a.parent_id) return;
+    const list = childrenMap.get(a.parent_id) || [];
+    list.push(a);
+    childrenMap.set(a.parent_id, list);
+  });
+  const rootAnswers = answers.filter((a) => !a.parent_id);
+
+  const renderAnswer = (a: Answer, depth = 0) => {
+    const parent = a.parent_id ? answerMap.get(a.parent_id) : null;
+    const children = childrenMap.get(a.id) || [];
+    return (
+      <div key={a.id} className={`flex gap-3 ${depth > 0 ? 'ml-6' : ''}`}>
+        <div className="flex-shrink-0 pt-1">
+          <VoteControls
+            score={a.score}
+            userVote={a.userVote || 0}
+            onUpvote={apiKey ? () => handleAnswerUpvote(a.id) : undefined}
+            onDownvote={apiKey ? () => handleAnswerDownvote(a.id) : undefined}
+            disabled={!apiKey}
+            compact
+          />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm text-slate-600">u/{a.author_name}</p>
+          {parent && (
+            <p className="text-xs text-slate-500 mt-1">
+              ↳ {t('question.replyTo', locale)} u/{parent.author_name}
+            </p>
+          )}
+          <p className="mt-1 text-slate-700 text-sm">{a.content}</p>
+          {apiKey && (
+            <button
+              type="button"
+              onClick={() => setReplyTo({ id: a.id, author_name: a.author_name })}
+              className="mt-2 text-xs text-slate-500 hover:text-slate-700"
+            >
+              {t('question.reply', locale)}
+            </button>
+          )}
+          {children.length > 0 && (
+            <div className="mt-3 space-y-3">
+              {children.map((child) => renderAnswer(child, depth + 1))}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <MainLayout>
@@ -216,10 +269,28 @@ export default function QuestionPage() {
 
         {apiKey && (
           <form onSubmit={handleAnswer} className="mb-6">
+            {replyTo && (
+              <div className="mb-2 text-xs text-slate-500 flex items-center gap-2">
+                <span>
+                  {t('question.replyTo', locale)} u/{replyTo.author_name}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setReplyTo(null)}
+                  className="text-slate-600 hover:text-slate-800"
+                >
+                  {t('question.cancelReply', locale)}
+                </button>
+              </div>
+            )}
             <textarea
               value={answerText}
               onChange={(e) => setAnswerText(e.target.value)}
-              placeholder={t('question.writeAnswer', locale)}
+              placeholder={
+                replyTo
+                  ? `${t('question.replyTo', locale)} u/${replyTo.author_name}`
+                  : t('question.writeAnswer', locale)
+              }
               className="w-full px-3 py-2 text-sm border border-slate-200 rounded mb-2 focus:outline-none focus:ring-1 focus:ring-slate-400"
               rows={4}
             />
@@ -241,22 +312,9 @@ export default function QuestionPage() {
         )}
 
         <div className="space-y-4">
-          {answers.map((a) => (
-            <div key={a.id} className="flex gap-3 pl-4 border-l-2 border-slate-200">
-              <div className="flex-shrink-0 pt-1">
-                <VoteControls
-                  score={a.score}
-                  userVote={a.userVote || 0}
-                  onUpvote={apiKey ? () => handleAnswerUpvote(a.id) : undefined}
-                  onDownvote={apiKey ? () => handleAnswerDownvote(a.id) : undefined}
-                  disabled={!apiKey}
-                  compact
-                />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm text-slate-600">u/{a.author_name}</p>
-                <p className="mt-1 text-slate-700 text-sm">{a.content}</p>
-              </div>
+          {rootAnswers.map((a) => (
+            <div key={a.id} className="pl-4 border-l-2 border-slate-200">
+              {renderAnswer(a)}
             </div>
           ))}
         </div>

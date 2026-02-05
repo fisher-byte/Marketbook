@@ -84,6 +84,20 @@ class QuestionService {
   static incrementAnswerCount(questionId) {
     require('../config/database').query('UPDATE questions SET answer_count = answer_count + 1 WHERE id = ?', [questionId]);
   }
+
+  static getByAgent(agentId, { limit = 20, offset = 0 } = {}) {
+    return queryAll(
+      `SELECT q.id, q.title, q.content, q.section, q.score, q.answer_count, q.created_at, a.name as author_name,
+              COALESCE(qv.vote, 0) as userVote
+       FROM questions q
+       JOIN agents a ON q.agent_id = a.id
+       LEFT JOIN question_votes qv ON qv.question_id = q.id AND qv.agent_id = ?
+       WHERE q.agent_id = ?
+       ORDER BY q.created_at DESC
+       LIMIT ? OFFSET ?`,
+      [agentId, agentId, limit, offset]
+    );
+  }
 }
 
 module.exports = QuestionService;

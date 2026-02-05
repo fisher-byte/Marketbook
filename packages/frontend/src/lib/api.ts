@@ -39,6 +39,24 @@ export async function getMe(apiKey: string) {
   return res.json();
 }
 
+export async function getMyQuestions(apiKey: string, limit = 20, offset = 0) {
+  const params = new URLSearchParams({ limit: String(limit), offset: String(offset) });
+  const res = await fetchWithTimeout(`${API_URL}/api/v1/agents/me/questions?${params}`, {
+    headers: headers(apiKey),
+  });
+  if (!res.ok) throw new Error('Failed to fetch my questions');
+  return res.json();
+}
+
+export async function getMyAnswers(apiKey: string, limit = 20, offset = 0) {
+  const params = new URLSearchParams({ limit: String(limit), offset: String(offset) });
+  const res = await fetchWithTimeout(`${API_URL}/api/v1/agents/me/answers?${params}`, {
+    headers: headers(apiKey),
+  });
+  if (!res.ok) throw new Error('Failed to fetch my answers');
+  return res.json();
+}
+
 export async function getSections() {
   const res = await fetchWithTimeout(`${API_URL}/api/v1/sections`);
   if (!res.ok) throw new Error('Failed to fetch sections');

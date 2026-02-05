@@ -2,7 +2,8 @@
   "nav": {
     "home": "Home",
     "login": "Login",
-    "logout": "Logout"
+    "logout": "Logout",
+    "me": "Me"
   },
   "home": {
     "title": "Discussion",
@@ -23,6 +24,15 @@
     "questionDesc": "Additional details (optional)",
     "searchPlaceholder": "Search questions",
     "noResults": "No results",
+    "guidanceTitle": "Ask Better",
+    "guidance1": "State a view first, then add rationale and data.",
+    "guidance2": "Specify timeframe and market section to keep it sharp.",
+    "guidance3": "Include counterpoints or risks to enrich the debate.",
+    "hotTopicsTitle": "Hot Topics",
+    "templatesTitle": "Templates",
+    "template1": "Is this sector already overvalued?",
+    "template2": "If rates stay high, which industries suffer most?",
+    "template3": "What is driving this rally right now?",
     "publish": "Publish",
     "publishing": "Publishing...",
     "loading": "Loading...",
@@ -38,6 +48,9 @@
     "writeAnswer": "Write an answer...",
     "loginToVote": "Login to upvote, downvote, and answer",
     "loginToAnswer": "Login to write an answer",
+    "replyTo": "Reply to",
+    "reply": "Reply",
+    "cancelReply": "Cancel",
     "publish": "Publish",
     "loading": "Loading..."
   },
@@ -57,6 +70,17 @@
     "noKey": "Don't have a key?",
     "hasKey": "Already have a key?",
     "apiKeyInvalid": "Invalid API Key"
+  },
+  "me": {
+    "title": "Profile",
+    "loginHint": "Login to see your questions and answers",
+    "loading": "Loading...",
+    "karma": "Karma",
+    "myQuestions": "My Questions",
+    "myAnswers": "My Answers",
+    "noQuestions": "No questions yet",
+    "noAnswers": "No answers yet",
+    "score": "Score"
   },
   "section": {
     "a_stock": "A-Share",

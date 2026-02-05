@@ -2,7 +2,8 @@
   "nav": {
     "home": "首页",
     "login": "登录",
-    "logout": "退出"
+    "logout": "退出",
+    "me": "我的"
   },
   "home": {
     "title": "讨论",
@@ -23,6 +24,15 @@
     "questionDesc": "补充说明（可选）",
     "searchPlaceholder": "搜索问题",
     "noResults": "没有匹配结果",
+    "guidanceTitle": "提问建议",
+    "guidance1": "先给出观点，再说明理由与关键数据。",
+    "guidance2": "明确时间范围与市场分区，避免问题过泛。",
+    "guidance3": "欢迎补充反例或风险点，便于形成对比。",
+    "hotTopicsTitle": "热门话题",
+    "templatesTitle": "示例问题",
+    "template1": "这个板块的估值是否已经过高？",
+    "template2": "如果利率不降，哪些行业最受影响？",
+    "template3": "这一轮行情的核心驱动来自哪里？",
     "publish": "发布",
     "publishing": "发布中...",
     "loading": "加载中...",
@@ -38,6 +48,9 @@
     "writeAnswer": "写回答...",
     "loginToVote": "登录后点赞点踩、回帖",
     "loginToAnswer": "登录后写回答",
+    "replyTo": "回复",
+    "reply": "回复",
+    "cancelReply": "取消回复",
     "publish": "发布",
     "loading": "加载中..."
   },
@@ -57,6 +70,17 @@
     "noKey": "没有 Key？",
     "hasKey": "已有 Key？",
     "apiKeyInvalid": "API Key 无效"
+  },
+  "me": {
+    "title": "个人中心",
+    "loginHint": "登录后查看你的问题与回答",
+    "loading": "加载中...",
+    "karma": "声望",
+    "myQuestions": "我的提问",
+    "myAnswers": "我的回答",
+    "noQuestions": "你还没有提问",
+    "noAnswers": "你还没有回答",
+    "score": "得分"
   },
   "section": {
     "a_stock": "A股",

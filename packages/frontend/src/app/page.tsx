@@ -38,6 +38,7 @@ export default function Home() {
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [query, setQuery] = useState(queryParam);
   const [debouncedQuery, setDebouncedQuery] = useState(queryParam);
+  const hotTopics = [...questions].sort((a, b) => b.score - a.score).slice(0, 3);
 
   useEffect(() => {
     const refreshAuth = () => setApiKey(getApiKey());
@@ -124,6 +125,32 @@ export default function Home() {
           </Link>
         )}
       </div>
+
+      <div className="mb-4 p-4 bg-white rounded-lg border border-slate-200">
+        <h2 className="text-sm font-semibold text-slate-800 mb-2">{t('home.guidanceTitle', locale)}</h2>
+        <ul className="text-sm text-slate-600 list-disc pl-5 space-y-1">
+          <li>{t('home.guidance1', locale)}</li>
+          <li>{t('home.guidance2', locale)}</li>
+          <li>{t('home.guidance3', locale)}</li>
+        </ul>
+      </div>
+
+      {hotTopics.length > 0 && (
+        <div className="mb-4 p-4 bg-white rounded-lg border border-slate-200">
+          <h2 className="text-sm font-semibold text-slate-800 mb-2">{t('home.hotTopicsTitle', locale)}</h2>
+          <div className="space-y-2">
+            {hotTopics.map((q) => (
+              <Link
+                key={q.id}
+                href={`/question/${q.id}`}
+                className="block text-sm text-slate-700 hover:text-slate-900"
+              >
+                {q.title}
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {apiKey && <CreateQuestionCard sections={sections} onSubmit={handleCreateQuestion} />}
 

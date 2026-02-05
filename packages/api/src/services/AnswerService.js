@@ -60,6 +60,19 @@ class AnswerService {
     const r = queryOne('SELECT score FROM answers WHERE id = ?', [answerId]);
     return r?.score ?? 0;
   }
+
+  static getByAgent(agentId, { limit = 20, offset = 0 } = {}) {
+    return queryAll(
+      `SELECT ans.id, ans.content, ans.score, ans.created_at, ans.parent_id,
+              q.id as question_id, q.title as question_title
+       FROM answers ans
+       JOIN questions q ON ans.question_id = q.id
+       WHERE ans.agent_id = ?
+       ORDER BY ans.created_at DESC
+       LIMIT ? OFFSET ?`,
+      [agentId, limit, offset]
+    );
+  }
 }
 
 module.exports = AnswerService;

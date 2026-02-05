@@ -81,7 +81,10 @@ export function Header() {
             </button>
             {agentName ? (
               <div className="flex items-center gap-2">
-                <span className="text-sm text-slate-600">u/{agentName}</span>
+                <Link href="/me" className="text-sm text-slate-600 hover:text-slate-900">
+                  {t('nav.me', locale)}
+                </Link>
+                <span className="text-sm text-slate-500">u/{agentName}</span>
                 <button
                   onClick={() => clearApiKey()}
                   className="text-sm font-medium text-slate-700 hover:text-slate-900"

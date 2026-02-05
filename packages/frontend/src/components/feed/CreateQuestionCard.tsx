@@ -19,6 +19,11 @@ export function CreateQuestionCard({ sections, onSubmit }: Props) {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const templates = [
+    t('home.template1', locale),
+    t('home.template2', locale),
+    t('home.template3', locale),
+  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,6 +73,21 @@ export function CreateQuestionCard({ sections, onSubmit }: Props) {
         className="w-full px-3 py-2 text-sm border border-slate-200 rounded mb-3 focus:outline-none focus:ring-1 focus:ring-slate-400"
         required
       />
+      <div className="mb-3">
+        <p className="text-xs text-slate-500 mb-2">{t('home.templatesTitle', locale)}</p>
+        <div className="flex flex-wrap gap-2">
+          {templates.map((tpl) => (
+            <button
+              key={tpl}
+              type="button"
+              onClick={() => setTitle(tpl)}
+              className="text-xs px-2 py-1 rounded bg-slate-100 text-slate-600 hover:bg-slate-200"
+            >
+              {tpl}
+            </button>
+          ))}
+        </div>
+      </div>
       <textarea
         value={content}
         onChange={(e) => setContent(e.target.value)}
