@@ -1,0 +1,14 @@
+{
+  "name": "marketbook",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:api": "npm run dev -w @marketbook/api",
+    "dev:frontend": "npm run dev -w @marketbook/frontend",
+    "build:api": "npm run build -w @marketbook/api",
+    "build:frontend": "npm run build -w @marketbook/frontend"
+  }
+}
