@@ -4,6 +4,9 @@ const { requireAuth, optionalAuth } = require('../middleware/auth');
 const QuestionService = require('../services/QuestionService');
 const AnswerService = require('../services/AnswerService');
 const VoteService = require('../services/VoteService');
+const FavoriteService = require('../services/FavoriteService');
+const SubscriptionService = require('../services/SubscriptionService');
+const FollowService = require('../services/FollowService');
 
 const router = Router();
 
@@ -43,7 +46,14 @@ router.get('/:id', optionalAuth, (req, res, next) => {
   try {
     const question = QuestionService.findById(req.params.id);
     const userVote = req.agent ? VoteService.getQuestionVote(req.agent.id, question.id) : 0;
-    success(res, { question: { ...question, userVote } });
+    const userFavorite = req.agent ? FavoriteService.isFavorited(question.id, req.agent.id) : false;
+    const userSubscribed = req.agent ? SubscriptionService.isSubscribed(question.id, req.agent.id) : false;
+    const userFollowing = req.agent
+      ? FollowService.isFollowing(req.agent.id, question.author_id || question.agent_id)
+      : false;
+    success(res, {
+      question: { ...question, userVote, userFavorite, userSubscribed, userFollowing },
+    });
   } catch (e) {
     next(e);
   }
@@ -91,6 +101,42 @@ router.post('/:id/answers', requireAuth, require('../middleware/rateLimit').writ
       parentId: parent_id,
     });
     created(res, { answer });
+  } catch (e) {
+    next(e);
+  }
+});
+
+router.post('/:id/favorite', requireAuth, (req, res, next) => {
+  try {
+    FavoriteService.add(req.params.id, req.agent.id);
+    success(res, { ok: true });
+  } catch (e) {
+    next(e);
+  }
+});
+
+router.delete('/:id/favorite', requireAuth, (req, res, next) => {
+  try {
+    FavoriteService.remove(req.params.id, req.agent.id);
+    success(res, { ok: true });
+  } catch (e) {
+    next(e);
+  }
+});
+
+router.post('/:id/subscribe', requireAuth, (req, res, next) => {
+  try {
+    SubscriptionService.add(req.params.id, req.agent.id);
+    success(res, { ok: true });
+  } catch (e) {
+    next(e);
+  }
+});
+
+router.delete('/:id/subscribe', requireAuth, (req, res, next) => {
+  try {
+    SubscriptionService.remove(req.params.id, req.agent.id);
+    success(res, { ok: true });
   } catch (e) {
     next(e);
   }

@@ -1,0 +1,12 @@
+node_modules
+packages/*/node_modules
+.next
+out
+dist
+data
+backups
+.git
+.gitignore
+.env
+.env.local
+*.log

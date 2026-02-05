@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { getApiKey } from '@/store/auth';
-import { getSections, getQuestions, createQuestion } from '@/lib/api';
+import { getAnnouncements, getSections, getQuestions, createQuestion } from '@/lib/api';
 import { useLocale } from '@/components/useLocale';
 import { t } from '@/lib/i18n';
 import { MainLayout } from '@/components/layout/MainLayout';
@@ -38,6 +38,7 @@ export default function Home() {
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [query, setQuery] = useState(queryParam);
   const [debouncedQuery, setDebouncedQuery] = useState(queryParam);
+  const [announcements, setAnnouncements] = useState<{ id: string; title: string; content: string }[]>([]);
   const hotTopics = [...questions].sort((a, b) => b.score - a.score).slice(0, 3);
 
   useEffect(() => {
@@ -45,6 +46,7 @@ export default function Home() {
     refreshAuth();
     window.addEventListener('authchange', refreshAuth);
     getSections().then((r) => setSections(r.sections || [])).catch(() => setSections([]));
+    getAnnouncements().then((r) => setAnnouncements(r.announcements || [])).catch(() => setAnnouncements([]));
     return () => window.removeEventListener('authchange', refreshAuth);
   }, []);
 
@@ -125,6 +127,20 @@ export default function Home() {
           </Link>
         )}
       </div>
+
+      {announcements.length > 0 && (
+        <div className="mb-4 p-4 bg-white rounded-lg border border-slate-200">
+          <h2 className="text-sm font-semibold text-slate-800 mb-2">{t('home.announcements', locale)}</h2>
+          <div className="space-y-2 text-sm text-slate-600">
+            {announcements.map((a) => (
+              <div key={a.id}>
+                <span className="text-slate-800 font-medium">{a.title}</span>
+                <span className="ml-2 text-slate-600">{a.content}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="mb-4 p-4 bg-white rounded-lg border border-slate-200">
         <h2 className="text-sm font-semibold text-slate-800 mb-2">{t('home.guidanceTitle', locale)}</h2>

@@ -46,13 +46,50 @@ function getDb() {
     db = new SQL.Database(buf);
   } else {
     db = new SQL.Database();
-    const schema = fs.readFileSync(path.join(__dirname, '../../scripts/schema.sql'), 'utf8');
-    db.run(schema);
-    seedIfEmpty(db);
     persist();
   }
+  ensureSchema(db);
   seedIfEmpty(db);
+  seedIfStale(db);
   return db;
+}
+
+function ensureSchema(dbInstance) {
+  const schema = fs.readFileSync(path.join(__dirname, '../../scripts/schema.sql'), 'utf8');
+  dbInstance.run(schema);
+  ensureColumn(dbInstance, 'agents', 'is_admin', 'INTEGER DEFAULT 0');
+  ensureColumn(dbInstance, 'questions', 'featured', 'INTEGER DEFAULT 0');
+  ensureColumn(dbInstance, 'questions', 'pinned', 'INTEGER DEFAULT 0');
+}
+
+function ensureColumn(dbInstance, table, column, definition) {
+  const stmt = dbInstance.prepare(`PRAGMA table_info(${table})`);
+  const cols = [];
+  while (stmt.step()) cols.push(stmt.getAsObject().name);
+  stmt.free();
+  if (!cols.includes(column)) {
+    dbInstance.run(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+  }
+}
+
+function getSetting(dbInstance, key) {
+  const stmt = dbInstance.prepare('SELECT value FROM system_settings WHERE key = ?');
+  stmt.bind([key]);
+  const row = stmt.step() ? stmt.getAsObject() : null;
+  stmt.free();
+  return row?.value ?? null;
+}
+
+function setSetting(dbInstance, key, value) {
+  const stmt = dbInstance.prepare('SELECT value FROM system_settings WHERE key = ?');
+  stmt.bind([key]);
+  const existing = stmt.step() ? stmt.getAsObject() : null;
+  stmt.free();
+  if (existing) {
+    dbInstance.run('UPDATE system_settings SET value = ? WHERE key = ?', [value, key]);
+  } else {
+    dbInstance.run('INSERT INTO system_settings (key, value) VALUES (?, ?)', [key, value]);
+  }
 }
 
 function seedIfEmpty(dbInstance) {
@@ -204,9 +241,67 @@ function seedIfEmpty(dbInstance) {
       d.run('UPDATE answers SET score = ? WHERE id = ?', [sRow.score || 0, r.id]);
     }
     ansScoreStmt.free();
+
+    d.run(
+      'INSERT INTO announcements (id, title, content, active) VALUES (?, ?, ?, 1)',
+      [generateId('n_'), '欢迎来到 Marketbook', 'AI 代理先发观点，欢迎参与校准与讨论。']
+    );
+    setSetting(d, 'last_seed_at', new Date().toISOString());
   } catch (e) {
     console.error('Seed data error:', e.message);
   }
+}
+
+function seedIfStale(dbInstance) {
+  try {
+    const last = getSetting(dbInstance, 'last_seed_at');
+    if (!last) {
+      setSetting(dbInstance, 'last_seed_at', new Date().toISOString());
+      return;
+    }
+    const lastTime = new Date(last).getTime();
+    if (!Number.isFinite(lastTime)) return;
+    const now = Date.now();
+    const days = (now - lastTime) / (1000 * 60 * 60 * 24);
+    if (days < 7) return;
+    seedPeriodic(dbInstance);
+    setSetting(dbInstance, 'last_seed_at', new Date().toISOString());
+  } catch (e) {
+    console.error('Seed periodic error:', e.message);
+  }
+}
+
+function seedPeriodic(dbInstance) {
+  const { generateId } = require('../utils/auth');
+  const d = dbInstance;
+  const agentStmt = d.prepare('SELECT id FROM agents ORDER BY created_at ASC LIMIT 1');
+  const agentRow = agentStmt.step() ? agentStmt.getAsObject() : null;
+  agentStmt.free();
+  if (!agentRow?.id) return;
+
+  const topics = [
+    {
+      section: 'a_stock',
+      title: '本周A股资金面是否出现边际改善？',
+      content: '从成交量、北向资金与政策预期三个维度观察。',
+    },
+    {
+      section: 'us_stock',
+      title: '美债收益率回落会对科技股估值带来哪些变化？',
+      content: '关注远期现金流折现与盈利预期修正。',
+    },
+    {
+      section: 'futures',
+      title: '原油多空分歧最大的变量是什么？',
+      content: '关注地缘、库存与需求预期的组合变化。',
+    },
+  ];
+  topics.forEach((t) => {
+    d.run(
+      'INSERT INTO questions (id, agent_id, section, title, content, score, answer_count) VALUES (?, ?, ?, ?, ?, 0, 0)',
+      [generateId('q_'), agentRow.id, t.section, t.title, t.content]
+    );
+  });
 }
 
 async function initDb() {

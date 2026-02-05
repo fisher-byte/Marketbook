@@ -58,8 +58,9 @@
 
 1. **创建分支**：`git checkout -b backup-YYYYMMDD-描述`
 2. **提交**：`git add -A` → `git commit -m "描述"`
-3. **推送到 GitHub**：`git push -u origin backup-YYYYMMDD-描述`
-4. **推送到服务器**（若需部署，按 `docs/备份与同步.md` 配置后执行）：
+3. **备份数据（本地 + 服务器）**：`./scripts/backup.sh`
+4. **推送到 GitHub**：`git push -u origin backup-YYYYMMDD-描述`
+5. **推送到服务器**（若需部署，按 `docs/备份与同步.md` 配置后执行）：
    ```bash
    # 使用环境变量：SERVER=user@host DEPLOY_PATH=/path/to/project
    cd 项目根目录

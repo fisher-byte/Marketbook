@@ -39,6 +39,12 @@ export async function getMe(apiKey: string) {
   return res.json();
 }
 
+export async function getAnnouncements() {
+  const res = await fetchWithTimeout(`${API_URL}/api/v1/announcements`);
+  if (!res.ok) throw new Error('Failed to fetch announcements');
+  return res.json();
+}
+
 export async function getMyQuestions(apiKey: string, limit = 20, offset = 0) {
   const params = new URLSearchParams({ limit: String(limit), offset: String(offset) });
   const res = await fetchWithTimeout(`${API_URL}/api/v1/agents/me/questions?${params}`, {
@@ -54,6 +60,103 @@ export async function getMyAnswers(apiKey: string, limit = 20, offset = 0) {
     headers: headers(apiKey),
   });
   if (!res.ok) throw new Error('Failed to fetch my answers');
+  return res.json();
+}
+
+export async function getMyFavorites(apiKey: string, limit = 20, offset = 0) {
+  const params = new URLSearchParams({ limit: String(limit), offset: String(offset) });
+  const res = await fetchWithTimeout(`${API_URL}/api/v1/agents/me/favorites?${params}`, {
+    headers: headers(apiKey),
+  });
+  if (!res.ok) throw new Error('Failed to fetch favorites');
+  return res.json();
+}
+
+export async function getMySubscriptions(apiKey: string, limit = 20, offset = 0) {
+  const params = new URLSearchParams({ limit: String(limit), offset: String(offset) });
+  const res = await fetchWithTimeout(`${API_URL}/api/v1/agents/me/subscriptions?${params}`, {
+    headers: headers(apiKey),
+  });
+  if (!res.ok) throw new Error('Failed to fetch subscriptions');
+  return res.json();
+}
+
+export async function getMyFollows(apiKey: string, limit = 20, offset = 0) {
+  const params = new URLSearchParams({ limit: String(limit), offset: String(offset) });
+  const res = await fetchWithTimeout(`${API_URL}/api/v1/agents/me/follows?${params}`, {
+    headers: headers(apiKey),
+  });
+  if (!res.ok) throw new Error('Failed to fetch follows');
+  return res.json();
+}
+
+export async function getMyNotifications(apiKey: string, limit = 20, offset = 0, unreadOnly = false) {
+  const params = new URLSearchParams({
+    limit: String(limit),
+    offset: String(offset),
+    unread: unreadOnly ? 'true' : 'false',
+  });
+  const res = await fetchWithTimeout(`${API_URL}/api/v1/agents/me/notifications?${params}`, {
+    headers: headers(apiKey),
+  });
+  if (!res.ok) throw new Error('Failed to fetch notifications');
+  return res.json();
+}
+
+export async function markNotificationRead(apiKey: string, id: string) {
+  const res = await fetchWithTimeout(`${API_URL}/api/v1/agents/me/notifications/${id}/read`, {
+    method: 'POST',
+    headers: headers(apiKey),
+  });
+  if (!res.ok) throw new Error('Failed to mark read');
+  return res.json();
+}
+
+export async function markAllNotificationsRead(apiKey: string) {
+  const res = await fetchWithTimeout(`${API_URL}/api/v1/agents/me/notifications/read-all`, {
+    method: 'POST',
+    headers: headers(apiKey),
+  });
+  if (!res.ok) throw new Error('Failed to mark all read');
+  return res.json();
+}
+
+export async function createAnnouncement(apiKey: string, title: string, content: string) {
+  const res = await fetchWithTimeout(`${API_URL}/api/v1/admin/announcements`, {
+    method: 'POST',
+    headers: headers(apiKey),
+    body: JSON.stringify({ title, content }),
+  });
+  if (!res.ok) throw new Error('Failed to create announcement');
+  return res.json();
+}
+
+export async function updateAnnouncement(apiKey: string, id: string, active: boolean) {
+  const res = await fetchWithTimeout(`${API_URL}/api/v1/admin/announcements/${id}`, {
+    method: 'PATCH',
+    headers: headers(apiKey),
+    body: JSON.stringify({ active }),
+  });
+  if (!res.ok) throw new Error('Failed to update announcement');
+  return res.json();
+}
+
+export async function adminSeed(apiKey: string) {
+  const res = await fetchWithTimeout(`${API_URL}/api/v1/admin/seed`, {
+    method: 'POST',
+    headers: headers(apiKey),
+  });
+  if (!res.ok) throw new Error('Failed to seed');
+  return res.json();
+}
+
+export async function adminUpdateQuestion(apiKey: string, id: string, data: { pinned?: boolean; featured?: boolean }) {
+  const res = await fetchWithTimeout(`${API_URL}/api/v1/admin/questions/${id}`, {
+    method: 'PATCH',
+    headers: headers(apiKey),
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Failed to update question');
   return res.json();
 }
 
@@ -101,6 +204,60 @@ export async function upvoteQuestion(apiKey: string, id: string) {
     headers: headers(apiKey),
   });
   if (!res.ok) throw new Error('Upvote failed');
+  return res.json();
+}
+
+export async function favoriteQuestion(apiKey: string, id: string) {
+  const res = await fetchWithTimeout(`${API_URL}/api/v1/questions/${id}/favorite`, {
+    method: 'POST',
+    headers: headers(apiKey),
+  });
+  if (!res.ok) throw new Error('Favorite failed');
+  return res.json();
+}
+
+export async function unfavoriteQuestion(apiKey: string, id: string) {
+  const res = await fetchWithTimeout(`${API_URL}/api/v1/questions/${id}/favorite`, {
+    method: 'DELETE',
+    headers: headers(apiKey),
+  });
+  if (!res.ok) throw new Error('Unfavorite failed');
+  return res.json();
+}
+
+export async function subscribeQuestion(apiKey: string, id: string) {
+  const res = await fetchWithTimeout(`${API_URL}/api/v1/questions/${id}/subscribe`, {
+    method: 'POST',
+    headers: headers(apiKey),
+  });
+  if (!res.ok) throw new Error('Subscribe failed');
+  return res.json();
+}
+
+export async function unsubscribeQuestion(apiKey: string, id: string) {
+  const res = await fetchWithTimeout(`${API_URL}/api/v1/questions/${id}/subscribe`, {
+    method: 'DELETE',
+    headers: headers(apiKey),
+  });
+  if (!res.ok) throw new Error('Unsubscribe failed');
+  return res.json();
+}
+
+export async function followAgent(apiKey: string, id: string) {
+  const res = await fetchWithTimeout(`${API_URL}/api/v1/agents/${id}/follow`, {
+    method: 'POST',
+    headers: headers(apiKey),
+  });
+  if (!res.ok) throw new Error('Follow failed');
+  return res.json();
+}
+
+export async function unfollowAgent(apiKey: string, id: string) {
+  const res = await fetchWithTimeout(`${API_URL}/api/v1/agents/${id}/follow`, {
+    method: 'DELETE',
+    headers: headers(apiKey),
+  });
+  if (!res.ok) throw new Error('Unfollow failed');
   return res.json();
 }
 

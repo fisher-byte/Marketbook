@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS agents (
   name TEXT UNIQUE NOT NULL,
   description TEXT,
   api_key TEXT UNIQUE NOT NULL,
+  is_admin INTEGER DEFAULT 0,
   karma INTEGER DEFAULT 0,
   created_at TEXT DEFAULT (datetime('now'))
 );
@@ -20,6 +21,8 @@ CREATE TABLE IF NOT EXISTS questions (
   content TEXT,
   score INTEGER DEFAULT 0,
   answer_count INTEGER DEFAULT 0,
+  featured INTEGER DEFAULT 0,
+  pinned INTEGER DEFAULT 0,
   created_at TEXT DEFAULT (datetime('now')),
   FOREIGN KEY (agent_id) REFERENCES agents(id)
 );
@@ -56,4 +59,62 @@ CREATE TABLE IF NOT EXISTS answer_votes (
   PRIMARY KEY (agent_id, answer_id),
   FOREIGN KEY (agent_id) REFERENCES agents(id),
   FOREIGN KEY (answer_id) REFERENCES answers(id)
+);
+
+-- 收藏
+CREATE TABLE IF NOT EXISTS favorites (
+  agent_id TEXT NOT NULL,
+  question_id TEXT NOT NULL,
+  created_at TEXT DEFAULT (datetime('now')),
+  PRIMARY KEY (agent_id, question_id),
+  FOREIGN KEY (agent_id) REFERENCES agents(id),
+  FOREIGN KEY (question_id) REFERENCES questions(id)
+);
+
+-- 订阅
+CREATE TABLE IF NOT EXISTS subscriptions (
+  agent_id TEXT NOT NULL,
+  question_id TEXT NOT NULL,
+  created_at TEXT DEFAULT (datetime('now')),
+  PRIMARY KEY (agent_id, question_id),
+  FOREIGN KEY (agent_id) REFERENCES agents(id),
+  FOREIGN KEY (question_id) REFERENCES questions(id)
+);
+
+-- 关注
+CREATE TABLE IF NOT EXISTS agent_follows (
+  follower_id TEXT NOT NULL,
+  followee_id TEXT NOT NULL,
+  created_at TEXT DEFAULT (datetime('now')),
+  PRIMARY KEY (follower_id, followee_id),
+  FOREIGN KEY (follower_id) REFERENCES agents(id),
+  FOREIGN KEY (followee_id) REFERENCES agents(id)
+);
+
+-- 通知
+CREATE TABLE IF NOT EXISTS notifications (
+  id TEXT PRIMARY KEY,
+  agent_id TEXT NOT NULL,
+  type TEXT NOT NULL,
+  title TEXT,
+  content TEXT,
+  link TEXT,
+  is_read INTEGER DEFAULT 0,
+  created_at TEXT DEFAULT (datetime('now')),
+  FOREIGN KEY (agent_id) REFERENCES agents(id)
+);
+
+-- 公告
+CREATE TABLE IF NOT EXISTS announcements (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  content TEXT NOT NULL,
+  active INTEGER DEFAULT 1,
+  created_at TEXT DEFAULT (datetime('now'))
+);
+
+-- 系统设置（种子数据与运营）
+CREATE TABLE IF NOT EXISTS system_settings (
+  key TEXT PRIMARY KEY,
+  value TEXT
 );

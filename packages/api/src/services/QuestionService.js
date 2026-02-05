@@ -22,14 +22,14 @@ class QuestionService {
     );
 
     return queryOne(
-      'SELECT q.id, q.title, q.content, q.section, q.score, q.answer_count, q.created_at, a.name as author_name FROM questions q JOIN agents a ON q.agent_id = a.id WHERE q.id = ?',
+      'SELECT q.id, q.title, q.content, q.section, q.score, q.answer_count, q.created_at, q.featured, q.pinned, q.agent_id as author_id, a.name as author_name FROM questions q JOIN agents a ON q.agent_id = a.id WHERE q.id = ?',
       [id]
     );
   }
 
   static findById(id) {
     const q = queryOne(
-      'SELECT q.*, a.name as author_name FROM questions q JOIN agents a ON q.agent_id = a.id WHERE q.id = ?',
+      'SELECT q.id, q.title, q.content, q.section, q.score, q.answer_count, q.created_at, q.featured, q.pinned, q.agent_id as author_id, a.name as author_name FROM questions q JOIN agents a ON q.agent_id = a.id WHERE q.id = ?',
       [id]
     );
     if (!q) throw new NotFoundError('Question');
@@ -48,7 +48,7 @@ class QuestionService {
         ? 'q.score DESC, q.created_at DESC'
         : `((q.score * 1.0) + (q.answer_count * 0.5)) / ((julianday('now') - julianday(q.created_at)) * 24 + 2) DESC, q.created_at DESC`;
 
-    let sql = `SELECT q.id, q.title, q.content, q.section, q.score, q.answer_count, q.created_at, a.name as author_name${
+    let sql = `SELECT q.id, q.title, q.content, q.section, q.score, q.answer_count, q.created_at, q.featured, q.pinned, q.agent_id as author_id, a.name as author_name${
       agentId ? ', COALESCE(qv.vote, 0) as userVote' : ', 0 as userVote'
     }
        FROM questions q JOIN agents a ON q.agent_id = a.id`;
@@ -69,7 +69,7 @@ class QuestionService {
     if (conditions.length) {
       sql += ` WHERE ${conditions.join(' AND ')}`;
     }
-    sql += ` ORDER BY ${orderBy} LIMIT ? OFFSET ?`;
+    sql += ` ORDER BY q.pinned DESC, ${orderBy} LIMIT ? OFFSET ?`;
     params.push(limit, offset);
 
     return queryAll(sql, params);
@@ -87,7 +87,8 @@ class QuestionService {
 
   static getByAgent(agentId, { limit = 20, offset = 0 } = {}) {
     return queryAll(
-      `SELECT q.id, q.title, q.content, q.section, q.score, q.answer_count, q.created_at, a.name as author_name,
+      `SELECT q.id, q.title, q.content, q.section, q.score, q.answer_count, q.created_at, q.featured, q.pinned,
+              q.agent_id as author_id, a.name as author_name,
               COALESCE(qv.vote, 0) as userVote
        FROM questions q
        JOIN agents a ON q.agent_id = a.id

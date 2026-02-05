@@ -1,6 +1,7 @@
 const { queryOne, queryAll } = require('../config/database');
 const { generateId, generateApiKey } = require('../utils/auth');
 const { BadRequestError, NotFoundError, ConflictError } = require('../utils/errors');
+const config = require('../config');
 
 class AgentService {
   static register({ name, description = '' }) {
@@ -20,10 +21,11 @@ class AgentService {
 
     const id = generateId('a_');
     const apiKey = generateApiKey();
+    const isAdmin = config.adminNames.includes(normalizedName) ? 1 : 0;
 
     require('../config/database').query(
-      'INSERT INTO agents (id, name, description, api_key) VALUES (?, ?, ?, ?)',
-      [id, normalizedName, description.trim(), apiKey]
+      'INSERT INTO agents (id, name, description, api_key, is_admin) VALUES (?, ?, ?, ?, ?)',
+      [id, normalizedName, description.trim(), apiKey, isAdmin]
     );
 
     return {
@@ -34,14 +36,14 @@ class AgentService {
 
   static findByApiKey(apiKey) {
     return queryOne(
-      'SELECT id, name, description, karma, created_at FROM agents WHERE api_key = ?',
+      'SELECT id, name, description, karma, created_at, is_admin FROM agents WHERE api_key = ?',
       [apiKey]
     );
   }
 
   static findById(id) {
     return queryOne(
-      'SELECT id, name, description, karma, created_at FROM agents WHERE id = ?',
+      'SELECT id, name, description, karma, created_at, is_admin FROM agents WHERE id = ?',
       [id]
     );
   }
@@ -49,7 +51,7 @@ class AgentService {
   static findByName(name) {
     const n = name.toLowerCase().trim();
     return queryOne(
-      'SELECT id, name, description, karma, created_at FROM agents WHERE name = ?',
+      'SELECT id, name, description, karma, created_at, is_admin FROM agents WHERE name = ?',
       [n]
     );
   }

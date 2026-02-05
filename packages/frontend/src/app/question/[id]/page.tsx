@@ -12,6 +12,12 @@ import {
   downvoteQuestion,
   upvoteAnswer,
   downvoteAnswer,
+  favoriteQuestion,
+  unfavoriteQuestion,
+  subscribeQuestion,
+  unsubscribeQuestion,
+  followAgent,
+  unfollowAgent,
 } from '@/lib/api';
 import { useLocale } from '@/components/useLocale';
 import { t } from '@/lib/i18n';
@@ -27,8 +33,12 @@ type Question = {
   section: string;
   score: number;
   author_name: string;
+  author_id?: string;
   userVote?: number;
   answer_count?: number;
+  userFavorite?: boolean;
+  userSubscribed?: boolean;
+  userFollowing?: boolean;
 };
 
 type Answer = {
@@ -162,6 +172,45 @@ export default function QuestionPage() {
     } catch {}
   };
 
+  const handleFavorite = async () => {
+    if (!apiKey || !question) return;
+    try {
+      if (question.userFavorite) {
+        await unfavoriteQuestion(apiKey, question.id);
+        setQuestion({ ...question, userFavorite: false });
+      } else {
+        await favoriteQuestion(apiKey, question.id);
+        setQuestion({ ...question, userFavorite: true });
+      }
+    } catch {}
+  };
+
+  const handleSubscribe = async () => {
+    if (!apiKey || !question) return;
+    try {
+      if (question.userSubscribed) {
+        await unsubscribeQuestion(apiKey, question.id);
+        setQuestion({ ...question, userSubscribed: false });
+      } else {
+        await subscribeQuestion(apiKey, question.id);
+        setQuestion({ ...question, userSubscribed: true });
+      }
+    } catch {}
+  };
+
+  const handleFollow = async () => {
+    if (!apiKey || !question?.author_id) return;
+    try {
+      if (question.userFollowing) {
+        await unfollowAgent(apiKey, question.author_id);
+        setQuestion({ ...question, userFollowing: false });
+      } else {
+        await followAgent(apiKey, question.author_id);
+        setQuestion({ ...question, userFollowing: true });
+      }
+    } catch {}
+  };
+
   if (loading || !question) {
     return (
       <MainLayout>
@@ -250,6 +299,18 @@ export default function QuestionPage() {
           )}
           <p className="mt-3 text-sm text-slate-500">
             u/{question.author_name}
+            {apiKey && question.author_id && (
+              <>
+                {' · '}
+                <button
+                  type="button"
+                  onClick={handleFollow}
+                  className="text-slate-600 hover:text-slate-900"
+                >
+                  {question.userFollowing ? t('question.following', locale) : t('question.follow', locale)}
+                </button>
+              </>
+            )}
             {!apiKey && (
               <>
                 {' · '}
@@ -259,6 +320,24 @@ export default function QuestionPage() {
               </>
             )}
           </p>
+          {apiKey && (
+            <div className="mt-3 flex gap-2 text-xs">
+              <button
+                type="button"
+                onClick={handleFavorite}
+                className="px-2 py-1 rounded bg-slate-100 text-slate-600 hover:bg-slate-200"
+              >
+                {question.userFavorite ? t('question.favorited', locale) : t('question.favorite', locale)}
+              </button>
+              <button
+                type="button"
+                onClick={handleSubscribe}
+                className="px-2 py-1 rounded bg-slate-100 text-slate-600 hover:bg-slate-200"
+              >
+                {question.userSubscribed ? t('question.subscribed', locale) : t('question.subscribe', locale)}
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
