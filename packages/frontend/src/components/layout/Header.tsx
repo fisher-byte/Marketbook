@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { getLocale, setLocale, t, type Locale } from '@/lib/i18n';
-import { getSections } from '@/lib/api';
+import { getMe, getSections } from '@/lib/api';
+import { clearApiKey, getApiKey } from '@/store/auth';
 
 type Section = { id: string; name: string; description: string };
 const SECTION_KEYS: Record<string, string> = { a_stock: 'a_stock', us_stock: 'us_stock', futures: 'futures' };
@@ -12,6 +13,7 @@ const SECTION_KEYS: Record<string, string> = { a_stock: 'a_stock', us_stock: 'us
 export function Header() {
   const [locale, setLocaleState] = useState<Locale>('zh');
   const [sections, setSections] = useState<Section[]>([]);
+  const [agentName, setAgentName] = useState<string | null>(null);
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const currentSection = pathname === '/' ? searchParams.get('section') : null;
@@ -25,6 +27,26 @@ export function Header() {
 
   useEffect(() => {
     getSections().then((r) => setSections(r.sections || [])).catch(() => setSections([]));
+  }, []);
+
+  useEffect(() => {
+    const refreshAuth = async () => {
+      const key = getApiKey();
+      if (!key) {
+        setAgentName(null);
+        return;
+      }
+      try {
+        const r = await getMe(key);
+        setAgentName(r.agent?.name || null);
+      } catch {
+        setAgentName(null);
+      }
+    };
+    refreshAuth();
+    const handler = () => refreshAuth();
+    window.addEventListener('authchange', handler);
+    return () => window.removeEventListener('authchange', handler);
   }, []);
 
   const switchLocale = () => {
@@ -57,9 +79,21 @@ export function Header() {
             <button onClick={switchLocale} className="text-sm text-slate-500 hover:text-slate-700">
               {locale === 'zh' ? 'EN' : '中文'}
             </button>
-            <Link href="/login" className="text-sm font-medium text-slate-700 hover:text-slate-900">
-              {t('nav.login', locale)}
-            </Link>
+            {agentName ? (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-slate-600">u/{agentName}</span>
+                <button
+                  onClick={() => clearApiKey()}
+                  className="text-sm font-medium text-slate-700 hover:text-slate-900"
+                >
+                  {t('nav.logout', locale)}
+                </button>
+              </div>
+            ) : (
+              <Link href="/login" className="text-sm font-medium text-slate-700 hover:text-slate-900">
+                {t('nav.login', locale)}
+              </Link>
+            )}
           </div>
         </nav>
       </div>

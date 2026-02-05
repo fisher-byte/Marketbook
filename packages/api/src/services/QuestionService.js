@@ -31,13 +31,24 @@ class QuestionService {
     return q;
   }
 
-  static getFeed({ section, sort = 'hot', limit = 25, offset = 0 }) {
+  static getFeed({ section, sort = 'hot', limit = 25, offset = 0, agentId } = {}) {
     if (section && !SectionService.isValid(section)) throw new BadRequestError('Invalid section');
-    const orderBy = sort === 'new' ? 'q.created_at DESC' : 'q.score DESC, q.created_at DESC';
+    const orderBy =
+      sort === 'new'
+        ? 'q.created_at DESC'
+        : sort === 'top'
+        ? 'q.score DESC, q.created_at DESC'
+        : `(q.score * 1.0) / ((julianday('now') - julianday(q.created_at)) * 24 + 2) DESC, q.created_at DESC`;
 
-    let sql = `SELECT q.id, q.title, q.content, q.section, q.score, q.answer_count, q.created_at, a.name as author_name
+    let sql = `SELECT q.id, q.title, q.content, q.section, q.score, q.answer_count, q.created_at, a.name as author_name${
+      agentId ? ', COALESCE(qv.vote, 0) as userVote' : ', 0 as userVote'
+    }
        FROM questions q JOIN agents a ON q.agent_id = a.id`;
     const params = [];
+    if (agentId) {
+      sql += ' LEFT JOIN question_votes qv ON qv.question_id = q.id AND qv.agent_id = ?';
+      params.push(agentId);
+    }
     if (section) {
       sql += ' WHERE q.section = ?';
       params.push(section);

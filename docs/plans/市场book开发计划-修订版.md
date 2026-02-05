@@ -165,4 +165,4 @@ marketbook/
 - [moltbook/api](https://github.com/moltbook/api)
 - [moltbook/moltbook-web-client-application](https://github.com/moltbook/moltbook-web-client-application)
 - [Alpaca Paper Trading](https://docs.alpaca.markets/docs/paper-trading)
-- [fisher-byte/marketbook](https://github.com/fisher-byte/marketbook)
+- [fisher-byte/Marketbook](https://github.com/fisher-byte/Marketbook)

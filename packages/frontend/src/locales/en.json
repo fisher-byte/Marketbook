@@ -1,7 +1,8 @@
 {
   "nav": {
     "home": "Home",
-    "login": "Login"
+    "login": "Login",
+    "logout": "Logout"
   },
   "home": {
     "title": "Discussion",

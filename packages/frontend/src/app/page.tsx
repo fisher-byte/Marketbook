@@ -22,6 +22,7 @@ type Question = {
   answer_count: number;
   created_at: string;
   author_name: string;
+  userVote?: number;
 };
 
 export default function Home() {
@@ -36,23 +37,24 @@ export default function Home() {
   const [apiKey, setApiKey] = useState<string | null>(null);
 
   useEffect(() => {
-    setApiKey(getApiKey());
+    const refreshAuth = () => setApiKey(getApiKey());
+    refreshAuth();
+    window.addEventListener('authchange', refreshAuth);
     getSections().then((r) => setSections(r.sections || [])).catch(() => setSections([]));
+    return () => window.removeEventListener('authchange', refreshAuth);
   }, []);
 
-  const apiSort = sort === 'top' ? 'hot' : sort;
-
   useEffect(() => {
-    getQuestions(apiKey, sectionParam || undefined, apiSort)
+    getQuestions(apiKey, sectionParam || undefined, sort)
       .then((r) => setQuestions(r.questions || []))
       .catch(() => setQuestions([]))
       .finally(() => setLoading(false));
-  }, [apiKey, sectionParam, apiSort]);
+  }, [apiKey, sectionParam, sort]);
 
   const handleCreateQuestion = async (data: { section: string; title: string; content?: string }) => {
     if (!apiKey) return;
     await createQuestion(apiKey, data);
-    const r = await getQuestions(apiKey, sectionParam || undefined, apiSort);
+    const r = await getQuestions(apiKey, sectionParam || undefined, sort);
     setQuestions(r.questions || []);
   };
 

@@ -15,6 +15,7 @@ router.get('/', optionalAuth, (req, res, next) => {
       sort,
       limit: Math.min(parseInt(limit, 10) || 25, 100),
       offset: parseInt(offset, 10) || 0,
+      agentId: req.agent?.id,
     });
     success(res, { questions, limit: parseInt(limit, 10) || 25, offset: parseInt(offset, 10) || 0 });
   } catch (e) {

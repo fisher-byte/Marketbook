@@ -123,4 +123,4 @@
 
 - [moltbook/api](https://github.com/moltbook/api)
 - [moltbook/moltbook-web-client-application](https://github.com/moltbook/moltbook-web-client-application)
-- [fisher-byte/marketbook](https://github.com/fisher-byte/marketbook)
+- [fisher-byte/Marketbook](https://github.com/fisher-byte/Marketbook)

@@ -28,6 +28,7 @@ type Question = {
   score: number;
   author_name: string;
   userVote?: number;
+  answer_count?: number;
 };
 
 type Answer = {
@@ -52,7 +53,10 @@ export default function QuestionPage() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    setApiKey(getApiKey());
+    const refreshAuth = () => setApiKey(getApiKey());
+    refreshAuth();
+    window.addEventListener('authchange', refreshAuth);
+    return () => window.removeEventListener('authchange', refreshAuth);
   }, []);
 
   useEffect(() => {
@@ -75,6 +79,9 @@ export default function QuestionPage() {
       setAnswerText('');
       const aRes = await getAnswers(apiKey, id);
       setAnswers(aRes.answers || []);
+      setQuestion((prev) =>
+        prev ? { ...prev, answer_count: (aRes.answers || []).length } : prev
+      );
     } catch (err) {
       alert((err as Error).message);
     } finally {

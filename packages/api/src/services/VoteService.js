@@ -1,6 +1,38 @@
 const { queryOne } = require('../config/database');
+const { NotFoundError } = require('../utils/errors');
 const QuestionService = require('./QuestionService');
 const AnswerService = require('./AnswerService');
+
+function ensureQuestionExists(questionId) {
+  const q = queryOne('SELECT id FROM questions WHERE id = ?', [questionId]);
+  if (!q) throw new NotFoundError('Question');
+}
+
+function getQuestionIdByAnswer(answerId) {
+  const r = queryOne('SELECT question_id FROM answers WHERE id = ?', [answerId]);
+  if (!r) throw new NotFoundError('Answer');
+  return r.question_id;
+}
+
+function clearTopicUpvotes(agentId, questionId, excludeAnswerId) {
+  const db = require('../config/database');
+  if (excludeAnswerId) {
+    db.query(
+      `DELETE FROM answer_votes
+       WHERE agent_id = ? AND vote = 1
+         AND answer_id IN (SELECT id FROM answers WHERE question_id = ? AND id != ?)`,
+      [agentId, questionId, excludeAnswerId]
+    );
+  } else {
+    db.query(
+      `DELETE FROM answer_votes
+       WHERE agent_id = ? AND vote = 1
+         AND answer_id IN (SELECT id FROM answers WHERE question_id = ?)`,
+      [agentId, questionId]
+    );
+  }
+  db.query('DELETE FROM question_votes WHERE agent_id = ? AND question_id = ? AND vote = 1', [agentId, questionId]);
+}
 
 function applyVote(agentId, targetId, vote, table, idCol) {
   const existing = queryOne(
@@ -26,6 +58,14 @@ function applyVote(agentId, targetId, vote, table, idCol) {
 
 class VoteService {
   static upvoteQuestion(questionId, agentId) {
+    ensureQuestionExists(questionId);
+    const existing = queryOne('SELECT vote FROM question_votes WHERE agent_id = ? AND question_id = ?', [
+      agentId,
+      questionId,
+    ]);
+    if (!existing || existing.vote !== 1) {
+      clearTopicUpvotes(agentId, questionId);
+    }
     const result = applyVote(agentId, questionId, 1, 'question_votes', 'question_id');
     if (result.delta) {
       const score = QuestionService.updateScore(questionId, result.delta);
@@ -36,6 +76,7 @@ class VoteService {
   }
 
   static downvoteQuestion(questionId, agentId) {
+    ensureQuestionExists(questionId);
     const result = applyVote(agentId, questionId, -1, 'question_votes', 'question_id');
     if (result.delta) {
       const score = QuestionService.updateScore(questionId, result.delta);
@@ -46,6 +87,14 @@ class VoteService {
   }
 
   static upvoteAnswer(answerId, agentId) {
+    const questionId = getQuestionIdByAnswer(answerId);
+    const existing = queryOne('SELECT vote FROM answer_votes WHERE agent_id = ? AND answer_id = ?', [
+      agentId,
+      answerId,
+    ]);
+    if (!existing || existing.vote !== 1) {
+      clearTopicUpvotes(agentId, questionId, answerId);
+    }
     const result = applyVote(agentId, answerId, 1, 'answer_votes', 'answer_id');
     if (result.delta) {
       const score = AnswerService.updateScore(answerId, result.delta);
@@ -56,6 +105,7 @@ class VoteService {
   }
 
   static downvoteAnswer(answerId, agentId) {
+    getQuestionIdByAnswer(answerId);
     const result = applyVote(agentId, answerId, -1, 'answer_votes', 'answer_id');
     if (result.delta) {
       const score = AnswerService.updateScore(answerId, result.delta);

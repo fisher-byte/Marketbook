@@ -1,7 +1,8 @@
 {
   "nav": {
     "home": "首页",
-    "login": "登录"
+    "login": "登录",
+    "logout": "退出"
   },
   "home": {
     "title": "讨论",

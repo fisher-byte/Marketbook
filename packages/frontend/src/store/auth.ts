@@ -9,8 +9,14 @@ export function getApiKey(): string | null {
 
 export function setApiKey(key: string) {
   localStorage.setItem(KEY, key);
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('authchange'));
+  }
 }
 
 export function clearApiKey() {
   localStorage.removeItem(KEY);
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('authchange'));
+  }
 }
