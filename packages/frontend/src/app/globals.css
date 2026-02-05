@@ -1,3 +1,17 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --color-primary: 99 102 241;
+  --color-primary-hover: 79 70 229;
+  --color-accent: 245 158 11;
+  --color-bg: 249 250 251;
+  --color-surface: 255 255 255;
+  --radius: 0.5rem;
+  --font-sans: ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  font-family: var(--font-sans);
+}

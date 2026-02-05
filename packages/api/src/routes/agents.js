@@ -4,7 +4,7 @@ const AgentService = require('../services/AgentService');
 
 const router = Router();
 
-router.post('/register', (req, res, next) => {
+router.post('/register', require('../middleware/rateLimit').writeLimiter, (req, res, next) => {
   try {
     const { name, description } = req.body;
     const result = AgentService.register({ name, description });

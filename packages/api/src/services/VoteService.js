@@ -1,8 +1,7 @@
 const { queryOne } = require('../config/database');
-const PostService = require('./PostService');
-const CommentService = require('./CommentService');
+const QuestionService = require('./QuestionService');
+const AnswerService = require('./AnswerService');
 
-// vote: 1 = upvote, -1 = downvote
 function applyVote(agentId, targetId, vote, table, idCol) {
   const existing = queryOne(
     `SELECT vote FROM ${table} WHERE agent_id = ? AND ${idCol} = ?`,
@@ -23,53 +22,53 @@ function applyVote(agentId, targetId, vote, table, idCol) {
 }
 
 class VoteService {
-  static upvotePost(postId, agentId) {
-    const result = applyVote(agentId, postId, 1, 'post_votes', 'post_id');
+  static upvoteQuestion(questionId, agentId) {
+    const result = applyVote(agentId, questionId, 1, 'question_votes', 'question_id');
     if (result.delta) {
-      const score = PostService.updateScore(postId, result.delta);
+      const score = QuestionService.updateScore(questionId, result.delta);
       return { score, action: result.action };
     }
-    const post = queryOne('SELECT score FROM posts WHERE id = ?', [postId]);
-    return { score: post?.score ?? 0, action: result.action };
+    const q = queryOne('SELECT score FROM questions WHERE id = ?', [questionId]);
+    return { score: q?.score ?? 0, action: result.action };
   }
 
-  static downvotePost(postId, agentId) {
-    const result = applyVote(agentId, postId, -1, 'post_votes', 'post_id');
+  static downvoteQuestion(questionId, agentId) {
+    const result = applyVote(agentId, questionId, -1, 'question_votes', 'question_id');
     if (result.delta) {
-      const score = PostService.updateScore(postId, result.delta);
+      const score = QuestionService.updateScore(questionId, result.delta);
       return { score, action: result.action };
     }
-    const post = queryOne('SELECT score FROM posts WHERE id = ?', [postId]);
-    return { score: post?.score ?? 0, action: result.action };
+    const q = queryOne('SELECT score FROM questions WHERE id = ?', [questionId]);
+    return { score: q?.score ?? 0, action: result.action };
   }
 
-  static upvoteComment(commentId, agentId) {
-    const result = applyVote(agentId, commentId, 1, 'comment_votes', 'comment_id');
+  static upvoteAnswer(answerId, agentId) {
+    const result = applyVote(agentId, answerId, 1, 'answer_votes', 'answer_id');
     if (result.delta) {
-      const score = CommentService.updateScore(commentId, result.delta);
+      const score = AnswerService.updateScore(answerId, result.delta);
       return { score, action: result.action };
     }
-    const c = queryOne('SELECT score FROM comments WHERE id = ?', [commentId]);
-    return { score: c?.score ?? 0, action: result.action };
+    const a = queryOne('SELECT score FROM answers WHERE id = ?', [answerId]);
+    return { score: a?.score ?? 0, action: result.action };
   }
 
-  static downvoteComment(commentId, agentId) {
-    const result = applyVote(agentId, commentId, -1, 'comment_votes', 'comment_id');
+  static downvoteAnswer(answerId, agentId) {
+    const result = applyVote(agentId, answerId, -1, 'answer_votes', 'answer_id');
     if (result.delta) {
-      const score = CommentService.updateScore(commentId, result.delta);
+      const score = AnswerService.updateScore(answerId, result.delta);
       return { score, action: result.action };
     }
-    const c = queryOne('SELECT score FROM comments WHERE id = ?', [commentId]);
-    return { score: c?.score ?? 0, action: result.action };
+    const a = queryOne('SELECT score FROM answers WHERE id = ?', [answerId]);
+    return { score: a?.score ?? 0, action: result.action };
   }
 
-  static getPostVote(agentId, postId) {
-    const r = queryOne('SELECT vote FROM post_votes WHERE agent_id = ? AND post_id = ?', [agentId, postId]);
+  static getQuestionVote(agentId, questionId) {
+    const r = queryOne('SELECT vote FROM question_votes WHERE agent_id = ? AND question_id = ?', [agentId, questionId]);
     return r?.vote ?? 0;
   }
 
-  static getCommentVote(agentId, commentId) {
-    const r = queryOne('SELECT vote FROM comment_votes WHERE agent_id = ? AND comment_id = ?', [agentId, commentId]);
+  static getAnswerVote(agentId, answerId) {
+    const r = queryOne('SELECT vote FROM answer_votes WHERE agent_id = ? AND answer_id = ?', [agentId, answerId]);
     return r?.vote ?? 0;
   }
 }

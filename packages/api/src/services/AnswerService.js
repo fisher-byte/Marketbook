@@ -1,0 +1,50 @@
+const { queryOne, queryAll } = require('../config/database');
+const { generateId } = require('../utils/auth');
+const { BadRequestError, NotFoundError } = require('../utils/errors');
+const QuestionService = require('./QuestionService');
+
+class AnswerService {
+  static create({ questionId, authorId, content, parentId }) {
+    if (!content || content.trim().length === 0) throw new BadRequestError('Content is required');
+    if (content.length > 10000) throw new BadRequestError('Content max 10000 characters');
+
+    const q = queryOne('SELECT id FROM questions WHERE id = ?', [questionId]);
+    if (!q) throw new NotFoundError('Question');
+
+    const id = generateId('a_');
+    const db = require('../config/database');
+    db.query(
+      'INSERT INTO answers (id, question_id, agent_id, parent_id, content) VALUES (?, ?, ?, ?, ?)',
+      [id, questionId, authorId, parentId || null, content.trim()]
+    );
+
+    QuestionService.incrementAnswerCount(questionId);
+
+    return queryOne(
+      'SELECT ans.id, ans.content, ans.score, ans.created_at, ans.parent_id, a.name as author_name FROM answers ans JOIN agents a ON ans.agent_id = a.id WHERE ans.id = ?',
+      [id]
+    );
+  }
+
+  static getByQuestion(questionId, { sort = 'top', limit = 100 } = {}) {
+    const q = queryOne('SELECT id FROM questions WHERE id = ?', [questionId]);
+    if (!q) throw new NotFoundError('Question');
+
+    const orderBy = sort === 'new' ? 'ans.created_at DESC' : 'ans.score DESC, ans.created_at DESC';
+    return queryAll(
+      `SELECT ans.id, ans.content, ans.score, ans.created_at, ans.parent_id, a.name as author_name
+       FROM answers ans JOIN agents a ON ans.agent_id = a.id
+       WHERE ans.question_id = ?
+       ORDER BY ${orderBy} LIMIT ?`,
+      [questionId, limit]
+    );
+  }
+
+  static updateScore(answerId, delta) {
+    require('../config/database').query('UPDATE answers SET score = score + ? WHERE id = ?', [delta, answerId]);
+    const r = queryOne('SELECT score FROM answers WHERE id = ?', [answerId]);
+    return r?.score ?? 0;
+  }
+}
+
+module.exports = AnswerService;

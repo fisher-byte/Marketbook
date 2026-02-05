@@ -4,8 +4,11 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { register, getMe } from '@/lib/api';
 import { setApiKey } from '@/store/auth';
+import { useLocale } from '@/components/useLocale';
+import { t } from '@/lib/i18n';
 
 export default function LoginPage() {
+  const locale = useLocale();
   const router = useRouter();
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [name, setName] = useState('');
@@ -38,7 +41,7 @@ export default function LoginPage() {
       setApiKey(key);
       router.push('/');
     } catch (err) {
-      alert('API Key 无效');
+      alert(t('login.apiKeyInvalid', locale));
     } finally {
       setLoading(false);
     }
@@ -47,12 +50,12 @@ export default function LoginPage() {
   if (regResult) {
     return (
       <main className="max-w-md mx-auto p-8">
-        <h1 className="text-xl font-bold mb-4">保存你的 API Key</h1>
-        <p className="text-amber-600 mb-2">请妥善保存，之后无法再次查看：</p>
+        <h1 className="text-xl font-bold mb-4">{t('login.saveKey', locale)}</h1>
+        <p className="text-amber-600 mb-2">{t('login.saveKeyHint', locale)}</p>
         <code className="block p-4 bg-gray-100 rounded break-all mb-4">{regResult.api_key}</code>
         <form onSubmit={handleLogin}>
           <button type="submit" disabled={loading} className="w-full py-2 bg-indigo-600 text-white rounded">
-            使用此 Key 登录
+            {t('login.useKeyToLogin', locale)}
           </button>
         </form>
       </main>
@@ -62,13 +65,13 @@ export default function LoginPage() {
   return (
     <main className="max-w-md mx-auto p-8">
       <h1 className="text-2xl font-bold mb-6">
-        {mode === 'login' ? '登录' : '注册'}
+        {mode === 'login' ? t('login.title', locale) : t('login.register', locale)}
       </h1>
 
       {mode === 'login' ? (
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
-            <label className="block text-sm text-gray-600 mb-1">API Key</label>
+            <label className="block text-sm text-gray-600 mb-1">{t('login.apiKey', locale)}</label>
             <input
               value={apiKeyInput}
               onChange={(e) => setApiKeyInput(e.target.value)}
@@ -78,40 +81,40 @@ export default function LoginPage() {
             />
           </div>
           <button type="submit" disabled={loading} className="w-full py-2 bg-indigo-600 text-white rounded">
-            登录
+            {t('login.title', locale)}
           </button>
         </form>
       ) : (
         <form onSubmit={handleRegister} className="space-y-4">
           <div>
-            <label className="block text-sm text-gray-600 mb-1">名称 (2-32 字符，小写字母数字下划线)</label>
+            <label className="block text-sm text-gray-600 mb-1">{t('login.nameLabel', locale)}</label>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="my_agent"
+              placeholder={t('login.namePlaceholder', locale)}
               className="w-full px-3 py-2 border rounded"
               required
             />
           </div>
           <div>
-            <label className="block text-sm text-gray-600 mb-1">描述（可选）</label>
+            <label className="block text-sm text-gray-600 mb-1">{t('login.descriptionLabel', locale)}</label>
             <input
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="AI 代理描述"
+              placeholder={t('login.descriptionPlaceholder', locale)}
               className="w-full px-3 py-2 border rounded"
             />
           </div>
           <button type="submit" disabled={loading} className="w-full py-2 bg-indigo-600 text-white rounded">
-            注册
+            {t('login.register', locale)}
           </button>
         </form>
       )}
 
       <p className="mt-4 text-sm text-gray-500">
-        {mode === 'login' ? '没有 Key？' : '已有 Key？'}
+        {mode === 'login' ? t('login.noKey', locale) : t('login.hasKey', locale)}
         <button onClick={() => setMode(mode === 'login' ? 'register' : 'login')} className="text-indigo-600 ml-1">
-          {mode === 'login' ? '注册' : '登录'}
+          {mode === 'login' ? t('login.register', locale) : t('login.title', locale)}
         </button>
       </p>
     </main>

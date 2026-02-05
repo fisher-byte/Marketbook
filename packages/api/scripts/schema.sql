@@ -1,5 +1,5 @@
--- Marketbook 数据库 Schema (SQLite)
--- 参考 moltbook，精简 + 模拟交易扩展
+-- Marketbook 数据库 Schema (SQLite) v2
+-- 类知乎问答 + 社区分区（A股、美股、期货）
 
 -- AI 代理
 CREATE TABLE IF NOT EXISTS agents (
@@ -11,83 +11,49 @@ CREATE TABLE IF NOT EXISTS agents (
   created_at TEXT DEFAULT (datetime('now'))
 );
 
--- 帖子（单一信息流，无社区分版）
-CREATE TABLE IF NOT EXISTS posts (
+-- 问题（原 posts，增加 section）
+CREATE TABLE IF NOT EXISTS questions (
   id TEXT PRIMARY KEY,
   agent_id TEXT NOT NULL,
+  section TEXT NOT NULL,
   title TEXT NOT NULL,
   content TEXT,
-  url TEXT,
   score INTEGER DEFAULT 0,
-  comment_count INTEGER DEFAULT 0,
+  answer_count INTEGER DEFAULT 0,
   created_at TEXT DEFAULT (datetime('now')),
   FOREIGN KEY (agent_id) REFERENCES agents(id)
 );
 
--- 评论
-CREATE TABLE IF NOT EXISTS comments (
+-- 回答（原 comments）
+CREATE TABLE IF NOT EXISTS answers (
   id TEXT PRIMARY KEY,
-  post_id TEXT NOT NULL,
+  question_id TEXT NOT NULL,
   agent_id TEXT NOT NULL,
   parent_id TEXT,
   content TEXT NOT NULL,
   score INTEGER DEFAULT 0,
   created_at TEXT DEFAULT (datetime('now')),
-  FOREIGN KEY (post_id) REFERENCES posts(id),
+  FOREIGN KEY (question_id) REFERENCES questions(id),
   FOREIGN KEY (agent_id) REFERENCES agents(id),
-  FOREIGN KEY (parent_id) REFERENCES comments(id)
+  FOREIGN KEY (parent_id) REFERENCES answers(id)
 );
 
--- 投票（帖子）
-CREATE TABLE IF NOT EXISTS post_votes (
+-- 问题点赞
+CREATE TABLE IF NOT EXISTS question_votes (
   agent_id TEXT NOT NULL,
-  post_id TEXT NOT NULL,
+  question_id TEXT NOT NULL,
   vote INTEGER NOT NULL,
-  PRIMARY KEY (agent_id, post_id),
+  PRIMARY KEY (agent_id, question_id),
   FOREIGN KEY (agent_id) REFERENCES agents(id),
-  FOREIGN KEY (post_id) REFERENCES posts(id)
+  FOREIGN KEY (question_id) REFERENCES questions(id)
 );
 
--- 投票（评论）
-CREATE TABLE IF NOT EXISTS comment_votes (
+-- 回答点赞
+CREATE TABLE IF NOT EXISTS answer_votes (
   agent_id TEXT NOT NULL,
-  comment_id TEXT NOT NULL,
+  answer_id TEXT NOT NULL,
   vote INTEGER NOT NULL,
-  PRIMARY KEY (agent_id, comment_id),
+  PRIMARY KEY (agent_id, answer_id),
   FOREIGN KEY (agent_id) REFERENCES agents(id),
-  FOREIGN KEY (comment_id) REFERENCES comments(id)
-);
-
--- 模拟交易：账户
-CREATE TABLE IF NOT EXISTS accounts (
-  agent_id TEXT PRIMARY KEY,
-  balance REAL NOT NULL DEFAULT 100000,
-  initial_balance REAL NOT NULL DEFAULT 100000,
-  created_at TEXT DEFAULT (datetime('now')),
-  FOREIGN KEY (agent_id) REFERENCES agents(id)
-);
-
--- 模拟交易：持仓
-CREATE TABLE IF NOT EXISTS positions (
-  id TEXT PRIMARY KEY,
-  agent_id TEXT NOT NULL,
-  symbol TEXT NOT NULL,
-  shares REAL NOT NULL,
-  avg_cost REAL NOT NULL,
-  created_at TEXT DEFAULT (datetime('now')),
-  FOREIGN KEY (agent_id) REFERENCES agents(id),
-  UNIQUE(agent_id, symbol)
-);
-
--- 模拟交易：订单记录
-CREATE TABLE IF NOT EXISTS orders (
-  id TEXT PRIMARY KEY,
-  agent_id TEXT NOT NULL,
-  symbol TEXT NOT NULL,
-  side TEXT NOT NULL,
-  shares REAL NOT NULL,
-  price REAL NOT NULL,
-  pnl REAL,
-  created_at TEXT DEFAULT (datetime('now')),
-  FOREIGN KEY (agent_id) REFERENCES agents(id)
+  FOREIGN KEY (answer_id) REFERENCES answers(id)
 );

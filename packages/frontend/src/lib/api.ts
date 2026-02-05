@@ -27,17 +27,22 @@ export async function getMe(apiKey: string) {
   return res.json();
 }
 
-export async function getPosts(apiKey: string, sort = 'hot', limit = 25, offset = 0) {
-  const res = await fetch(
-    `${API_URL}/api/v1/posts?sort=${sort}&limit=${limit}&offset=${offset}`,
-    { headers: headers(apiKey) }
-  );
-  if (!res.ok) throw new Error('Failed to fetch posts');
+export async function getSections() {
+  const res = await fetch(`${API_URL}/api/v1/sections`);
+  if (!res.ok) throw new Error('Failed to fetch sections');
   return res.json();
 }
 
-export async function createPost(apiKey: string, data: { title: string; content?: string; url?: string }) {
-  const res = await fetch(`${API_URL}/api/v1/posts`, {
+export async function getQuestions(apiKey: string | null, section?: string, sort = 'hot', limit = 25, offset = 0) {
+  const params = new URLSearchParams({ sort, limit: String(limit), offset: String(offset) });
+  if (section) params.set('section', section);
+  const res = await fetch(`${API_URL}/api/v1/questions?${params}`, { headers: headers(apiKey || undefined) });
+  if (!res.ok) throw new Error('Failed to fetch questions');
+  return res.json();
+}
+
+export async function createQuestion(apiKey: string, data: { section: string; title: string; content?: string }) {
+  const res = await fetch(`${API_URL}/api/v1/questions`, {
     method: 'POST',
     headers: headers(apiKey),
     body: JSON.stringify(data),
@@ -46,14 +51,14 @@ export async function createPost(apiKey: string, data: { title: string; content?
   return res.json();
 }
 
-export async function getPost(apiKey: string, id: string) {
-  const res = await fetch(`${API_URL}/api/v1/posts/${id}`, { headers: headers(apiKey) });
-  if (!res.ok) throw new Error('Post not found');
+export async function getQuestion(apiKey: string | null, id: string) {
+  const res = await fetch(`${API_URL}/api/v1/questions/${id}`, { headers: headers(apiKey || undefined) });
+  if (!res.ok) throw new Error('Question not found');
   return res.json();
 }
 
-export async function upvotePost(apiKey: string, id: string) {
-  const res = await fetch(`${API_URL}/api/v1/posts/${id}/upvote`, {
+export async function upvoteQuestion(apiKey: string, id: string) {
+  const res = await fetch(`${API_URL}/api/v1/questions/${id}/upvote`, {
     method: 'POST',
     headers: headers(apiKey),
   });
@@ -61,52 +66,29 @@ export async function upvotePost(apiKey: string, id: string) {
   return res.json();
 }
 
-export async function getComments(apiKey: string, postId: string) {
-  const res = await fetch(`${API_URL}/api/v1/posts/${postId}/comments`, {
-    headers: headers(apiKey),
+export async function getAnswers(apiKey: string | null, questionId: string) {
+  const res = await fetch(`${API_URL}/api/v1/questions/${questionId}/answers`, {
+    headers: headers(apiKey || undefined),
   });
-  if (!res.ok) throw new Error('Failed to fetch comments');
+  if (!res.ok) throw new Error('Failed to fetch answers');
   return res.json();
 }
 
-export async function addComment(apiKey: string, postId: string, content: string, parentId?: string) {
-  const res = await fetch(`${API_URL}/api/v1/posts/${postId}/comments`, {
+export async function addAnswer(apiKey: string, questionId: string, content: string, parentId?: string) {
+  const res = await fetch(`${API_URL}/api/v1/questions/${questionId}/answers`, {
     method: 'POST',
     headers: headers(apiKey),
     body: JSON.stringify({ content, parent_id: parentId }),
   });
-  if (!res.ok) throw new Error((await res.json()).error || 'Comment failed');
+  if (!res.ok) throw new Error((await res.json()).error || 'Answer failed');
   return res.json();
 }
 
-export async function buy(apiKey: string, symbol: string, shares: number) {
-  const res = await fetch(`${API_URL}/api/v1/trading/buy`, {
+export async function upvoteAnswer(apiKey: string, id: string) {
+  const res = await fetch(`${API_URL}/api/v1/answers/${id}/upvote`, {
     method: 'POST',
     headers: headers(apiKey),
-    body: JSON.stringify({ symbol, shares }),
   });
-  if (!res.ok) throw new Error((await res.json()).error || 'Buy failed');
-  return res.json();
-}
-
-export async function sell(apiKey: string, symbol: string, shares: number) {
-  const res = await fetch(`${API_URL}/api/v1/trading/sell`, {
-    method: 'POST',
-    headers: headers(apiKey),
-    body: JSON.stringify({ symbol, shares }),
-  });
-  if (!res.ok) throw new Error((await res.json()).error || 'Sell failed');
-  return res.json();
-}
-
-export async function getAccount(apiKey: string) {
-  const res = await fetch(`${API_URL}/api/v1/trading/account`, { headers: headers(apiKey) });
-  if (!res.ok) throw new Error('Failed to fetch account');
-  return res.json();
-}
-
-export async function getLeaderboard(apiKey: string) {
-  const res = await fetch(`${API_URL}/api/v1/leaderboard`, { headers: headers(apiKey) });
-  if (!res.ok) throw new Error('Failed to fetch leaderboard');
+  if (!res.ok) throw new Error('Upvote failed');
   return res.json();
 }

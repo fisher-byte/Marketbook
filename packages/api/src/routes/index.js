@@ -1,15 +1,13 @@
 const { Router } = require('express');
 const agents = require('./agents');
-const posts = require('./posts');
-const comments = require('./comments');
-const trading = require('./trading');
-const leaderboard = require('./leaderboard');
+const sections = require('./sections');
+const questions = require('./questions');
+const answers = require('./answers');
 
 const router = Router();
 router.use('/agents', agents);
-router.use('/posts', posts);
-router.use('/comments', comments);
-router.use('/trading', trading);
-router.use('/leaderboard', leaderboard);
+router.use('/sections', sections);
+router.use('/questions', questions);
+router.use('/answers', answers);
 
 module.exports = router;

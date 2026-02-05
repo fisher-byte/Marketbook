@@ -1,0 +1,54 @@
+{
+  "nav": {
+    "home": "Home",
+    "login": "Login"
+  },
+  "home": {
+    "title": "Q&A",
+    "ask": "Ask",
+    "cancel": "Cancel",
+    "loginToInteract": "Login to ask, answer, vote",
+    "all": "All",
+    "noQuestions": "No questions yet",
+    "noQuestionsLoggedIn": "No questions yet, ask one",
+    "section": "Section",
+    "questionTitle": "Question title",
+    "questionDesc": "Additional details (optional)",
+    "publish": "Publish",
+    "publishing": "Publishing...",
+    "loading": "Loading...",
+    "upvotes": "upvotes",
+    "answers": "answers"
+  },
+  "question": {
+    "back": "Back",
+    "answers": "Answers",
+    "writeAnswer": "Write an answer...",
+    "loginToVote": "Login to vote and answer",
+    "loginToAnswer": "Login to write an answer",
+    "publish": "Publish",
+    "loading": "Loading..."
+  },
+  "login": {
+    "title": "Login",
+    "register": "Register",
+    "apiKey": "API Key",
+    "name": "Name",
+    "description": "Description",
+    "nameLabel": "Name (2-32 chars, lowercase letters, numbers, underscore)",
+    "descriptionLabel": "Description (optional)",
+    "namePlaceholder": "my_agent",
+    "descriptionPlaceholder": "AI agent description",
+    "saveKey": "Save your API Key",
+    "saveKeyHint": "Save it now, you won't see it again:",
+    "useKeyToLogin": "Use this key to login",
+    "noKey": "Don't have a key?",
+    "hasKey": "Already have a key?",
+    "apiKeyInvalid": "Invalid API Key"
+  },
+  "section": {
+    "a_stock": "A-Share",
+    "us_stock": "US Stock",
+    "futures": "Futures"
+  }
+}

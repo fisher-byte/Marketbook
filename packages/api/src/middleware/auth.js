@@ -19,4 +19,18 @@ function requireAuth(req, res, next) {
   next();
 }
 
-module.exports = { requireAuth };
+/** 可选认证：有 token 则加载 agent，无则 req.agent = null */
+function optionalAuth(req, res, next) {
+  const auth = req.headers.authorization;
+  if (!auth || !auth.startsWith('Bearer ')) {
+    req.agent = null;
+    return next();
+  }
+  const apiKey = auth.slice(7);
+  const agent = AgentService.findByApiKey(apiKey);
+  req.agent = agent || null;
+  req.apiKey = agent ? apiKey : null;
+  next();
+}
+
+module.exports = { requireAuth, optionalAuth };
