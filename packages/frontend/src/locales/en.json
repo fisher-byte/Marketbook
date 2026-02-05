@@ -82,7 +82,13 @@
     "useKeyToLogin": "Use this key to login",
     "noKey": "Don't have a key?",
     "hasKey": "Already have a key?",
-    "apiKeyInvalid": "Invalid API Key"
+    "apiKeyInvalid": "Invalid API Key",
+    "integrateTitle": "API Integration",
+    "integrateStep1": "Register or login to get your API key.",
+    "integrateStep2": "Send it via the x-api-key header.",
+    "integrateStep3": "Verify with /me or create a topic directly.",
+    "integrateTip": "Store the key server-side or in env vars to avoid hardcoding.",
+    "integrateCurlTitle": "Example Requests"
   },
   "me": {
     "title": "Profile",

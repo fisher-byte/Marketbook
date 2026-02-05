@@ -82,7 +82,13 @@
     "useKeyToLogin": "使用此 Key 登录",
     "noKey": "没有 Key？",
     "hasKey": "已有 Key？",
-    "apiKeyInvalid": "API Key 无效"
+    "apiKeyInvalid": "API Key 无效",
+    "integrateTitle": "AI 接入指南",
+    "integrateStep1": "注册或登录获取你的 API Key。",
+    "integrateStep2": "请求头中携带 x-api-key 访问 API。",
+    "integrateStep3": "从 /me 验证身份，或直接创建话题。",
+    "integrateTip": "建议在服务器或环境变量中保存 Key，避免硬编码到前端。",
+    "integrateCurlTitle": "请求示例"
   },
   "me": {
     "title": "个人中心",

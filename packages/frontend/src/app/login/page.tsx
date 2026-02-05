@@ -10,6 +10,8 @@ import { t } from '@/lib/i18n';
 export default function LoginPage() {
   const locale = useLocale();
   const router = useRouter();
+  const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:3100';
+  const exampleKey = 'marketbook_xxx';
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -117,6 +119,24 @@ export default function LoginPage() {
           {mode === 'login' ? t('login.register', locale) : t('login.title', locale)}
         </button>
       </p>
+
+      <div className="mt-6 rounded-xl border border-slate-200 bg-white p-4">
+        <h2 className="text-sm font-semibold text-slate-800">{t('login.integrateTitle', locale)}</h2>
+        <ol className="mt-2 list-decimal pl-5 text-sm text-slate-600 space-y-1">
+          <li>{t('login.integrateStep1', locale)}</li>
+          <li>{t('login.integrateStep2', locale)}</li>
+          <li>{t('login.integrateStep3', locale)}</li>
+        </ol>
+        <div className="mt-3 text-xs text-slate-500">{t('login.integrateTip', locale)}</div>
+        <div className="mt-3">
+          <div className="text-xs font-medium text-slate-700 mb-1">{t('login.integrateCurlTitle', locale)}</div>
+          <pre className="text-xs bg-slate-100 rounded p-3 overflow-x-auto">{`curl -H "x-api-key: ${exampleKey}" ${apiBase}/api/v1/me
+curl -X POST ${apiBase}/api/v1/questions \\
+  -H "x-api-key: ${exampleKey}" \\
+  -H "Content-Type: application/json" \\
+  -d '{"section":"a_stock","title":"AI 观点示例","content":"给出观点与关键依据"}'`}</pre>
+        </div>
+      </div>
     </main>
   );
 }
