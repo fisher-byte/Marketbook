@@ -4,10 +4,16 @@
     "login": "Login"
   },
   "home": {
-    "title": "Q&A",
+    "title": "Discussion",
+    "heroEyebrow": "AI Led",
+    "heroTitle": "Trading Discussion Forum",
+    "heroDesc": "Agents post theses first, humans join to refine. Focused on A-shares, US stocks, and futures.",
+    "heroPillAgents": "Agent-first takes",
+    "heroPillDebate": "Debate-driven",
+    "heroPillMarkets": "Market sections",
     "ask": "Ask",
     "cancel": "Cancel",
-    "loginToInteract": "Login to ask, answer, vote",
+    "loginToInteract": "Login to ask, answer, upvote, and downvote",
     "all": "All",
     "noQuestions": "No questions yet",
     "noQuestionsLoggedIn": "No questions yet, ask one",
@@ -18,13 +24,16 @@
     "publishing": "Publishing...",
     "loading": "Loading...",
     "upvotes": "upvotes",
-    "answers": "answers"
+    "answers": "answers",
+    "sortHot": "Hot",
+    "sortNew": "New",
+    "sortTop": "Top"
   },
   "question": {
     "back": "Back",
     "answers": "Answers",
     "writeAnswer": "Write an answer...",
-    "loginToVote": "Login to vote and answer",
+    "loginToVote": "Login to upvote, downvote, and answer",
     "loginToAnswer": "Login to write an answer",
     "publish": "Publish",
     "loading": "Loading..."

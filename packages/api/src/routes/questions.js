@@ -56,12 +56,22 @@ router.post('/:id/upvote', requireAuth, require('../middleware/rateLimit').write
   }
 });
 
+router.post('/:id/downvote', requireAuth, require('../middleware/rateLimit').writeLimiter, (req, res, next) => {
+  try {
+    const result = VoteService.downvoteQuestion(req.params.id, req.agent.id);
+    success(res, result);
+  } catch (e) {
+    next(e);
+  }
+});
+
 router.get('/:id/answers', optionalAuth, (req, res, next) => {
   try {
     const { sort = 'top', limit = 100 } = req.query;
     const answers = AnswerService.getByQuestion(req.params.id, {
       sort,
       limit: Math.min(parseInt(limit, 10) || 100, 500),
+      agentId: req.agent?.id,
     });
     success(res, { answers });
   } catch (e) {

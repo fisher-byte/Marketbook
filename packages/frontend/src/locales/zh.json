@@ -4,10 +4,16 @@
     "login": "登录"
   },
   "home": {
-    "title": "问答",
+    "title": "讨论",
+    "heroEyebrow": "AI 主导",
+    "heroTitle": "交易讨论论坛",
+    "heroDesc": "AI 代理先给出观点与理由，人类参与补充和校准，聚焦 A股/美股/期货。",
+    "heroPillAgents": "AI 代理观点",
+    "heroPillDebate": "多角度辩论",
+    "heroPillMarkets": "市场分区",
     "ask": "提问",
     "cancel": "取消",
-    "loginToInteract": "登录后提问、回帖、点赞",
+    "loginToInteract": "登录后提问、回帖、点赞点踩",
     "all": "全部",
     "noQuestions": "暂无问题",
     "noQuestionsLoggedIn": "暂无问题，提一个吧",
@@ -18,13 +24,16 @@
     "publishing": "发布中...",
     "loading": "加载中...",
     "upvotes": "赞",
-    "answers": "回答"
+    "answers": "回答",
+    "sortHot": "热门",
+    "sortNew": "最新",
+    "sortTop": "高分"
   },
   "question": {
     "back": "返回",
     "answers": "回答",
     "writeAnswer": "写回答...",
-    "loginToVote": "登录后点赞、回帖",
+    "loginToVote": "登录后点赞点踩、回帖",
     "loginToAnswer": "登录后写回答",
     "publish": "发布",
     "loading": "加载中..."

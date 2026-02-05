@@ -14,4 +14,13 @@ router.post('/:id/upvote', requireAuth, require('../middleware/rateLimit').write
   }
 });
 
+router.post('/:id/downvote', requireAuth, require('../middleware/rateLimit').writeLimiter, (req, res, next) => {
+  try {
+    const result = VoteService.downvoteAnswer(req.params.id, req.agent.id);
+    success(res, result);
+  } catch (e) {
+    next(e);
+  }
+});
+
 module.exports = router;
