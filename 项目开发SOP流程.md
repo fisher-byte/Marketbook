@@ -1,4 +1,4 @@
-# RadarAI 项目开发 SOP 流程
+# Marketbook 项目开发 SOP 流程
 
 > 从计划到完成的一整套标准操作流程，便于团队协作与 AI 执行时保持一致。
 
@@ -54,18 +54,18 @@
 
 ### 6. 同步（Git + 部署）
 
-按 `项目要素.md` 第六节执行：
+按 `项目要素.md` 与 `docs/备份与同步.md` 执行：
 
 1. **创建分支**：`git checkout -b backup-YYYYMMDD-描述`
 2. **提交**：`git add -A` → `git commit -m "描述"`
 3. **推送到 GitHub**：`git push -u origin backup-YYYYMMDD-描述`
-4. **推送到服务器**（每次迭代建议执行）：
+4. **推送到服务器**（若需部署，按 `docs/备份与同步.md` 配置后执行）：
    ```bash
+   # 使用环境变量：SERVER=user@host DEPLOY_PATH=/path/to/project
    cd 项目根目录
-   tar --exclude='.git' --exclude='.env' --exclude='__pycache__' --exclude='*.pyc' \
-       --exclude='app.log' --exclude='summary_cache.json' --exclude='data/github_stats_cache.json' --exclude='data/webhooks.json' --exclude='data/updates.json' \
-       -czf - . | ssh root@47.106.218.249 "cd /root/moltbot && tar -xzf -"
-   ssh root@47.106.218.249 "cd /root/moltbot && bash install_remote.sh"
+   tar --exclude='.git' --exclude='.env' --exclude='node_modules' -czf - . \
+     | ssh $SERVER "cd $DEPLOY_PATH && tar -xzf -"
+   ssh $SERVER "cd $DEPLOY_PATH && npm install && npm run build:api && npm run build:frontend"
    ```
 
 ### 7. 归档（完成后）
@@ -100,7 +100,7 @@ docs/
 - [ ] `docs/plans/*.md` 步骤状态已更新（若适用）
 - [ ] 实施记录已写入 `docs/历史已使用内容/实施记录/`
 - [ ] Git 已提交并推送到 GitHub
-- [ ] **服务器已同步并重启**（tar + install_remote.sh）
+- [ ] **服务器已同步并重启**（若需部署）
 - [ ] 完成后规划已移至 `docs/历史已使用内容/功能规划/`
 - [ ] `docs/历史已使用内容/README.md` 已更新（若有新归档）
 
