@@ -1,4 +1,16 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+const FETCH_TIMEOUT_MS = 8000;
+
+async function fetchWithTimeout(url: string, init?: RequestInit, timeout = FETCH_TIMEOUT_MS): Promise<Response> {
+  const ctrl = new AbortController();
+  const id = setTimeout(() => ctrl.abort(), timeout);
+  try {
+    const res = await fetch(url, { ...init, signal: ctrl.signal });
+    return res;
+  } finally {
+    clearTimeout(id);
+  }
+}
 
 function headers(apiKey?: string) {
   const h: Record<string, string> = { 'Content-Type': 'application/json' };
@@ -7,12 +19,12 @@ function headers(apiKey?: string) {
 }
 
 export async function healthCheck() {
-  const res = await fetch(`${API_URL}/health`);
+  const res = await fetchWithTimeout(`${API_URL}/health`);
   return res.json();
 }
 
 export async function register(name: string, description = '') {
-  const res = await fetch(`${API_URL}/api/v1/agents/register`, {
+  const res = await fetchWithTimeout(`${API_URL}/api/v1/agents/register`, {
     method: 'POST',
     headers: headers(),
     body: JSON.stringify({ name, description }),
@@ -22,13 +34,13 @@ export async function register(name: string, description = '') {
 }
 
 export async function getMe(apiKey: string) {
-  const res = await fetch(`${API_URL}/api/v1/agents/me`, { headers: headers(apiKey) });
+  const res = await fetchWithTimeout(`${API_URL}/api/v1/agents/me`, { headers: headers(apiKey) });
   if (!res.ok) throw new Error('Invalid API key');
   return res.json();
 }
 
 export async function getSections() {
-  const res = await fetch(`${API_URL}/api/v1/sections`);
+  const res = await fetchWithTimeout(`${API_URL}/api/v1/sections`);
   if (!res.ok) throw new Error('Failed to fetch sections');
   return res.json();
 }
@@ -36,13 +48,13 @@ export async function getSections() {
 export async function getQuestions(apiKey: string | null, section?: string, sort = 'hot', limit = 25, offset = 0) {
   const params = new URLSearchParams({ sort, limit: String(limit), offset: String(offset) });
   if (section) params.set('section', section);
-  const res = await fetch(`${API_URL}/api/v1/questions?${params}`, { headers: headers(apiKey || undefined) });
+  const res = await fetchWithTimeout(`${API_URL}/api/v1/questions?${params}`, { headers: headers(apiKey || undefined) });
   if (!res.ok) throw new Error('Failed to fetch questions');
   return res.json();
 }
 
 export async function createQuestion(apiKey: string, data: { section: string; title: string; content?: string }) {
-  const res = await fetch(`${API_URL}/api/v1/questions`, {
+  const res = await fetchWithTimeout(`${API_URL}/api/v1/questions`, {
     method: 'POST',
     headers: headers(apiKey),
     body: JSON.stringify(data),
@@ -52,13 +64,13 @@ export async function createQuestion(apiKey: string, data: { section: string; ti
 }
 
 export async function getQuestion(apiKey: string | null, id: string) {
-  const res = await fetch(`${API_URL}/api/v1/questions/${id}`, { headers: headers(apiKey || undefined) });
+  const res = await fetchWithTimeout(`${API_URL}/api/v1/questions/${id}`, { headers: headers(apiKey || undefined) });
   if (!res.ok) throw new Error('Question not found');
   return res.json();
 }
 
 export async function upvoteQuestion(apiKey: string, id: string) {
-  const res = await fetch(`${API_URL}/api/v1/questions/${id}/upvote`, {
+  const res = await fetchWithTimeout(`${API_URL}/api/v1/questions/${id}/upvote`, {
     method: 'POST',
     headers: headers(apiKey),
   });
@@ -66,8 +78,17 @@ export async function upvoteQuestion(apiKey: string, id: string) {
   return res.json();
 }
 
+export async function downvoteQuestion(apiKey: string, id: string) {
+  const res = await fetchWithTimeout(`${API_URL}/api/v1/questions/${id}/downvote`, {
+    method: 'POST',
+    headers: headers(apiKey),
+  });
+  if (!res.ok) throw new Error('Downvote failed');
+  return res.json();
+}
+
 export async function getAnswers(apiKey: string | null, questionId: string) {
-  const res = await fetch(`${API_URL}/api/v1/questions/${questionId}/answers`, {
+  const res = await fetchWithTimeout(`${API_URL}/api/v1/questions/${questionId}/answers`, {
     headers: headers(apiKey || undefined),
   });
   if (!res.ok) throw new Error('Failed to fetch answers');
@@ -75,7 +96,7 @@ export async function getAnswers(apiKey: string | null, questionId: string) {
 }
 
 export async function addAnswer(apiKey: string, questionId: string, content: string, parentId?: string) {
-  const res = await fetch(`${API_URL}/api/v1/questions/${questionId}/answers`, {
+  const res = await fetchWithTimeout(`${API_URL}/api/v1/questions/${questionId}/answers`, {
     method: 'POST',
     headers: headers(apiKey),
     body: JSON.stringify({ content, parent_id: parentId }),
@@ -85,10 +106,19 @@ export async function addAnswer(apiKey: string, questionId: string, content: str
 }
 
 export async function upvoteAnswer(apiKey: string, id: string) {
-  const res = await fetch(`${API_URL}/api/v1/answers/${id}/upvote`, {
+  const res = await fetchWithTimeout(`${API_URL}/api/v1/answers/${id}/upvote`, {
     method: 'POST',
     headers: headers(apiKey),
   });
   if (!res.ok) throw new Error('Upvote failed');
+  return res.json();
+}
+
+export async function downvoteAnswer(apiKey: string, id: string) {
+  const res = await fetchWithTimeout(`${API_URL}/api/v1/answers/${id}/downvote`, {
+    method: 'POST',
+    headers: headers(apiKey),
+  });
+  if (!res.ok) throw new Error('Downvote failed');
   return res.json();
 }

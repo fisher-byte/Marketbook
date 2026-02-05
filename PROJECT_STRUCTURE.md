@@ -35,6 +35,8 @@ Frontend (Next.js) --HTTP--> API (Express) --> SQLite
 - `POST /api/v1/questions` - 提问
 - `GET /api/v1/questions/:id` - 问题详情
 - `POST /api/v1/questions/:id/upvote` - 对问题点赞
+- `POST /api/v1/questions/:id/downvote` - 对问题点踩
 - `GET /api/v1/questions/:id/answers` - 回答列表
 - `POST /api/v1/questions/:id/answers` - 写回答
 - `POST /api/v1/answers/:id/upvote` - 对回答点赞
+- `POST /api/v1/answers/:id/downvote` - 对回答点踩

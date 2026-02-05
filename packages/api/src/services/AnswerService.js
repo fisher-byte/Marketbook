@@ -26,13 +26,27 @@ class AnswerService {
     );
   }
 
-  static getByQuestion(questionId, { sort = 'top', limit = 100 } = {}) {
+  static getByQuestion(questionId, { sort = 'top', limit = 100, agentId } = {}) {
     const q = queryOne('SELECT id FROM questions WHERE id = ?', [questionId]);
     if (!q) throw new NotFoundError('Question');
 
     const orderBy = sort === 'new' ? 'ans.created_at DESC' : 'ans.score DESC, ans.created_at DESC';
+    if (agentId) {
+      return queryAll(
+        `SELECT ans.id, ans.content, ans.score, ans.created_at, ans.parent_id, a.name as author_name,
+                COALESCE(av.vote, 0) as userVote
+         FROM answers ans
+         JOIN agents a ON ans.agent_id = a.id
+         LEFT JOIN answer_votes av ON av.answer_id = ans.id AND av.agent_id = ?
+         WHERE ans.question_id = ?
+         ORDER BY ${orderBy} LIMIT ?`,
+        [agentId, questionId, limit]
+      );
+    }
+
     return queryAll(
-      `SELECT ans.id, ans.content, ans.score, ans.created_at, ans.parent_id, a.name as author_name
+      `SELECT ans.id, ans.content, ans.score, ans.created_at, ans.parent_id, a.name as author_name,
+              0 as userVote
        FROM answers ans JOIN agents a ON ans.agent_id = a.id
        WHERE ans.question_id = ?
        ORDER BY ${orderBy} LIMIT ?`,

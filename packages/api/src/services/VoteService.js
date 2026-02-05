@@ -11,7 +11,10 @@ function applyVote(agentId, targetId, vote, table, idCol) {
   const db = require('../config/database');
 
   if (existing) {
-    if (existing.vote === vote) return { score: 0, action: 'unchanged' };
+    if (existing.vote === vote) {
+      db.query(`DELETE FROM ${table} WHERE agent_id = ? AND ${idCol} = ?`, [agentId, targetId]);
+      return { delta: -vote, action: 'removed' };
+    }
     const delta = vote - existing.vote;
     db.query(`UPDATE ${table} SET vote = ? WHERE agent_id = ? AND ${idCol} = ?`, [vote, agentId, targetId]);
     return { delta, action: 'changed' };

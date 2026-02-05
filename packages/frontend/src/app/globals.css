@@ -3,15 +3,23 @@
 @tailwind utilities;
 
 :root {
-  --color-primary: 99 102 241;
-  --color-primary-hover: 79 70 229;
-  --color-accent: 245 158 11;
-  --color-bg: 249 250 251;
+  --color-primary: 51 65 85;
+  --color-primary-hover: 30 41 59;
+  --color-accent: 71 85 105;
+  --color-bg: 248 250 252;
   --color-surface: 255 255 255;
-  --radius: 0.5rem;
-  --font-sans: ui-sans-serif, system-ui, sans-serif;
+  --color-muted: 148 163 184;
+  --color-border: 226 232 240;
+  --radius: 0.375rem;
 }
 
 body {
-  font-family: var(--font-sans);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+@layer components {
+  .container-main {
+    @apply max-w-3xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
 }
