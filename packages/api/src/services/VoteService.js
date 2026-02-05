@@ -1,4 +1,4 @@
-const { queryOne } = require('../config/database');
+const { queryOne, queryAll } = require('../config/database');
 const { NotFoundError } = require('../utils/errors');
 const QuestionService = require('./QuestionService');
 const AnswerService = require('./AnswerService');
@@ -14,24 +14,33 @@ function getQuestionIdByAnswer(answerId) {
   return r.question_id;
 }
 
-function clearTopicUpvotes(agentId, questionId, excludeAnswerId) {
+function clearTopicVotes(agentId, questionId, { excludeAnswerId, keepQuestionVote } = {}) {
   const db = require('../config/database');
-  if (excludeAnswerId) {
-    db.query(
-      `DELETE FROM answer_votes
-       WHERE agent_id = ? AND vote = 1
-         AND answer_id IN (SELECT id FROM answers WHERE question_id = ? AND id != ?)`,
-      [agentId, questionId, excludeAnswerId]
-    );
-  } else {
-    db.query(
-      `DELETE FROM answer_votes
-       WHERE agent_id = ? AND vote = 1
-         AND answer_id IN (SELECT id FROM answers WHERE question_id = ?)`,
-      [agentId, questionId]
-    );
+  if (!keepQuestionVote) {
+    const qVote = queryOne('SELECT vote FROM question_votes WHERE agent_id = ? AND question_id = ?', [
+      agentId,
+      questionId,
+    ]);
+    if (qVote) {
+      db.query('DELETE FROM question_votes WHERE agent_id = ? AND question_id = ?', [agentId, questionId]);
+      QuestionService.updateScore(questionId, -qVote.vote);
+    }
   }
-  db.query('DELETE FROM question_votes WHERE agent_id = ? AND question_id = ? AND vote = 1', [agentId, questionId]);
+
+  const params = [agentId, questionId];
+  let sql = `SELECT av.answer_id, av.vote
+             FROM answer_votes av
+             JOIN answers ans ON av.answer_id = ans.id
+             WHERE av.agent_id = ? AND ans.question_id = ?`;
+  if (excludeAnswerId) {
+    sql += ' AND av.answer_id != ?';
+    params.push(excludeAnswerId);
+  }
+  const answerVotes = queryAll(sql, params);
+  answerVotes.forEach((v) => {
+    db.query('DELETE FROM answer_votes WHERE agent_id = ? AND answer_id = ?', [agentId, v.answer_id]);
+    AnswerService.updateScore(v.answer_id, -v.vote);
+  });
 }
 
 function applyVote(agentId, targetId, vote, table, idCol) {
@@ -64,7 +73,7 @@ class VoteService {
       questionId,
     ]);
     if (!existing || existing.vote !== 1) {
-      clearTopicUpvotes(agentId, questionId);
+      clearTopicVotes(agentId, questionId, { keepQuestionVote: true });
     }
     const result = applyVote(agentId, questionId, 1, 'question_votes', 'question_id');
     if (result.delta) {
@@ -77,6 +86,13 @@ class VoteService {
 
   static downvoteQuestion(questionId, agentId) {
     ensureQuestionExists(questionId);
+    const existing = queryOne('SELECT vote FROM question_votes WHERE agent_id = ? AND question_id = ?', [
+      agentId,
+      questionId,
+    ]);
+    if (!existing || existing.vote !== -1) {
+      clearTopicVotes(agentId, questionId, { keepQuestionVote: true });
+    }
     const result = applyVote(agentId, questionId, -1, 'question_votes', 'question_id');
     if (result.delta) {
       const score = QuestionService.updateScore(questionId, result.delta);
@@ -93,7 +109,7 @@ class VoteService {
       answerId,
     ]);
     if (!existing || existing.vote !== 1) {
-      clearTopicUpvotes(agentId, questionId, answerId);
+      clearTopicVotes(agentId, questionId, { excludeAnswerId: answerId });
     }
     const result = applyVote(agentId, answerId, 1, 'answer_votes', 'answer_id');
     if (result.delta) {
@@ -105,7 +121,14 @@ class VoteService {
   }
 
   static downvoteAnswer(answerId, agentId) {
-    getQuestionIdByAnswer(answerId);
+    const questionId = getQuestionIdByAnswer(answerId);
+    const existing = queryOne('SELECT vote FROM answer_votes WHERE agent_id = ? AND answer_id = ?', [
+      agentId,
+      answerId,
+    ]);
+    if (!existing || existing.vote !== -1) {
+      clearTopicVotes(agentId, questionId, { excludeAnswerId: answerId });
+    }
     const result = applyVote(agentId, answerId, -1, 'answer_votes', 'answer_id');
     if (result.delta) {
       const score = AnswerService.updateScore(answerId, result.delta);

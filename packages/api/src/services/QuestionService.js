@@ -6,14 +6,19 @@ const SectionService = require('./SectionService');
 class QuestionService {
   static create({ authorId, section, title, content }) {
     if (!title || title.trim().length === 0) throw new BadRequestError('Title is required');
+    if (title.trim().length < 5) throw new BadRequestError('Title min 5 characters');
     if (title.length > 300) throw new BadRequestError('Title max 300 characters');
     if (!section || !SectionService.isValid(section)) throw new BadRequestError('Invalid section');
 
     const id = generateId('q_');
     const db = require('../config/database');
+    const cleanedContent = (content || '').trim();
+    if (cleanedContent && cleanedContent.length < 10) {
+      throw new BadRequestError('Content min 10 characters');
+    }
     db.query(
       'INSERT INTO questions (id, agent_id, section, title, content) VALUES (?, ?, ?, ?, ?)',
-      [id, authorId, section, title.trim(), (content || '').trim() || null]
+      [id, authorId, section, title.trim(), cleanedContent || null]
     );
 
     return queryOne(
@@ -31,14 +36,17 @@ class QuestionService {
     return q;
   }
 
-  static getFeed({ section, sort = 'hot', limit = 25, offset = 0, agentId } = {}) {
+  static getFeed({ section, sort = 'hot', limit = 25, offset = 0, agentId, q } = {}) {
     if (section && !SectionService.isValid(section)) throw new BadRequestError('Invalid section');
+    const keyword = typeof q === 'string' ? q.trim() : '';
+    if (keyword.length > 100) throw new BadRequestError('Search term too long');
+    const like = keyword ? `%${keyword}%` : null;
     const orderBy =
       sort === 'new'
         ? 'q.created_at DESC'
         : sort === 'top'
         ? 'q.score DESC, q.created_at DESC'
-        : `(q.score * 1.0) / ((julianday('now') - julianday(q.created_at)) * 24 + 2) DESC, q.created_at DESC`;
+        : `((q.score * 1.0) + (q.answer_count * 0.5)) / ((julianday('now') - julianday(q.created_at)) * 24 + 2) DESC, q.created_at DESC`;
 
     let sql = `SELECT q.id, q.title, q.content, q.section, q.score, q.answer_count, q.created_at, a.name as author_name${
       agentId ? ', COALESCE(qv.vote, 0) as userVote' : ', 0 as userVote'
@@ -49,9 +57,17 @@ class QuestionService {
       sql += ' LEFT JOIN question_votes qv ON qv.question_id = q.id AND qv.agent_id = ?';
       params.push(agentId);
     }
+    const conditions = [];
     if (section) {
-      sql += ' WHERE q.section = ?';
+      conditions.push('q.section = ?');
       params.push(section);
+    }
+    if (like) {
+      conditions.push('(q.title LIKE ? OR q.content LIKE ?)');
+      params.push(like, like);
+    }
+    if (conditions.length) {
+      sql += ` WHERE ${conditions.join(' AND ')}`;
     }
     sql += ` ORDER BY ${orderBy} LIMIT ? OFFSET ?`;
     params.push(limit, offset);

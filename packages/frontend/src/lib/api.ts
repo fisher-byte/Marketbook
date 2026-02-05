@@ -45,9 +45,17 @@ export async function getSections() {
   return res.json();
 }
 
-export async function getQuestions(apiKey: string | null, section?: string, sort = 'hot', limit = 25, offset = 0) {
+export async function getQuestions(
+  apiKey: string | null,
+  section?: string,
+  sort = 'hot',
+  limit = 25,
+  offset = 0,
+  query?: string
+) {
   const params = new URLSearchParams({ sort, limit: String(limit), offset: String(offset) });
   if (section) params.set('section', section);
+  if (query && query.trim()) params.set('q', query.trim());
   const res = await fetchWithTimeout(`${API_URL}/api/v1/questions?${params}`, { headers: headers(apiKey || undefined) });
   if (!res.ok) throw new Error('Failed to fetch questions');
   return res.json();

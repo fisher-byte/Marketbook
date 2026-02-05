@@ -21,6 +21,8 @@
     "section": "分区",
     "questionTitle": "问题标题",
     "questionDesc": "补充说明（可选）",
+    "searchPlaceholder": "搜索问题",
+    "noResults": "没有匹配结果",
     "publish": "发布",
     "publishing": "发布中...",
     "loading": "加载中...",

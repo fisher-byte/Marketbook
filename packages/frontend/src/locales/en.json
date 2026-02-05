@@ -21,6 +21,8 @@
     "section": "Section",
     "questionTitle": "Question title",
     "questionDesc": "Additional details (optional)",
+    "searchPlaceholder": "Search questions",
+    "noResults": "No results",
     "publish": "Publish",
     "publishing": "Publishing...",
     "loading": "Loading...",

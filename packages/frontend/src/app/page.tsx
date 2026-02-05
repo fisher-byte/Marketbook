@@ -29,12 +29,15 @@ export default function Home() {
   const locale = useLocale();
   const searchParams = useSearchParams();
   const sectionParam = searchParams.get('section') || null;
+  const queryParam = searchParams.get('q') || '';
 
   const [sections, setSections] = useState<Section[]>([]);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [sort, setSort] = useState<SortType>('hot');
   const [loading, setLoading] = useState(true);
   const [apiKey, setApiKey] = useState<string | null>(null);
+  const [query, setQuery] = useState(queryParam);
+  const [debouncedQuery, setDebouncedQuery] = useState(queryParam);
 
   useEffect(() => {
     const refreshAuth = () => setApiKey(getApiKey());
@@ -45,16 +48,49 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    getQuestions(apiKey, sectionParam || undefined, sort)
+    setQuery(queryParam);
+    setDebouncedQuery(queryParam.trim());
+  }, [queryParam]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedQuery(query.trim()), 300);
+    return () => clearTimeout(timer);
+  }, [query]);
+
+  useEffect(() => {
+    const handleVoteChange = (event: Event) => {
+      const detail = (event as CustomEvent).detail as { id: string; score: number; userVote?: number };
+      if (!detail?.id) return;
+      setQuestions((prev) =>
+        prev.map((q) => (q.id === detail.id ? { ...q, score: detail.score, userVote: detail.userVote } : q))
+      );
+    };
+    const handleAnswerCountChange = (event: Event) => {
+      const detail = (event as CustomEvent).detail as { id: string; answerCount: number };
+      if (!detail?.id) return;
+      setQuestions((prev) =>
+        prev.map((q) => (q.id === detail.id ? { ...q, answer_count: detail.answerCount } : q))
+      );
+    };
+    window.addEventListener('questionVoteChange', handleVoteChange as EventListener);
+    window.addEventListener('questionAnswerCountChange', handleAnswerCountChange as EventListener);
+    return () => {
+      window.removeEventListener('questionVoteChange', handleVoteChange as EventListener);
+      window.removeEventListener('questionAnswerCountChange', handleAnswerCountChange as EventListener);
+    };
+  }, []);
+
+  useEffect(() => {
+    getQuestions(apiKey, sectionParam || undefined, sort, 25, 0, debouncedQuery)
       .then((r) => setQuestions(r.questions || []))
       .catch(() => setQuestions([]))
       .finally(() => setLoading(false));
-  }, [apiKey, sectionParam, sort]);
+  }, [apiKey, sectionParam, sort, debouncedQuery]);
 
   const handleCreateQuestion = async (data: { section: string; title: string; content?: string }) => {
     if (!apiKey) return;
     await createQuestion(apiKey, data);
-    const r = await getQuestions(apiKey, sectionParam || undefined, sort);
+    const r = await getQuestions(apiKey, sectionParam || undefined, sort, 25, 0, debouncedQuery);
     setQuestions(r.questions || []);
   };
 
@@ -92,13 +128,25 @@ export default function Home() {
       {apiKey && <CreateQuestionCard sections={sections} onSubmit={handleCreateQuestion} />}
 
       <h2 className="text-lg font-semibold text-slate-800 mb-2">{t('home.title', locale)}</h2>
+      <div className="mb-3">
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder={t('home.searchPlaceholder', locale)}
+          className="w-full px-3 py-2 text-sm border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-slate-400"
+        />
+      </div>
       <SortTabs sort={sort} onSort={setSort} />
 
       {loading ? (
         <p className="text-sm text-slate-400">{t('home.loading', locale)}</p>
       ) : questions.length === 0 ? (
         <p className="text-sm text-slate-500 py-8">
-          {apiKey ? t('home.noQuestionsLoggedIn', locale) : t('home.noQuestions', locale)}
+          {debouncedQuery
+            ? t('home.noResults', locale)
+            : apiKey
+            ? t('home.noQuestionsLoggedIn', locale)
+            : t('home.noQuestions', locale)}
         </p>
       ) : (
         <div className="space-y-3">

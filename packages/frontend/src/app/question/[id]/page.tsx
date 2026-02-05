@@ -82,6 +82,13 @@ export default function QuestionPage() {
       setQuestion((prev) =>
         prev ? { ...prev, answer_count: (aRes.answers || []).length } : prev
       );
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(
+          new CustomEvent('questionAnswerCountChange', {
+            detail: { id, answerCount: (aRes.answers || []).length },
+          })
+        );
+      }
     } catch (err) {
       alert((err as Error).message);
     } finally {
@@ -96,6 +103,13 @@ export default function QuestionPage() {
       if (question) {
         const nextVote = result.action === 'removed' ? 0 : 1;
         setQuestion({ ...question, score: result.score, userVote: nextVote });
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(
+            new CustomEvent('questionVoteChange', {
+              detail: { id, score: result.score, userVote: nextVote },
+            })
+          );
+        }
       }
     } catch {}
   };
@@ -107,6 +121,13 @@ export default function QuestionPage() {
       if (question) {
         const nextVote = result.action === 'removed' ? 0 : -1;
         setQuestion({ ...question, score: result.score, userVote: nextVote });
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(
+            new CustomEvent('questionVoteChange', {
+              detail: { id, score: result.score, userVote: nextVote },
+            })
+          );
+        }
       }
     } catch {}
   };

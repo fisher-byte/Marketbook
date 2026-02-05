@@ -9,13 +9,14 @@ const router = Router();
 
 router.get('/', optionalAuth, (req, res, next) => {
   try {
-    const { section, sort = 'hot', limit = 25, offset = 0 } = req.query;
+    const { section, sort = 'hot', limit = 25, offset = 0, q } = req.query;
     const questions = QuestionService.getFeed({
       section: section || null,
       sort,
       limit: Math.min(parseInt(limit, 10) || 25, 100),
       offset: parseInt(offset, 10) || 0,
       agentId: req.agent?.id,
+      q: typeof q === 'string' ? q : '',
     });
     success(res, { questions, limit: parseInt(limit, 10) || 25, offset: parseInt(offset, 10) || 0 });
   } catch (e) {

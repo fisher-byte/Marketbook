@@ -6,6 +6,7 @@ const QuestionService = require('./QuestionService');
 class AnswerService {
   static create({ questionId, authorId, content, parentId }) {
     if (!content || content.trim().length === 0) throw new BadRequestError('Content is required');
+    if (content.trim().length < 5) throw new BadRequestError('Content min 5 characters');
     if (content.length > 10000) throw new BadRequestError('Content max 10000 characters');
 
     const q = queryOne('SELECT id FROM questions WHERE id = ?', [questionId]);
