@@ -5,6 +5,7 @@
 
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { UserStore, UserProfileStore } = require('../models/UserStore');
 const User = require('../models/User');
 const UserProfile = require('../models/UserProfile');
 
@@ -34,43 +35,44 @@ class AuthService {
                 };
             }
             
-            // 检查用户是否已存在
-            const existingUser = await User.findOne({
-                $or: [{ email }, { username }]
-            });
-            
-            if (existingUser) {
+            // 检查邮箱是否已存在
+            const existingEmail = await UserStore.findOne({ email });
+            if (existingEmail) {
                 return {
                     success: false,
-                    message: '用户名或邮箱已存在'
+                    message: '邮箱已存在'
                 };
             }
             
-            // 加密密码
-            const saltRounds = 10;
-            const hashedPassword = await bcrypt.hash(password, saltRounds);
+            // 检查用户名是否已存在
+            const existingUsername = await UserStore.findOne({ username });
+            if (existingUsername) {
+                return {
+                    success: false,
+                    message: '用户名已存在'
+                };
+            }
             
-            // 创建新用户
-            const newUser = new User({
+            // 创建新用户（UserStore.save会自动加密密码）
+            const newUser = await UserStore.save({
                 username,
                 email,
-                password: hashedPassword,
+                password,
                 createdAt: new Date(),
-                lastLoginAt: new Date()
+                lastLoginAt: new Date(),
+                isActive: true,
+                emailVerified: false
             });
             
-            await newUser.save();
-            
             // 创建用户资料
-            const userProfile = new UserProfile({
-                userId: newUser._id,
+            const userProfile = await UserProfileStore.save({
+                userId: newUser.id,
                 displayName: username,
-                avatar: UserProfile.generateDefaultAvatar(username),
+                bio: '',
+                avatar: this.generateDefaultAvatar(username),
                 createdAt: new Date(),
                 updatedAt: new Date()
             });
-            
-            await userProfile.save();
             
             // 生成JWT令牌
             const token = this.generateToken(newUser);
@@ -80,7 +82,7 @@ class AuthService {
                 message: '用户注册成功',
                 data: {
                     user: newUser.getSafeInfo(),
-                    profile: userProfile.getSafeInfo(),
+                    profile: userProfile,
                     token
                 }
             };
@@ -96,6 +98,13 @@ class AuthService {
     }
     
     /**
+     * 用户注册服务（包装方法，与路由对接）
+     */
+    static async registerUser(userData) {
+        return this.register(userData);
+    }
+    
+    /**
      * 用户登录服务
      * @param {object} loginData 登录数据
      * @returns {object} 登录结果
@@ -105,7 +114,7 @@ class AuthService {
             const { email, password } = loginData;
             
             // 查找用户
-            const user = await User.findOne({ email });
+            const user = await UserStore.findOne({ email });
             if (!user) {
                 return {
                     success: false,
@@ -114,7 +123,7 @@ class AuthService {
             }
             
             // 验证密码
-            const isValidPassword = await bcrypt.compare(password, user.password);
+            const isValidPassword = await UserStore.comparePassword(password, user.password);
             if (!isValidPassword) {
                 return {
                     success: false,
@@ -122,12 +131,20 @@ class AuthService {
                 };
             }
             
+            // 检查用户是否激活
+            if (!user.canLogin()) {
+                return {
+                    success: false,
+                    message: '账户未激活或已被锁定'
+                };
+            }
+            
             // 更新最后登录时间
-            user.lastLoginAt = new Date();
-            await user.save();
+            user.handleLoginSuccess();
+            await UserStore.save(user);
             
             // 获取用户资料
-            const userProfile = await UserProfile.findOne({ userId: user._id });
+            const userProfile = await UserProfileStore.findByUserId(user.id);
             
             // 生成JWT令牌
             const token = this.generateToken(user);
@@ -137,7 +154,7 @@ class AuthService {
                 message: '登录成功',
                 data: {
                     user: user.getSafeInfo(),
-                    profile: userProfile ? userProfile.getSafeInfo() : null,
+                    profile: userProfile || null,
                     token
                 }
             };
@@ -153,6 +170,47 @@ class AuthService {
     }
     
     /**
+     * 用户登录服务（包装方法，与路由对接）
+     */
+    static async loginUser(loginData) {
+        return this.login(loginData);
+    }
+    
+    /**
+     * 获取当前用户信息
+     * @param {string} userId 用户ID
+     * @returns {object} 用户信息
+     */
+    static async getCurrentUser(userId) {
+        try {
+            const user = await UserStore.findById(parseInt(userId));
+            if (!user) {
+                return {
+                    success: false,
+                    message: '用户不存在'
+                };
+            }
+            
+            const userProfile = await UserProfileStore.findByUserId(user.id);
+            
+            return {
+                success: true,
+                data: {
+                    user: user.getSafeInfo(),
+                    profile: userProfile || null
+                }
+            };
+        } catch (error) {
+            console.error('获取用户信息错误:', error);
+            return {
+                success: false,
+                message: '获取用户信息失败',
+                error: error.message
+            };
+        }
+    }
+    
+    /**
      * 生成JWT令牌
      * @param {object} user 用户对象
      * @returns {string} JWT令牌
@@ -160,7 +218,7 @@ class AuthService {
     static generateToken(user) {
         return jwt.sign(
             {
-                userId: user._id,
+                userId: user.id,
                 username: user.username,
                 email: user.email
             },
@@ -191,6 +249,20 @@ class AuthService {
     }
     
     /**
+     * 撤销令牌（登出）
+     * @param {string} token JWT令牌
+     * @returns {object} 撤销结果
+     */
+    static async revokeToken(token) {
+        // 在内存存储模式下，令牌撤销只需要前端删除token即可
+        // 如果需要服务端管理，可以维护一个黑名单
+        return {
+            success: true,
+            message: '登出成功'
+        };
+    }
+    
+    /**
      * 刷新令牌
      * @param {string} token 旧令牌
      * @returns {object} 刷新结果
@@ -206,7 +278,7 @@ class AuthService {
             const { userId } = verification.data;
             
             // 查找用户
-            const user = await User.findById(userId);
+            const user = await UserStore.findById(parseInt(userId));
             if (!user) {
                 return {
                     success: false,
@@ -245,7 +317,7 @@ class AuthService {
     static async changePassword(userId, oldPassword, newPassword) {
         try {
             // 查找用户
-            const user = await User.findById(userId);
+            const user = await UserStore.findById(parseInt(userId));
             if (!user) {
                 return {
                     success: false,
@@ -254,7 +326,7 @@ class AuthService {
             }
             
             // 验证旧密码
-            const isValidPassword = await bcrypt.compare(oldPassword, user.password);
+            const isValidPassword = await UserStore.comparePassword(oldPassword, user.password);
             if (!isValidPassword) {
                 return {
                     success: false,
@@ -267,18 +339,14 @@ class AuthService {
             if (!tempUser.validatePassword()) {
                 return {
                     success: false,
-                    message: '新密码强度不足（至少8位，包含字母和数字）'
+                    message: '新密码强度不足（至少8位，包含大小写字母、数字和特殊字符）'
                 };
             }
             
-            // 加密新密码
-            const saltRounds = 10;
-            const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
-            
             // 更新密码
-            user.password = hashedPassword;
+            user.password = newPassword;
             user.updatedAt = new Date();
-            await user.save();
+            await UserStore.save(user);
             
             return {
                 success: true,
@@ -304,7 +372,7 @@ class AuthService {
     static async resetPassword(userId, newPassword) {
         try {
             // 查找用户
-            const user = await User.findById(userId);
+            const user = await UserStore.findById(parseInt(userId));
             if (!user) {
                 return {
                     success: false,
@@ -317,18 +385,14 @@ class AuthService {
             if (!tempUser.validatePassword()) {
                 return {
                     success: false,
-                    message: '新密码强度不足（至少8位，包含字母和数字）'
+                    message: '新密码强度不足（至少8位，包含大小写字母、数字和特殊字符）'
                 };
             }
             
-            // 加密新密码
-            const saltRounds = 10;
-            const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
-            
             // 更新密码
-            user.password = hashedPassword;
+            user.password = newPassword;
             user.updatedAt = new Date();
-            await user.save();
+            await UserStore.save(user);
             
             return {
                 success: true,
@@ -343,6 +407,20 @@ class AuthService {
                 error: error.message
             };
         }
+    }
+    
+    /**
+     * 生成默认头像
+     * @param {string} username 用户名
+     * @returns {string} 头像URL或数据
+     */
+    static generateDefaultAvatar(username) {
+        // 简单的默认头像生成，可以返回URL或base64
+        const initial = username.charAt(0).toUpperCase();
+        const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E2'];
+        const colorIndex = username.charCodeAt(0) % colors.length;
+        
+        return `https://ui-avatars.com/api/?name=${initial}&background=${colors[colorIndex].substring(1)}&color=fff&size=200`;
     }
 }
 
