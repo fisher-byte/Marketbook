@@ -279,91 +279,95 @@
         </div>
     </div>
     
+    <script src="/js/utils.js"></script>
     <script>
-        // 表单验证和提交逻辑
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        const { Auth, Validator, UI, Router } = window.MarketBook;
+
+        // 表单提交处理
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            const emailError = document.getElementById('emailError');
-            const passwordError = document.getElementById('passwordError');
+            const rememberMe = document.getElementById('rememberMe').checked;
+            const button = document.getElementById('loginButton');
             
-            // 重置错误状态
-            emailError.style.display = 'none';
-            passwordError.style.display = 'none';
-            document.getElementById('email').classList.remove('error');
-            document.getElementById('password').classList.remove('error');
+            // 清除之前的错误
+            UI.clearAllErrors('loginForm');
             
+            // 前端验证
             let isValid = true;
             
-            // 邮箱验证
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                emailError.style.display = 'block';
-                document.getElementById('email').classList.add('error');
+            if (!Validator.email(email)) {
+                UI.showFieldError('email', '请输入有效的邮箱地址');
                 isValid = false;
             }
             
-            // 密码验证
-            if (password.length < 6) {
-                passwordError.style.display = 'block';
-                document.getElementById('password').classList.add('error');
+            if (!Validator.required(password)) {
+                UI.showFieldError('password', '请输入密码');
                 isValid = false;
             }
             
-            if (isValid) {
-                // 模拟登录过程
-                simulateLogin(email, password);
+            if (!isValid) return;
+            
+            // 显示加载状态
+            UI.showLoading(button, '登录中...');
+            
+            try {
+                // 调用登录API
+                const response = await Auth.login({
+                    email,
+                    password
+                }, rememberMe);
+                
+                // 登录成功
+                UI.toast('登录成功！', 'success');
+                
+                // 延迟跳转以显示成功消息
+                setTimeout(() => {
+                    Router.returnAfterLogin();
+                }, 500);
+                
+            } catch (error) {
+                console.error('登录失败:', error);
+                
+                // 显示错误消息
+                if (error.status === 401) {
+                    UI.toast('邮箱或密码错误', 'error');
+                } else if (error.status === 429) {
+                    UI.toast('登录尝试次数过多，请稍后再试', 'error');
+                } else {
+                    UI.toast(error.message || '登录失败，请重试', 'error');
+                }
+                
+                // 恢复按钮状态
+                UI.hideLoading(button);
             }
         });
         
-        function simulateLogin(email, password) {
-            const button = document.getElementById('loginButton');
-            const buttonText = document.getElementById('buttonText');
-            const loadingSpinner = document.getElementById('loadingSpinner');
-            
-            button.disabled = true;
-            buttonText.style.display = 'none';
-            loadingSpinner.style.display = 'inline';
-            
-            // 模拟API调用延迟
-            setTimeout(() => {
-                // 在实际应用中，这里会是真实的API调用
-                console.log('登录请求:', { email, password });
-                
-                // 模拟成功登录
-                alert('登录成功！即将跳转到首页...');
-                window.location.href = '/';
-                
-                // 恢复按钮状态（在实际应用中可能不需要）
-                button.disabled = false;
-                buttonText.style.display = 'inline';
-                loadingSpinner.style.display = 'none';
-            }, 1500);
-        }
-        
+        // 社交登录（占位功能）
         function socialLogin(provider) {
-            alert(`即将通过 ${provider} 登录（模拟功能）`);
-            // 在实际应用中，这里会重定向到OAuth认证页面
+            UI.toast(`${provider} 登录功能即将上线`, 'info');
         }
         
         // 实时表单验证
-        document.getElementById('email').addEventListener('input', function() {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (this.value && !emailRegex.test(this.value)) {
-                this.classList.add('error');
-            } else {
-                this.classList.remove('error');
+        document.getElementById('email').addEventListener('blur', function() {
+            UI.clearFieldError('email');
+            if (this.value && !Validator.email(this.value)) {
+                UI.showFieldError('email', '邮箱格式不正确');
             }
         });
         
-        document.getElementById('password').addEventListener('input', function() {
-            if (this.value.length < 6) {
-                this.classList.add('error');
-            } else {
-                this.classList.remove('error');
+        document.getElementById('password').addEventListener('blur', function() {
+            UI.clearFieldError('password');
+            if (this.value && this.value.length < 6) {
+                UI.showFieldError('password', '密码至少需要6个字符');
             }
+        });
+
+        // 自动聚焦到邮箱输入框
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('email').focus();
         });
     </script>
 </body>
