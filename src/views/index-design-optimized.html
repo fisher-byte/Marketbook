@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="zh-CN" itemscope itemtype="https://schema.org/WebSite">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>MarketBook - AI智能交易论坛与模拟盘平台 | 专业交易学习社区</title>
+    <meta name="description" content="MarketBook是领先的AI驱动交易平台，提供实时模拟盘交易、智能策略分析和专业交易社区。零风险学习股票、外汇、加密货币交易，提升您的投资技能。">
+    <meta name="keywords" content="AI交易论坛,模拟盘交易平台,股票交易学习,投资策略分析,交易社区,风险控制工具,智能投资平台">
+    <meta name="robots" content="index, follow, max-image-preview:large">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="MarketBook - AI智能交易论坛与模拟盘平台">
+    <meta property="og:description" content="领先的AI驱动交易平台，零风险学习交易技能，专业交易社区交流">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://marketbook.example.com">
+    <meta property="og:image" content="https://marketbook.example.com/images/og-image-1200x630.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="MarketBook">
+    <meta property="og:locale" content="zh_CN">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="MarketBook - AI智能交易论坛与模拟盘平台">
+    <meta name="twitter:description" content="领先的AI驱动交易平台，零风险学习交易技能，专业交易社区交流">
+    <meta name="twitter:image" content="https://marketbook.example.com/images/twitter-image-1200x600.jpg">
+    <meta name="twitter:site" content="@marketbook">
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "MarketBook",
+        "alternateName": "AI交易论坛与模拟盘平台",
+        "description": "领先的AI驱动交易平台，提供实时模拟盘交易、智能策略分析和专业交易社区",
+        "url": "https://marketbook.example.com",
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://marketbook.example.com/search?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "MarketBook",
+            "logo": "https://marketbook.example.com/images/logo-200x200.png",
+            "sameAs": [
+                "https://twitter.com/marketbook",
+                "https://linkedin.com/company/marketbook"
+            ]
+        },
+        "mainEntity": {
+            "@type": "Service",
+            "name": "AI交易论坛",
+            "description": "智能交易讨论社区，AI内容推荐和策略分析",
+            "provider": {
+                "@type": "Organization",
+                "name": "MarketBook"
+            }
+        }
+    }
+    </script>
+    
+    <link rel="canonical" href="https://marketbook.example.com">
+    <link rel="stylesheet" href="/css/main.css">
+    <style>
+        /* 设计优化：增强视觉层次和交互体验 */
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --success-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --dark-bg: #1a1a2e;
+            --light-bg: #ffffff;
+            --text-primary: #2d3748;
+            --text-secondary: #718096;
+            --border-radius: 16px;
+            --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.07);
+            --shadow-md: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: var(--primary-gradient);
+            color: white;
+            padding: 8px 16px;
+            text-decoration: none;
+            border-radius: 4px;
+            z-index: 1000;
+            transition: top 0.3s;
+        }
+        
+        .skip-link:focus {
+            top: 0;
+        }
+        
+        /* 导航栏优化 */
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+        
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .logo h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .tagline {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            align-items: center;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .nav-links a:hover {
+            background: var(--primary-gradient);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .nav-icon {
+            font-size: 1.2rem;
+        }
+        
+        .nav-actions {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .login-btn, .register-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .login-btn {
+            background: transparent;
+            color: var(--text-primary);
+            border: 2px solid var(--text-secondary);
+        }
+        
+        .login-btn:hover {
+            border-color: var(--primary-gradient);
+            color: var(--primary-gradient);
+            transform: translateY(-2px);
+        }
+        
+        .register-btn {
+            background: var(--primary-gradient);
+            color: white;
+        }
+        
+        .register-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        /* 主内容区域优化 */
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        /* Hero 区域优化 */
+        .hero {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            margin-bottom: 4rem;
+            padding: 3rem 0;
+        }
+        
+        .hero-content h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #2d3748 0%, #667eea 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        
+        .hero-stats {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-number {
+            display: block;
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        .cta-group {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .cta-button {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .cta-button.primary {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .cta-button.primary:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .cta-button.secondary {
+            background: transparent;
+            color: var(--text-primary);
+            border: 2px solid var(--text-secondary);
+        }
+        
+        .cta-button.secondary:hover {
+            border-color: var(--primary-gradient);
+            color: var(--primary-gradient);
+            transform: translateY(-2px);
+        }
+        
+        .hero-visual {
+            position: relative;
+        }
+        
+        .chart-preview {
+            width: 100%;
+            height: 300px;
+            background: var(--accent-gradient);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .chart-preview::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><path d="M0,200 L100,150 L200,180 L300,120 L400,160" fill="none" stroke="white" stroke-width="3" stroke-opacity="0.3"/></svg>') no-repeat center;
+        }
+        
+        /* 功能区域优化 */
+        .features {
+            margin-bottom: 4rem;
+        }
+        
+        .features h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+        
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 3rem;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+        
+        .feature {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .feature:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+            background: rgba(255, 255, 255, 0.95);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .feature h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+        
+        .feature p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+        
+        .feature-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: var(--success-gradient);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .feature-link {
+            color: var(--primary-gradient);
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .feature-link:hover {
+            gap: 1rem;
+            color: var(--accent-gradient);
+        }
+        
+        /* 用户评价区域优化 */
+        .testimonials {
+            margin-bottom: 4rem;
+        }
+        
+        .testimonials h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 3rem;
+            color: var(--text-primary);
+        }
+        
+        .testimonial-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .testimonial {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--shadow-md);
+            border-left: 4px solid var(--primary-gradient);
+        }
+        
+        .testimonial p {
+            font-style: italic;
+            color: var(--text-primary);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        
+        .author {
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+        
+        /* 页脚优化 */
+        footer {
+            background: var(--dark-bg);
+            color: white;
+            padding: 3rem 0 1rem;
+            margin-top: 4rem;
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            margin-bottom: 2rem;
+        }
+        
+        .footer-section h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .footer-section h4 {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: #e2e8f0;
+        }
+        
+        .footer-section ul {
+            list-style: none;
+        }
+        
+        .footer-section li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .footer-section a {
+            color: #a0aec0;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-section a:hover {
+            color: white;
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid #2d3748;
+            color: #a0aec0;
+            font-size: 0.9rem;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .hero {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+                text-align: center;
+            }
+            
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero-stats {
+                justify-content: center;
+            }
+            
+            .cta-group {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* 动画效果 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .feature, .testimonial {
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        .feature:nth-child(2) { animation-delay: 0.1s; }
+        .feature:nth-child(3) { animation-delay: 0.2s; }
+        
+        /* 滚动动画 */
+        .scroll-reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+        
+        .scroll-reveal.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">跳转到主要内容</a>
+    
+    <header role="banner">
+        <nav role="navigation" aria-label="主导航">
+            <div class="logo">
+                <h1 itemprop="name">MarketBook</h1>
+                <span class="tagline">AI智能交易平台</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="/forum" aria-label="交易论坛">
+                    <span class="nav-icon">💬</span>
+                    交易论坛
+                </a></li>
+                <li><a href="/simulation" aria-label="模拟盘交易">
+                    <span class="nav-icon">📈</span>
+                    模拟盘
+                </a></li>
+                <li><a href="/strategies" aria-label="交易策略分析">
+                    <span class="nav-icon">🔍</span>
+                    策略分析
+                </a></li>
+                <li><a href="/community" aria-label="交易社区">
+                    <span class="nav-icon">👥</span>
+                    社区
+                </a></li>
+            </ul>
+            <div class="nav-actions">
+                <a href="/login" class="login-btn" aria-label="登录账户">登录</a>
+                <a href="/register" class="register-btn" aria-label="注册账户">免费注册</a>
+            </div>
+        </nav>
+    </header>
+    
+    <main id="main-content" role="main">
+        <section class="hero scroll-reveal" aria-labelledby="hero-heading">
+            <div class="hero-content">
+                <h1 id="hero-heading">智能交易，从MarketBook开始</h1>
+                <p class="hero-subtitle">AI驱动的交易论坛与模拟盘平台，为您提供专业的投资体验</p>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <span class="stat-number">10,000+</span>
+                        <span class="stat-label">活跃交易者</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">500+</span>
+                        <span class="stat-label">专业策略</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">99.9%</span>
+                        <span class="stat-label">系统稳定性</span>
+                    </div>
+                </div>
+                <div class="cta-group">
+                    <a href="/register" class="cta-button primary" aria-label="立即体验MarketBook平台">立即体验</a>
+                    <a href="#features-heading" class="cta-button secondary" aria-label="了解更多功能">了解更多</a>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="chart-preview"></div>
+            </div>
+        </section>
+        
+        <section class="features scroll-reveal" aria-labelledby="features-heading">
+            <h2 id="features-heading">核心功能</h2>
+            <p class="section-subtitle">全方位满足您的交易学习需求</p>
+            <div class="feature-grid" role="list">
+                <div class="feature" role="listitem">
+                    <div class="feature-icon">🤖</div>
+                    <h3>智能交易论坛</h3>
+                    <p>AI驱动的讨论社区，智能推荐优质内容，实时分析市场动态</p>
+                    <div class="feature-badge">AI增强</div>
+                    <a href="/forum" class="feature-link">探索论坛 →</a>
+                </div>
+                <div class="feature" role="listitem">
+                    <div class="feature-icon">📊</div>
+                    <h3>实时模拟盘</h3>
+                    <p>零风险体验真实交易环境，支持多种资产类别，实时行情数据</p>
+                    <div class="feature-badge">实时数据</div>
+                    <a href="/simulation" class="feature-link">开始模拟 →</a>
+                </div>
+                <div class="feature" role="listitem">
+                    <div class="feature-icon">📋</div>
+                    <h3>策略分析</h3>
+                    <p>AI分析交易策略，提供专业建议，历史回测验证有效性</p>
+                    <div class="feature-badge">专业分析</div>
+                    <a href="/strategies" class="feature-link">查看策略 →</a>
+                </div>
+            </div>
+        </section>
+        
+        <section class="testimonials scroll-reveal" aria-labelledby="testimonials-heading">
+            <h2 id="testimonials-heading">用户评价</h2>
+            <div class="testimonial-grid">
+                <div class="testimonial">
+                    <p>"MarketBook的模拟盘让我在真实市场环境中学习，风险控制功能非常实用！"</p>
+                    <span class="author">- 张先生，交易新手</span>
+                </div>
+                <div class="testimonial">
+                    <p>"AI策略分析帮助我优化了交易系统，收益率提升了30%以上。"</p>
+                    <span class="author">- 李女士，专业交易员</span>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <footer role="contentinfo">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>MarketBook</h3>
+                <p>专业的AI交易学习平台</p>
+            </div>
+            <div class="footer-section">
+                <h4>产品</h4>
+                <ul>
+                    <li><a href="/forum">交易论坛</a></li>
+                    <li><a href="/simulation">模拟盘</a></li>
+                    <li><a href="/strategies">策略分析</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>支持</h4>
+                <ul>
+                    <li><a href="/help">帮助中心</a></li>
+                    <li><a href="/contact">联系我们</a></li>
+                    <li><a href="/privacy">隐私政策</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 MarketBook. All rights reserved.</p>
+        </div>
+    </footer>
+    
+    <script>
+        // 滚动动画效果
+        const scrollRevealElements = document.querySelectorAll('.scroll-reveal');
+        
+        const revealOnScroll = () => {
+            scrollRevealElements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const windowHeight = window.innerHeight;
+                
+                if (elementTop < windowHeight - 100) {
+                    element.classList.add('revealed');
+                }
+            });
+        };
+        
+        window.addEventListener('scroll', revealOnScroll);
+        window.addEventListener('load', revealOnScroll);
+        
+        // 导航栏滚动效果
+        const header = document.querySelector('header');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 100) {
+                header.style.background = 'rgba(255, 255, 255, 0.98)';
+                header.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.1)';
+            } else {
+                header.style.background = 'rgba(255, 255, 255, 0.95)';
+                header.style.boxShadow = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

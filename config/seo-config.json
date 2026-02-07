@@ -1,0 +1,76 @@
+{
+  "site": {
+    "title": "MarketBook - AI智能交易论坛与模拟盘平台",
+    "description": "领先的AI驱动交易平台，提供实时模拟盘交易、智能策略分析和专业交易社区。零风险学习股票、外汇、加密货币交易，提升您的投资技能。",
+    "keywords": [
+      "AI交易论坛",
+      "模拟盘交易平台", 
+      "股票交易学习",
+      "投资策略分析",
+      "交易社区",
+      "风险控制工具",
+      "智能投资平台",
+      "外汇交易模拟",
+      "加密货币交易学习",
+      "投资教育平台"
+    ],
+    "baseUrl": "https://marketbook.example.com",
+    "language": "zh-CN",
+    "charset": "UTF-8"
+  },
+  "meta": {
+    "robots": "index, follow, max-image-preview:large",
+    "viewport": "width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes",
+    "themeColor": "#007bff",
+    "author": "MarketBook Team"
+  },
+  "openGraph": {
+    "title": "MarketBook - AI智能交易论坛与模拟盘平台",
+    "description": "领先的AI驱动交易平台，零风险学习交易技能，专业交易社区交流",
+    "type": "website",
+    "image": {
+      "url": "https://marketbook.example.com/images/og-image-1200x630.jpg",
+      "width": 1200,
+      "height": 630,
+      "alt": "MarketBook AI交易平台"
+    },
+    "siteName": "MarketBook",
+    "locale": "zh_CN"
+  },
+  "twitter": {
+    "card": "summary_large_image",
+    "title": "MarketBook - AI智能交易论坛与模拟盘平台",
+    "description": "领先的AI驱动交易平台，零风险学习交易技能，专业交易社区交流",
+    "image": "https://marketbook.example.com/images/twitter-image-1200x600.jpg",
+    "site": "@marketbook"
+  },
+  "structuredData": {
+    "organization": {
+      "name": "MarketBook",
+      "logo": "https://marketbook.example.com/images/logo-200x200.png",
+      "sameAs": [
+        "https://twitter.com/marketbook",
+        "https://linkedin.com/company/marketbook"
+      ]
+    },
+    "website": {
+      "name": "MarketBook",
+      "description": "领先的AI驱动交易平台，提供实时模拟盘交易、智能策略分析和专业交易社区",
+      "url": "https://marketbook.example.com"
+    }
+  },
+  "performance": {
+    "lazyLoading": true,
+    "imageOptimization": true,
+    "minifyCSS": true,
+    "minifyJS": true,
+    "cacheControl": true
+  },
+  "accessibility": {
+    "skipLinks": true,
+    "ariaLabels": true,
+    "contrastRatio": "4.5:1",
+    "keyboardNavigation": true,
+    "screenReaderSupport": true
+  }
+}

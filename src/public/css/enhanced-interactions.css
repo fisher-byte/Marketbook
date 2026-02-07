@@ -1,0 +1,219 @@
+/* MarketBook 增强交互样式 - 设计优化 */
+
+/* 功能卡片微交互增强 */
+.feature {
+    /* 添加触摸设备专用交互 */
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+}
+
+/* 增强悬停效果 - 更细腻的视觉反馈 */
+.feature:hover {
+    transform: translateY(-8px) scale(1.02) rotateX(3deg);
+    box-shadow: 
+        0 25px 50px -12px rgba(37, 99, 235, 0.15),
+        0 0 0 1px rgba(37, 99, 235, 0.1);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* 新增：卡片按压效果 */
+.feature:active {
+    transform: translateY(-2px) scale(0.98);
+    transition: all 0.1s ease-out;
+}
+
+/* 增强图标动画 */
+.feature-icon {
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.feature:hover .feature-icon {
+    transform: scale(1.15) rotate(8deg);
+    box-shadow: 
+        0 12px 30px rgba(37, 99, 235, 0.4),
+        inset 0 2px 4px rgba(255, 255, 255, 0.2);
+}
+
+/* 新增：图标悬停光晕效果 */
+.feature-icon::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, transparent 70%);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: all 0.3s ease-out;
+    z-index: -1;
+}
+
+.feature:hover .feature-icon::after {
+    width: 120%;
+    height: 120%;
+}
+
+/* 增强徽章动画 */
+.feature-badge {
+    animation: badgePulse 3s ease-in-out infinite;
+    transition: all 0.3s ease-out;
+}
+
+@keyframes badgePulse {
+    0%, 100% { 
+        transform: scale(1) rotate(0deg);
+        box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+    }
+    50% { 
+        transform: scale(1.08) rotate(5deg);
+        box-shadow: 0 4px 16px rgba(245, 158, 11, 0.5);
+    }
+}
+
+.feature:hover .feature-badge {
+    animation-duration: 1.5s;
+    transform: scale(1.1) rotate(10deg);
+}
+
+/* 增强链接动画 */
+.feature-link {
+    position: relative;
+    overflow: hidden;
+}
+
+.feature-link::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: -100%;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+    transition: left 0.4s ease-out;
+}
+
+.feature-link:hover::before {
+    left: 100%;
+}
+
+.feature-link:hover::after {
+    transform: translateX(6px) scale(1.2);
+}
+
+/* 移动端触摸优化 */
+@media (hover: none) and (pointer: coarse) {
+    .feature {
+        /* 移除桌面端悬停效果 */
+        transform: none !important;
+        box-shadow: var(--shadow-md);
+    }
+    
+    .feature:active {
+        /* 触摸按压效果 */
+        transform: scale(0.96) !important;
+        box-shadow: var(--shadow-sm);
+        background: var(--bg-secondary);
+        transition: all 0.1s ease-out;
+    }
+    
+    .feature-icon:active {
+        transform: scale(0.9) !important;
+        background: var(--primary-dark);
+    }
+    
+    /* 触摸设备长按提示 */
+    .feature {
+        position: relative;
+    }
+    
+    .feature::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-radius: var(--radius-lg);
+        background: rgba(37, 99, 235, 0.05);
+        opacity: 0;
+        transition: opacity 0.2s ease-out;
+        pointer-events: none;
+    }
+    
+    .feature:active::before {
+        opacity: 1;
+    }
+}
+
+/* 新增：加载状态指示器 */
+.feature.loading {
+    position: relative;
+    overflow: hidden;
+}
+
+.feature.loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.4),
+        transparent
+    );
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+/* 新增：成功状态反馈 */
+.feature.success {
+    border-color: var(--success-color);
+    background: linear-gradient(135deg, var(--bg-primary), rgba(16, 185, 129, 0.05));
+}
+
+.feature.success .feature-icon {
+    background: linear-gradient(135deg, var(--success-color), #34d399);
+}
+
+/* 新增：错误状态反馈 */
+.feature.error {
+    border-color: var(--error-color);
+    background: linear-gradient(135deg, var(--bg-primary), rgba(239, 68, 68, 0.05));
+}
+
+.feature.error .feature-icon {
+    background: linear-gradient(135deg, var(--error-color), #f87171);
+}
+
+/* 增强焦点状态 */
+.feature:focus-within {
+    outline: 3px solid var(--primary-color);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+/* 性能优化：减少重绘 */
+.feature {
+    will-change: transform, box-shadow;
+    transform: translateZ(0);
+}
+
+/* 减少动画对性能的影响 */
+@media (prefers-reduced-motion: reduce) {
+    .feature {
+        transition: none !important;
+        animation: none !important;
+    }
+    
+    .feature:hover {
+        transform: none !important;
+    }
+}

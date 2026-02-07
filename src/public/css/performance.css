@@ -1,0 +1,64 @@
+/* MarketBook 性能优化样式表 */
+
+/* 关键CSS - 首屏内容优先加载 */
+.hero {
+    opacity: 0;
+    animation: fadeInUp 0.8s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 图片懒加载样式 */
+.lazy-image {
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.lazy-image.loaded {
+    opacity: 1;
+}
+
+/* 字体加载优化 */
+body {
+    font-display: swap;
+}
+
+/* 减少重排重绘的优化 */
+.feature-grid {
+    contain: layout style;
+}
+
+/* 滚动性能优化 */
+html {
+    scroll-behavior: smooth;
+}
+
+/* 触摸设备优化 */
+@media (hover: none) and (pointer: coarse) {
+    .cta-button {
+        min-height: 44px;
+        min-width: 44px;
+    }
+}
+
+/* 打印样式优化 */
+@media print {
+    .nav-links,
+    .cta-button {
+        display: none;
+    }
+    
+    body {
+        font-size: 12pt;
+        line-height: 1.4;
+    }
+}

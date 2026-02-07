@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人资料 - MarketBook</title>
+    <meta name="description" content="管理您的MarketBook个人资料、交易偏好和账户设置">
+    <link rel="stylesheet" href="/css/main.css">
+    <style>
+        .profile-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: var(--spacing-xl);
+        }
+        
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-2xl);
+            padding: var(--spacing-xl);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+        }
+        
+        .avatar-section {
+            position: relative;
+        }
+        
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--font-size-3xl);
+            color: white;
+            font-weight: bold;
+        }
+        
+        .avatar-upload {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .profile-info h1 {
+            font-size: var(--font-size-2xl);
+            margin-bottom: var(--spacing-sm);
+        }
+        
+        .profile-stats {
+            display: flex;
+            gap: var(--spacing-xl);
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: var(--font-size-xl);
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: var(--spacing-xl);
+        }
+        
+        .tab {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border: none;
+            background: none;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all var(--transition-fast);
+        }
+        
+        .tab.active {
+            border-bottom-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: var(--spacing-lg);
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: var(--spacing-sm);
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: var(--spacing-md);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+            transition: border-color var(--transition-fast);
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        .preference-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--spacing-lg);
+        }
+        
+        .preference-card {
+            padding: var(--spacing-lg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--bg-primary);
+            transition: all var(--transition-normal);
+        }
+        
+        .preference-card:hover {
+            border-color: var(--primary-color);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .preference-card h4 {
+            margin-bottom: var(--spacing-md);
+            color: var(--text-primary);
+        }
+        
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+        
+        .save-button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: var(--spacing-md) var(--spacing-xl);
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+        }
+        
+        .save-button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+        
+        @media (max-width: 768px) {
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .profile-stats {
+                justify-content: center;
+            }
+            
+            .preference-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header role="banner">
+        <nav role="navigation" aria-label="主导航">
+            <div class="logo">
+                <h1>MarketBook</h1>
+            </div>
+            <ul class="nav-links">
+                <li><a href="/forum">交易论坛</a></li>
+                <li><a href="/simulation">模拟盘</a></li>
+                <li><a href="/strategies">策略分析</a></li>
+                <li><a href="/community">社区</a></li>
+                <li><a href="/profile" aria-current="page">个人资料</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div class="profile-container">
+            <div class="profile-header">
+                <div class="avatar-section">
+                    <div class="avatar" id="userAvatar">MB</div>
+                    <button class="avatar-upload" aria-label="上传头像">📷</button>
+                </div>
+                <div class="profile-info">
+                    <h1 id="userName">交易员用户</h1>
+                    <p id="userEmail">user@marketbook.com</p>
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <div class="stat-value" id="tradingDays">30</div>
+                            <div>交易天数</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="successRate">78%</div>
+                            <div>成功率</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="ranking">#156</div>
+                            <div>排名</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tabs">
+                <button class="tab active" data-tab="basic">基本信息</button>
+                <button class="tab" data-tab="preferences">交易偏好</button>
+                <button class="tab" data-tab="security">安全设置</button>
+                <button class="tab" data-tab="notifications">通知设置</button>
+            </div>
+
+            <div class="tab-content active" id="basic-tab">
+                <form id="basicForm">
+                    <div class="form-group">
+                        <label for="displayName">显示名称</label>
+                        <input type="text" id="displayName" class="form-control" value="交易员用户">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">邮箱地址</label>
+                        <input type="email" id="email" class="form-control" value="user@marketbook.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">手机号码</label>
+                        <input type="tel" id="phone" class="form-control" value="+86 138****1234">
+                    </div>
+                    <div class="form-group">
+                        <label for="bio">个人简介</label>
+                        <textarea id="bio" class="form-control" rows="4" placeholder="介绍一下您的交易经验和投资理念...">热爱技术分析的量化交易爱好者，专注于股票和加密货币市场。</textarea>
+                    </div>
+                    <button type="submit" class="save-button">保存更改</button>
+                </form>
+            </div>
+
+            <div class="tab-content" id="preferences-tab">
+                <div class="preference-grid">
+                    <div class="preference-card">
+                        <h4>交易市场偏好</h4>
+                        <div class="checkbox-group">
+                            <label class="checkbox-item">
+                                <input type="checkbox" checked> A股市场
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" checked> 港股市场
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox"> 美股市场
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" checked> 加密货币
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="preference-card">
+                        <h4>风险偏好</h4>
+                        <div class="form-group">
+                            <select class="form-control">
+                                <option>保守型</option>
+                                <option selected>稳健型</option>
+                                <option>积极型</option>
+                                <option>激进型</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="preference-card">
+                        <h4>交易策略偏好</h4>
+                        <div class="checkbox-group">
+                            <label class="checkbox-item">
+                                <input type="checkbox" checked> 技术分析
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox"> 基本面分析
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" checked> 量化交易
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox"> 事件驱动
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <button class="save-button" style="margin-top: var(--spacing-xl)">保存偏好设置</button>
+            </div>
+
+            <div class="tab-content" id="security-tab">
+                <div class="form-group">
+                    <label for="currentPassword">当前密码</label>
+                    <input type="password" id="currentPassword" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="newPassword">新密码</label>
+                    <input type="password" id="newPassword" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">确认新密码</label>
+                    <input type="password" id="confirmPassword" class="form-control">
+                </div>
+                <button class="save-button">更新密码</button>
+                
+                <div style="margin-top: var(--spacing-2xl); padding-top: var(--spacing-xl); border-top: 1px solid var(--border-color);">
+                    <h4>双重认证</h4>
+                    <p style="color: var(--text-secondary); margin-bottom: var(--spacing-md);">增强账户安全性</p>
+                    <button class="save-button" style="background: var(--secondary-color);">启用双重认证</button>
+                </div>
+            </div>
+
+            <div class="tab-content" id="notifications-tab">
+                <div class="preference-grid">
+                    <div class="preference-card">
+                        <h4>交易通知</h4>
+                        <div class="checkbox-group">
+                            <label class="checkbox-item">
+                                <input type="checkbox" checked> 订单成交通知
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox"> 价格预警通知
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" checked> 持仓变动通知
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="preference-card">
+                        <h4>社区通知</h4>
+                        <div class="checkbox-group">
+                            <label class="checkbox-item">
+                                <input type="checkbox" checked> 新回复通知
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox"> 关注用户动态
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" checked> 热门话题推荐
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="preference-card">
+                        <h4>系统通知</h4>
+                        <div class="checkbox-group">
+                            <label class="checkbox-item">
+                                <input type="checkbox" checked> 平台更新通知
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox"> 安全提醒
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" checked> 活动推送
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <button class="save-button" style="margin-top: var(--spacing-xl)">保存通知设置</button>
+            </div>
+        </div>
+    </main>
+
+    <footer role="contentinfo">
+        <p>&copy; 2026 MarketBook. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // 标签切换功能
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                // 移除所有激活状态
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                // 激活当前标签
+                tab.classList.add('active');
+                const tabId = tab.getAttribute('data-tab');
+                document.getElementById(`${tabId}-tab`).classList.add('active');
+            });
+        });
+
+        // 表单提交处理
+        document.getElementById('basicForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            alert('基本信息已保存！');
+        });
+
+        // 模拟用户数据加载
+        function loadUserData() {
+            // 这里可以替换为实际的API调用
+            const userData = {
+                name: '智能交易员',
+                email: 'trader@marketbook.com',
+                tradingDays: 45,
+                successRate: '82%',
+                ranking: '#89'
+            };
+            
+            document.getElementById('userName').textContent = userData.name;
+            document.getElementById('userEmail').textContent = userData.email;
+            document.getElementById('tradingDays').textContent = userData.tradingDays;
+            document.getElementById('successRate').textContent = userData.successRate;
+            document.getElementById('ranking').textContent = userData.ranking;
+            document.getElementById('userAvatar').textContent = userData.name.charAt(0);
+        }
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', loadUserData);
+    </script>
+</body>
+</html>

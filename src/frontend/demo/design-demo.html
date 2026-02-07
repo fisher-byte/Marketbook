@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MarketBook 设计优化演示</title>
+    <link rel="stylesheet" href="../styles/card-design-enhancements.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 2rem;
+        }
+        .demo-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.95);
+            border-radius: 24px;
+            padding: 3rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+        }
+        .demo-title {
+            text-align: center;
+            color: #2d3748;
+            margin-bottom: 3rem;
+        }
+        .demo-title h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        .demo-title p {
+            font-size: 1.2rem;
+            color: #718096;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="demo-title">
+            <h1>🎨 MarketBook 设计优化演示</h1>
+            <p>体验现代化的卡片交互设计和视觉增强效果</p>
+        </div>
+        
+        <!-- 功能卡片网格 -->
+        <div class="feature-grid">
+            <div class="feature-card" data-feature="forum">
+                <div class="feature-icon">💬</div>
+                <span class="feature-badge">NEW</span>
+                <h3>智能交易论坛</h3>
+                <p>AI驱动的讨论社区，智能推荐优质内容，实时热点分析</p>
+                <div class="feature-stats">
+                    <span class="stat">📊 1.2K+ 活跃用户</span>
+                    <span class="stat">🔥 500+ 热门话题</span>
+                </div>
+                <a href="#" class="feature-link">探索论坛</a>
+            </div>
+            
+            <div class="feature-card" data-feature="simulation">
+                <div class="feature-icon">📈</div>
+                <span class="feature-badge">HOT</span>
+                <h3>实时模拟盘</h3>
+                <p>零风险体验真实交易环境，支持多种资产类别</p>
+                <div class="feature-stats">
+                    <span class="stat">💰 虚拟资金：100万</span>
+                    <span class="stat">⚡ 实时行情同步</span>
+                </div>
+                <a href="#" class="feature-link">开始交易</a>
+            </div>
+            
+            <div class="feature-card" data-feature="strategies">
+                <div class="feature-icon">🔍</div>
+                <h3>策略分析</h3>
+                <p>AI分析交易策略，提供专业建议，风险预警</p>
+                <div class="feature-stats">
+                    <span class="stat">🤖 AI智能分析</span>
+                    <span class="stat">📈 成功率分析</span>
+                </div>
+                <a href="#" class="feature-link">查看策略</a>
+            </div>
+            
+            <div class="feature-card" data-feature="risk-monitor">
+                <div class="feature-icon">🛡️</div>
+                <span class="feature-badge">PRO</span>
+                <h3>智能风险监控</h3>
+                <p>实时风险预警，智能止损，批量操作，保障交易安全</p>
+                <div class="feature-stats">
+                    <span class="stat">🔔 实时预警</span>
+                    <span class="stat">⚡ 批量操作</span>
+                </div>
+                <a href="#" class="feature-link">安全设置</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="../scripts/card-interactions.js"></script>
+</body>
+</html>

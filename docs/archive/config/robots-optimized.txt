@@ -1,0 +1,38 @@
+# Optimized Robots.txt for MarketBook
+User-agent: *
+Allow: /
+Allow: /forum/
+Allow: /simulation/
+Allow: /strategies/
+Allow: /community/
+Allow: /api/
+
+# Disallow sensitive areas
+Disallow: /admin/
+Disallow: /private/
+Disallow: /uploads/
+Disallow: /config/
+
+# Sitemap location
+Sitemap: https://marketbook.example.com/sitemap.xml
+
+# Crawl delay for search engines
+Crawl-delay: 1
+
+# Allow image indexing for SEO
+Allow: /images/*.jpg
+Allow: /images/*.png
+Allow: /images/*.gif
+Allow: /images/*.webp
+
+# Allow CSS and JS for proper rendering
+Allow: /css/*.css
+Allow: /js/*.js
+
+# Mobile user agents
+User-agent: Googlebot-Mobile
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1

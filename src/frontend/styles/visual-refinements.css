@@ -1,0 +1,201 @@
+/* MarketBook 视觉精细化优化 */
+
+/* 1. 渐变背景增强 */
+.hero {
+    position: relative;
+    overflow: hidden;
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at center, rgba(26, 115, 232, 0.1) 0%, transparent 70%);
+    animation: float 6s ease-in-out infinite;
+    z-index: -1;
+}
+
+@keyframes float {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    33% { transform: translate(10px, -5px) rotate(1deg); }
+    66% { transform: translate(-5px, 10px) rotate(-1deg); }
+}
+
+/* 2. 按钮悬停效果增强 */
+.cta-button {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.cta-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.5s;
+}
+
+.cta-button:hover::before {
+    left: 100%;
+}
+
+.cta-button:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 8px 25px rgba(26, 115, 232, 0.3);
+}
+
+/* 3. 功能卡片细节优化 */
+.feature {
+    position: relative;
+    border: 1px solid transparent;
+    background: linear-gradient(145deg, #ffffff, #f8f9fa);
+    box-shadow: 5px 5px 15px rgba(0,0,0,0.05), 
+                -5px -5px 15px rgba(255,255,255,0.8);
+}
+
+.feature:hover {
+    border-color: var(--primary-color);
+    box-shadow: 8px 8px 25px rgba(0,0,0,0.1), 
+                -8px -8px 25px rgba(255,255,255,0.9);
+}
+
+.feature-icon {
+    font-size: 3.5rem;
+    filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.1));
+    transition: transform 0.3s ease;
+}
+
+.feature:hover .feature-icon {
+    transform: scale(1.1) rotate(5deg);
+}
+
+/* 4. 徽章动画效果 */
+.feature-badge {
+    animation: pulse 2s infinite;
+    box-shadow: 0 2px 10px rgba(251, 188, 5, 0.3);
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+/* 5. 统计数据样式优化 */
+.stat {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.3rem 0.8rem;
+    background: rgba(248, 249, 250, 0.8);
+    border-radius: 20px;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+}
+
+.stat:hover {
+    background: rgba(26, 115, 232, 0.1);
+    transform: translateX(5px);
+}
+
+/* 6. 导航栏优化 */
+.nav-links a {
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: var(--primary-color);
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.nav-links a:hover::after {
+    width: 80%;
+}
+
+/* 7. 页面加载动画优化 */
+body {
+    opacity: 0;
+    animation: pageFadeIn 0.8s ease-out forwards;
+}
+
+@keyframes pageFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 8. 响应式设计增强 */
+@media (max-width: 768px) {
+    .feature-grid {
+        gap: 1.5rem;
+    }
+    
+    .feature {
+        padding: 1.5rem;
+    }
+    
+    .hero h1 {
+        font-size: 2.2rem;
+    }
+    
+    .cta-button {
+        padding: 0.8rem 1.5rem;
+        font-size: 1rem;
+    }
+}
+
+/* 9. 可访问性增强 */
+@media (prefers-reduced-motion: reduce) {
+    .hero::before,
+    .cta-button::before,
+    .feature-icon,
+    .feature-badge,
+    .stat,
+    .nav-links a::after {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+/* 10. 性能优化 */
+.feature,
+.cta-button,
+.nav-links a {
+    will-change: transform;
+}
+
+/* 11. 暗色模式适配 */
+@media (prefers-color-scheme: dark) {
+    .feature {
+        background: linear-gradient(145deg, #303134, #202124);
+        box-shadow: 5px 5px 15px rgba(0,0,0,0.3), 
+                    -5px -5px 15px rgba(48, 49, 52, 0.5);
+    }
+    
+    .stat {
+        background: rgba(48, 49, 52, 0.8);
+    }
+    
+    .stat:hover {
+        background: rgba(26, 115, 232, 0.2);
+    }
+}

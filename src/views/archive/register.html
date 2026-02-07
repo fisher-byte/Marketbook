@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN" itemscope itemtype="https://schema.org/WebPage">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册账户 | MarketBook - AI驱动的智能交易论坛与模拟盘平台</title>
+    <meta name="description" content="立即注册MarketBook账户，体验AI增强的交易论坛和模拟盘功能。零风险学习交易策略，与专业交易者交流。">
+    <meta name="keywords" content="注册交易账户,模拟盘注册,交易论坛注册,AI交易平台注册">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="注册账户 | MarketBook - AI驱动的智能交易论坛与模拟盘平台">
+    <meta property="og:description" content="立即注册MarketBook账户，体验AI增强的交易论坛和模拟盘功能">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://marketbook.example.com/register">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="注册账户 | MarketBook">
+    <meta name="twitter:description" content="立即注册MarketBook账户，体验AI增强的交易论坛和模拟盘功能">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://marketbook.example.com/register">
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "注册账户 | MarketBook",
+        "description": "注册MarketBook账户的页面",
+        "url": "https://marketbook.example.com/register",
+        "breadcrumb": {
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+                {
+                    "@type": "ListItem",
+                    "position": 1,
+                    "name": "首页",
+                    "item": "https://marketbook.example.com"
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 2,
+                    "name": "注册账户"
+                }
+            ]
+        }
+    }
+    </script>
+    
+    <link rel="stylesheet" href="/css/auth.css">
+</head>
+<body>
+    <main role="main">
+        <div class="auth-container">
+            <div class="auth-form">
+                <header>
+                    <h1 itemprop="headline">注册 MarketBook 账户</h1>
+                    <p>加入AI驱动的智能交易社区，开启您的交易学习之旅</p>
+                </header>
+                
+                <form id="registerForm" action="/auth/register" method="POST" role="form">
+                    <fieldset>
+                        <legend>账户信息</legend>
+                        <div class="form-group">
+                            <label for="username">用户名</label>
+                            <input type="text" id="username" name="username" required aria-describedby="usernameHelp">
+                            <small id="usernameHelp">3-20位字母、数字或下划线</small>
+                            <div class="error-message" id="usernameError" role="alert"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">邮箱地址</label>
+                            <input type="email" id="email" name="email" required>
+                            <div class="error-message" id="emailError" role="alert"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="password">密码</label>
+                            <input type="password" id="password" name="password" required aria-describedby="passwordHelp">
+                            <small id="passwordHelp">至少8位，包含大小写字母和数字</small>
+                            <div class="error-message" id="passwordError" role="alert"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="confirmPassword">确认密码</label>
+                            <input type="password" id="confirmPassword" name="confirmPassword" required>
+                            <div class="error-message" id="confirmPasswordError" role="alert"></div>
+                        </div>
+                    </fieldset>
+                    
+                    <button type="submit" class="submit-btn">注册</button>
+                </form>
+                
+                <footer class="auth-links">
+                    <p>已有账户？<a href="/login" aria-label="跳转到登录页面">立即登录</a></p>
+                </footer>
+            </div>
+        </div>
+    </main>
+    
+    <script src="/js/registerValidation.js"></script>
+</body>
+</html>

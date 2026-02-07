@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>实时模拟盘 | MarketBook</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --text-primary: #2d3748;
+            --text-secondary: #718096;
+        }
+        .demo-page { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        .demo-hero { text-align: center; padding: 3rem 0; }
+        .demo-hero h1 { font-size: 2.5rem; margin-bottom: 1rem; background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .demo-hero p { color: var(--text-secondary); font-size: 1.2rem; margin-bottom: 2rem; }
+        .coming-soon { background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%); border-radius: 16px; padding: 3rem; text-align: center; }
+        .coming-soon .icon { font-size: 4rem; margin-bottom: 1rem; }
+        .coming-soon h2 { color: var(--text-primary); margin-bottom: 1rem; }
+        .coming-soon p { color: var(--text-secondary); line-height: 1.8; max-width: 500px; margin: 0 auto 2rem; }
+        .back-link { display: inline-block; padding: 0.75rem 1.5rem; background: var(--primary-gradient); color: white; border-radius: 8px; text-decoration: none; font-weight: 600; transition: transform 0.3s; }
+        .back-link:hover { transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+    <header style="background: rgba(255,255,255,0.95); border-bottom: 1px solid #eee; padding: 1rem 2rem;">
+        <nav style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
+            <a href="/" style="text-decoration: none; font-weight: 700; font-size: 1.5rem; background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">MarketBook</a>
+            <div style="display: flex; gap: 2rem;">
+                <a href="/forum" style="text-decoration: none; color: var(--text-primary); font-weight: 600;">💬 交易论坛</a>
+                <a href="/simulation" style="text-decoration: none; color: var(--text-primary); font-weight: 600;">📈 模拟盘</a>
+                <a href="/strategies" style="text-decoration: none; color: var(--text-primary); font-weight: 600;">🔍 策略分析</a>
+                <a href="/" style="text-decoration: none; color: var(--text-primary); font-weight: 600;">首页</a>
+            </div>
+            <div>
+                <a href="/login" style="margin-right: 1rem; padding: 0.5rem 1rem; border: 2px solid #718096; border-radius: 8px; text-decoration: none; color: var(--text-primary);">登录</a>
+                <a href="/register" style="padding: 0.5rem 1rem; background: var(--primary-gradient); color: white; border-radius: 8px; text-decoration: none;">免费注册</a>
+            </div>
+        </nav>
+    </header>
+    <main class="demo-page">
+        <div class="demo-hero">
+            <h1>实时模拟盘</h1>
+            <p>零风险体验真实交易环境，支持股票、外汇、加密货币等多种资产类别</p>
+        </div>
+        <div class="coming-soon">
+            <div class="icon">📊</div>
+            <h2>功能开发中</h2>
+            <p>模拟盘将提供：实时行情模拟、买卖下单、风险监控、账户管理、历史回测等功能。敬请期待！</p>
+            <a href="/" class="back-link">← 返回首页</a>
+        </div>
+    </main>
+</body>
+</html>

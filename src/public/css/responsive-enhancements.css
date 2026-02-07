@@ -1,0 +1,339 @@
+/* MarketBook 响应式设计增强 - 移动端优化 */
+
+/* 移动端优先的响应式设计 */
+@media (max-width: 768px) {
+    /* 头部导航移动端优化 */
+    header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    nav {
+        flex-direction: column;
+        padding: var(--spacing-sm) var(--spacing-md);
+        gap: var(--spacing-sm);
+    }
+    
+    .logo h1 {
+        font-size: var(--font-size-xl);
+        margin-bottom: var(--spacing-xs);
+    }
+    
+    .nav-links {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--spacing-sm);
+        width: 100%;
+    }
+    
+    .nav-links a {
+        text-align: center;
+        padding: var(--spacing-sm);
+        font-size: var(--font-size-sm);
+        border-radius: var(--radius-md);
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+    }
+    
+    .nav-links a:hover {
+        background: var(--primary-color);
+        color: white;
+    }
+    
+    /* 主内容区域移动端优化 */
+    main {
+        padding: calc(var(--spacing-2xl) + 60px) var(--spacing-md) var(--spacing-xl);
+        margin-top: 60px; /* 为固定头部留出空间 */
+    }
+    
+    .hero {
+        padding: var(--spacing-xl) var(--spacing-md);
+        margin-bottom: var(--spacing-xl);
+        border-radius: var(--radius-md);
+    }
+    
+    .hero h1 {
+        font-size: var(--font-size-2xl);
+        line-height: 1.3;
+        margin-bottom: var(--spacing-sm);
+    }
+    
+    .hero p {
+        font-size: var(--font-size-base);
+        margin-bottom: var(--spacing-lg);
+    }
+    
+    .cta-button {
+        width: 100%;
+        max-width: 280px;
+        padding: var(--spacing-lg) var(--spacing-xl);
+        font-size: var(--font-size-base);
+        border-radius: var(--radius-lg);
+    }
+    
+    /* 功能区域移动端优化 */
+    .feature-grid {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-lg);
+        margin-top: var(--spacing-xl);
+    }
+    
+    .feature {
+        padding: var(--spacing-lg);
+        border-radius: var(--radius-md);
+        margin-bottom: var(--spacing-sm);
+    }
+    
+    .feature-icon {
+        width: 50px;
+        height: 50px;
+        font-size: var(--font-size-xl);
+        margin-bottom: var(--spacing-sm);
+    }
+    
+    .feature h3 {
+        font-size: var(--font-size-lg);
+        margin-bottom: var(--spacing-sm);
+    }
+    
+    .feature p {
+        font-size: var(--font-size-sm);
+        line-height: 1.5;
+    }
+    
+    /* 移动端触摸优化 */
+    .cta-button,
+    .nav-links a,
+    .feature {
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+    }
+    
+    .cta-button:active,
+    .nav-links a:active,
+    .feature:active {
+        transform: scale(0.98);
+        transition: transform 100ms ease;
+    }
+    
+    /* 移动端滚动优化 */
+    html {
+        scroll-padding-top: 80px; /* 为固定导航留出空间 */
+    }
+    
+    /* 移动端性能优化 */
+    .hero::before {
+        animation: none; /* 移动端减少动画以节省性能 */
+    }
+    
+    .feature {
+        animation: none; /* 移动端减少动画 */
+    }
+}
+
+/* 超小屏幕优化 (小于480px) */
+@media (max-width: 480px) {
+    nav {
+        padding: var(--spacing-xs) var(--spacing-sm);
+    }
+    
+    .logo h1 {
+        font-size: var(--font-size-lg);
+    }
+    
+    .nav-links {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-xs);
+    }
+    
+    .nav-links a {
+        padding: var(--spacing-sm) var(--spacing-md);
+        font-size: var(--font-size-xs);
+    }
+    
+    main {
+        padding: calc(var(--spacing-xl) + 50px) var(--spacing-sm) var(--spacing-lg);
+        margin-top: 50px;
+    }
+    
+    .hero {
+        padding: var(--spacing-lg) var(--spacing-sm);
+    }
+    
+    .hero h1 {
+        font-size: var(--font-size-xl);
+    }
+    
+    .hero p {
+        font-size: var(--font-size-sm);
+    }
+    
+    .feature {
+        padding: var(--spacing-md);
+    }
+    
+    .feature-icon {
+        width: 40px;
+        height: 40px;
+        font-size: var(--font-size-lg);
+    }
+    
+    .feature h3 {
+        font-size: var(--font-size-base);
+    }
+    
+    .feature p {
+        font-size: var(--font-size-xs);
+    }
+}
+
+/* 平板设备优化 (768px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .feature-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--spacing-lg);
+    }
+    
+    .hero h1 {
+        font-size: var(--font-size-3xl);
+    }
+    
+    .hero p {
+        font-size: var(--font-size-lg);
+    }
+    
+    main {
+        padding: var(--spacing-2xl) var(--spacing-lg);
+    }
+}
+
+/* 移动端横屏优化 */
+@media (max-height: 500px) and (orientation: landscape) {
+    header {
+        position: static;
+    }
+    
+    main {
+        margin-top: 0;
+        padding-top: var(--spacing-lg);
+    }
+    
+    .hero {
+        padding: var(--spacing-md);
+    }
+    
+    .hero h1 {
+        font-size: var(--font-size-xl);
+    }
+    
+    .feature-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--spacing-md);
+    }
+}
+
+/* 高DPI屏幕优化 */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .logo h1 {
+        font-weight: 600; /* 高DPI屏幕字体加粗 */
+    }
+    
+    .cta-button {
+        border-width: 0.5px; /* 高DPI屏幕边框优化 */
+    }
+}
+
+/* 折叠屏设备支持 */
+@media (spanning: single-fold-vertical) {
+    main {
+        padding-left: env(fold-left);
+        padding-right: env(fold-right);
+    }
+}
+
+/* 可折叠设备铰链区域规避 */
+@supports (padding: env(safe-area-inset-top)) {
+    body {
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+    }
+}
+
+/* 移动端性能优化类 */
+.mobile-optimized {
+    will-change: transform;
+    backface-visibility: hidden;
+    transform: translateZ(0);
+}
+
+/* 移动端加载优化 */
+@media (max-width: 768px) {
+    .lazy-load {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    
+    .lazy-load.loaded {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 移动端滚动条优化 */
+@media (max-width: 768px) {
+    ::-webkit-scrollbar {
+        width: 4px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: var(--bg-secondary);
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: var(--primary-color);
+        border-radius: 2px;
+    }
+}
+
+/* 移动端输入优化 */
+@media (max-width: 768px) {
+    input, textarea, select {
+        font-size: 16px; /* 防止iOS缩放 */
+        min-height: 44px; /* 最小触摸目标尺寸 */
+    }
+    
+    button {
+        min-height: 44px;
+        min-width: 44px;
+    }
+}
+
+/* 移动端网络状态指示 */
+.offline-indicator {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: var(--error-color);
+    color: white;
+    text-align: center;
+    padding: var(--spacing-sm);
+    font-size: var(--font-size-sm);
+    z-index: 2000;
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .offline-indicator {
+        display: block;
+    }
+}

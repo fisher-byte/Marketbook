@@ -1,0 +1,396 @@
+/* MarketBook 设计优化 v4 - 视觉层次与交互反馈增强 */
+
+/* ==================== 视觉层次优化 ==================== */
+
+/* 主标题层次增强 */
+.hero h1 {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, #1a73e8 0%, #4285f4 50%, #34a853 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.hero p {
+    font-size: 1.25rem;
+    color: #6b7280;
+    margin-bottom: 2rem;
+    max-width: 600px;
+    line-height: 1.6;
+}
+
+/* 功能卡片视觉权重调整 */
+.feature {
+    background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 2rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.feature::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(26, 115, 232, 0.05), transparent);
+    transition: left 0.6s ease;
+}
+
+.feature:hover::before {
+    left: 100%;
+}
+
+.feature:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    border-color: #d1d5db;
+}
+
+/* 功能图标视觉增强 */
+.feature-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    display: inline-block;
+    transition: transform 0.3s ease;
+}
+
+.feature:hover .feature-icon {
+    transform: scale(1.1) rotate(5deg);
+}
+
+/* ==================== 徽章系统优化 ==================== */
+
+.feature-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.feature-badge.NEW {
+    background: linear-gradient(135deg, #10b981, #34d399);
+    color: white;
+    animation: pulse-glow 2s infinite;
+}
+
+.feature-badge.HOT {
+    background: linear-gradient(135deg, #ef4444, #f87171);
+    color: white;
+    animation: bounce-glow 2s infinite;
+}
+
+.feature-badge.PRO {
+    background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+    color: white;
+    animation: shimmer-glow 3s infinite;
+}
+
+@keyframes pulse-glow {
+    0%, 100% { 
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+        transform: scale(1);
+    }
+    50% { 
+        box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+        transform: scale(1.05);
+    }
+}
+
+@keyframes bounce-glow {
+    0%, 100% { 
+        transform: translateY(0);
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+    }
+    50% { 
+        transform: translateY(-2px);
+        box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2);
+    }
+}
+
+@keyframes shimmer-glow {
+    0%, 100% { 
+        background-position: 0% 50%;
+    }
+    50% { 
+        background-position: 100% 50%;
+    }
+}
+
+/* ==================== 统计信息视觉优化 ==================== */
+
+.feature-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 1rem 0;
+}
+
+.stat {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: #6b7280;
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.feature:hover .stat {
+    background: rgba(26, 115, 232, 0.05);
+    color: #374151;
+    transform: translateX(4px);
+}
+
+/* ==================== CTA按钮视觉增强 ==================== */
+
+.cta-button {
+    background: linear-gradient(135deg, #1a73e8, #4285f4);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    font-size: 1.125rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.cta-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.6s ease;
+}
+
+.cta-button:hover::before {
+    left: 100%;
+}
+
+.cta-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(26, 115, 232, 0.3);
+}
+
+.cta-button:active {
+    transform: translateY(0);
+}
+
+/* ==================== 功能链接优化 ==================== */
+
+.feature-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #1a73e8;
+    text-decoration: none;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.feature-link::after {
+    content: '→';
+    transition: transform 0.3s ease;
+}
+
+.feature-link:hover {
+    background: rgba(26, 115, 232, 0.05);
+    border-color: rgba(26, 115, 232, 0.2);
+    transform: translateX(4px);
+}
+
+.feature-link:hover::after {
+    transform: translateX(4px);
+}
+
+/* ==================== 网格布局优化 ==================== */
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+@media (max-width: 768px) {
+    .feature-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .feature {
+        padding: 1.5rem;
+    }
+}
+
+/* ==================== 导航栏视觉优化 ==================== */
+
+.nav-links a {
+    position: relative;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    color: #374151;
+    transition: all 0.3s ease;
+}
+
+.nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #1a73e8, #4285f4);
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.nav-links a:hover::after {
+    width: 80%;
+}
+
+.nav-links a:hover {
+    color: #1a73e8;
+}
+
+/* ==================== 加载状态视觉优化 ==================== */
+
+.loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 3rem;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #e5e7eb;
+    border-top: 3px solid #1a73e8;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ==================== 错误状态视觉优化 ==================== */
+
+.error-state {
+    background: linear-gradient(135deg, #fef2f2, #fef2f2);
+    border: 1px solid #fecaca;
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    color: #dc2626;
+}
+
+.error-state h3 {
+    color: #dc2626;
+    margin-bottom: 1rem;
+}
+
+/* ==================== 成功状态视觉优化 ==================== */
+
+.success-state {
+    background: linear-gradient(135deg, #f0fdf4, #f0fdf4);
+    border: 1px solid #bbf7d0;
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    color: #16a34a;
+}
+
+.success-state h3 {
+    color: #16a34a;
+    margin-bottom: 1rem;
+}
+
+/* ==================== 暗色主题适配 ==================== */
+
+@media (prefers-color-scheme: dark) {
+    .feature {
+        background: linear-gradient(145deg, #1f2937, #374151);
+        border-color: #4b5563;
+    }
+    
+    .feature:hover {
+        background: linear-gradient(145deg, #374151, #4b5563);
+    }
+    
+    .stat {
+        background: rgba(255, 255, 255, 0.05);
+        color: #d1d5db;
+    }
+    
+    .feature:hover .stat {
+        background: rgba(26, 115, 232, 0.1);
+    }
+    
+    .nav-links a {
+        color: #d1d5db;
+    }
+    
+    .nav-links a:hover {
+        color: #60a5fa;
+    }
+}
+
+/* ==================== 可访问性优化 ==================== */
+
+@media (prefers-reduced-motion: reduce) {
+    .feature,
+    .feature-icon,
+    .cta-button,
+    .feature-link,
+    .stat {
+        transition: none;
+    }
+    
+    .feature-badge {
+        animation: none;
+    }
+    
+    .loading-spinner {
+        animation: none;
+        border-top-color: transparent;
+    }
+}
+
+/* ==================== 焦点状态优化 ==================== */
+
+.cta-button:focus-visible,
+.feature-link:focus-visible,
+.nav-links a:focus-visible {
+    outline: 2px solid #1a73e8;
+    outline-offset: 2px;
+    border-radius: 4px;
+}

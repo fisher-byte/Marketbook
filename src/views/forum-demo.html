@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>交易论坛 | MarketBook</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --text-primary: #2d3748;
+            --text-secondary: #718096;
+        }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh; margin: 0; }
+        .forum-page { max-width: 1000px; margin: 0 auto; padding: 2rem; }
+        .forum-header { margin-bottom: 2rem; }
+        .forum-header h1 { font-size: 2rem; background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .forum-header p { color: var(--text-secondary); margin-top: 0.5rem; }
+        .forum-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+        .forum-tab { padding: 0.5rem 1rem; border-radius: 8px; background: white; border: 1px solid #e2e8f0; color: var(--text-primary); text-decoration: none; font-weight: 500; transition: all 0.2s; }
+        .forum-tab:hover, .forum-tab.active { background: var(--primary-gradient); color: white; border-color: transparent; }
+        .post-list { background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden; }
+        .post-item { padding: 1.25rem 1.5rem; border-bottom: 1px solid #eee; display: flex; gap: 1rem; align-items: flex-start; transition: background 0.2s; }
+        .post-item:hover { background: #f8fafc; }
+        .post-item:last-child { border-bottom: none; }
+        .post-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--primary-gradient); flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; }
+        .post-content { flex: 1; min-width: 0; }
+        .post-title { font-size: 1.05rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.35rem; }
+        .post-title a { color: inherit; text-decoration: none; }
+        .post-title a:hover { color: #667eea; }
+        .post-meta { font-size: 0.85rem; color: var(--text-secondary); }
+        .post-stats { display: flex; gap: 1rem; font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.5rem; }
+        .post-badge { padding: 0.15rem 0.5rem; border-radius: 4px; font-size: 0.75rem; background: #e9f5ff; color: #667eea; }
+        .post-badge.hot { background: #fff0f0; color: #e53e3e; }
+        .post-badge.new { background: #f0fff4; color: #38a169; }
+        .demo-notice { margin-top: 2rem; padding: 1rem; background: #fff9e6; border-radius: 8px; font-size: 0.9rem; color: #856404; }
+        .back-link { display: inline-block; margin-top: 1rem; padding: 0.5rem 1rem; color: #667eea; text-decoration: none; font-weight: 500; }
+        .back-link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <header style="background: rgba(255,255,255,0.95); border-bottom: 1px solid #eee; padding: 1rem 2rem;">
+        <nav style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
+            <a href="/" style="text-decoration: none; font-weight: 700; font-size: 1.5rem; background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">MarketBook</a>
+            <div style="display: flex; gap: 2rem;">
+                <a href="/forum" style="text-decoration: none; color: var(--text-primary); font-weight: 600;">💬 交易论坛</a>
+                <a href="/simulation" style="text-decoration: none; color: var(--text-primary); font-weight: 600;">📈 模拟盘</a>
+                <a href="/strategies" style="text-decoration: none; color: var(--text-primary); font-weight: 600;">🔍 策略分析</a>
+                <a href="/" style="text-decoration: none; color: var(--text-primary); font-weight: 600;">首页</a>
+            </div>
+            <div>
+                <a href="/login" style="margin-right: 1rem; padding: 0.5rem 1rem; border: 2px solid #718096; border-radius: 8px; text-decoration: none; color: var(--text-primary);">登录</a>
+                <a href="/register" style="padding: 0.5rem 1rem; background: var(--primary-gradient); color: white; border-radius: 8px; text-decoration: none;">免费注册</a>
+            </div>
+        </nav>
+    </header>
+    <main class="forum-page">
+        <div class="forum-header">
+            <h1>智能交易论坛</h1>
+            <p>AI驱动的讨论社区 · 与专业交易者交流策略与市场见解</p>
+        </div>
+        <div class="forum-tabs">
+            <a href="#" class="forum-tab active">全部</a>
+            <a href="#" class="forum-tab">股票</a>
+            <a href="#" class="forum-tab">外汇</a>
+            <a href="#" class="forum-tab">加密货币</a>
+            <a href="#" class="forum-tab">策略分享</a>
+        </div>
+        <div class="post-list">
+            <div class="post-item">
+                <div class="post-avatar">张</div>
+                <div class="post-content">
+                    <div class="post-title"><a href="#">近期A股震荡行情下的持仓策略分享</a></div>
+                    <div class="post-meta">张先生 · 2小时前</div>
+                    <div class="post-stats">
+                        <span>👁 328 浏览</span>
+                        <span>💬 24 回复</span>
+                        <span class="post-badge hot">热门</span>
+                    </div>
+                </div>
+            </div>
+            <div class="post-item">
+                <div class="post-avatar">李</div>
+                <div class="post-content">
+                    <div class="post-title"><a href="#">新手如何用模拟盘建立交易系统</a></div>
+                    <div class="post-meta">李女士 · 5小时前</div>
+                    <div class="post-stats">
+                        <span>👁 156 浏览</span>
+                        <span>💬 12 回复</span>
+                        <span class="post-badge new">精华</span>
+                    </div>
+                </div>
+            </div>
+            <div class="post-item">
+                <div class="post-avatar">王</div>
+                <div class="post-content">
+                    <div class="post-title"><a href="#">BTC突破后的技术面分析</a></div>
+                    <div class="post-meta">王老师 · 昨天</div>
+                    <div class="post-stats">
+                        <span>👁 512 浏览</span>
+                        <span>💬 45 回复</span>
+                    </div>
+                </div>
+            </div>
+            <div class="post-item">
+                <div class="post-avatar">赵</div>
+                <div class="post-content">
+                    <div class="post-title"><a href="#">外汇日内交易的心得与止损设置</a></div>
+                    <div class="post-meta">赵先生 · 2天前</div>
+                    <div class="post-stats">
+                        <span>👁 89 浏览</span>
+                        <span>💬 8 回复</span>
+                        <span class="post-badge">AI推荐</span>
+                    </div>
+                </div>
+            </div>
+            <div class="post-item">
+                <div class="post-avatar">陈</div>
+                <div class="post-content">
+                    <div class="post-title"><a href="#">模拟盘三个月收益复盘，分享我的选股逻辑</a></div>
+                    <div class="post-meta">陈女士 · 3天前</div>
+                    <div class="post-stats">
+                        <span>👁 234 浏览</span>
+                        <span>💬 18 回复</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="demo-notice">
+            ⚠️ 演示模式：以上为示例帖子，点击暂无实际功能。完整论坛功能（发帖、回复、AI推荐）待开发。
+        </div>
+        <a href="/" class="back-link">← 返回首页</a>
+    </main>
+</body>
+</html>

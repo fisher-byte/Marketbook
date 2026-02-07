@@ -1,0 +1,242 @@
+/* MarketBook 设计优化增强样式 */
+
+/* ==================== 全局设计增强 ==================== */
+
+/* 平滑滚动优化 */
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 80px; /* 为固定导航栏留出空间 */
+}
+
+/* 增强按钮交互效果 */
+.cta-button, .feature-link, .nav-links a {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.cta-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(26, 115, 232, 0.3);
+}
+
+.cta-button:active {
+    transform: translateY(0);
+}
+
+/* 功能卡片悬停增强 */
+.feature {
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.feature:hover {
+    transform: translateY(-5px);
+    border-color: rgba(26, 115, 232, 0.2);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* ==================== 徽章动画增强 ==================== */
+
+.feature-badge {
+    animation: badgePulse 2s infinite;
+    position: relative;
+}
+
+@keyframes badgePulse {
+    0%, 100% { 
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% { 
+        transform: scale(1.05);
+        opacity: 0.8;
+    }
+}
+
+.feature-badge.NEW {
+    background: linear-gradient(45deg, #FF6B6B, #FF8E53);
+    animation-duration: 1.5s;
+}
+
+.feature-badge.HOT {
+    background: linear-gradient(45deg, #FF4757, #FF6347);
+    animation-duration: 1s;
+}
+
+.feature-badge.PRO {
+    background: linear-gradient(45deg, #1a73e8, #4285f4);
+    animation-duration: 2s;
+}
+
+/* ==================== 图标动画增强 ==================== */
+
+.feature-icon {
+    font-size: 2.5rem;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.feature:hover .feature-icon {
+    transform: scale(1.1) rotate(5deg);
+    animation: iconFloat 3s ease-in-out infinite;
+}
+
+@keyframes iconFloat {
+    0%, 100% { transform: translateY(0px) scale(1.1) rotate(5deg); }
+    50% { transform: translateY(-5px) scale(1.15) rotate(8deg); }
+}
+
+/* ==================== 统计信息增强 ==================== */
+
+.feature-stats {
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.feature:hover .feature-stats {
+    opacity: 1;
+}
+
+.stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.9rem;
+    margin-right: 10px;
+}
+
+/* ==================== 导航栏增强 ==================== */
+
+.nav-links a {
+    position: relative;
+    padding: 10px 15px;
+    border-radius: 8px;
+}
+
+.nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #1a73e8, #4285f4);
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.nav-links a:hover::after {
+    width: 80%;
+}
+
+.nav-links a.active::after {
+    width: 100%;
+}
+
+/* ==================== 响应式设计增强 ==================== */
+
+@media (max-width: 768px) {
+    .feature-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .feature:hover {
+        transform: translateY(-2px);
+    }
+    
+    .nav-links {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .nav-links a::after {
+        display: none;
+    }
+    
+    .nav-links a {
+        text-align: center;
+        border: 1px solid rgba(26, 115, 232, 0.1);
+    }
+}
+
+/* ==================== 加载状态增强 ==================== */
+
+.loading-state {
+    animation: skeletonLoading 1.5s infinite;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+}
+
+@keyframes skeletonLoading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* ==================== 可访问性增强 ==================== */
+
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* 高对比度模式支持 */
+@media (prefers-contrast: high) {
+    .feature-badge {
+        border: 2px solid currentColor;
+    }
+    
+    .nav-links a::after {
+        height: 3px;
+    }
+}
+
+/* ==================== 暗色主题支持 ==================== */
+
+@media (prefers-color-scheme: dark) {
+    .feature {
+        background: rgba(255, 255, 255, 0.05);
+    }
+    
+    .feature:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+    
+    .loading-state {
+        background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+    }
+}
+
+/* ==================== 性能优化 ==================== */
+
+/* 延迟加载动画 */
+.feature {
+    animation: fadeInUp 0.6s ease-out;
+    animation-fill-mode: both;
+}
+
+.feature:nth-child(1) { animation-delay: 0.1s; }
+.feature:nth-child(2) { animation-delay: 0.2s; }
+.feature:nth-child(3) { animation-delay: 0.3s; }
+.feature:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 减少重绘优化 */
+.feature {
+    will-change: transform;
+    backface-visibility: hidden;
+}

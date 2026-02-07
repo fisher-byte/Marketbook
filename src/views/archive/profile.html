@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户资料 - MarketBook</title>
+    <link rel="stylesheet" href="/css/profile.css">
+</head>
+<body>
+    <div class="profile-container">
+        <header class="profile-header">
+            <h1>用户资料管理</h1>
+            <nav class="profile-nav">
+                <a href="/dashboard" class="nav-link">返回首页</a>
+                <a href="/logout" class="nav-link logout">退出登录</a>
+            </nav>
+        </header>
+
+        <main class="profile-main">
+            <div class="profile-sidebar">
+                <div class="avatar-section">
+                    <div class="avatar-placeholder" id="avatarPreview">
+                        <span class="avatar-text">头像</span>
+                    </div>
+                    <input type="file" id="avatarUpload" accept="image/*" style="display: none;">
+                    <button type="button" class="avatar-upload-btn" onclick="document.getElementById('avatarUpload').click()">
+                        上传头像
+                    </button>
+                </div>
+                
+                <div class="profile-stats">
+                    <h3>账户统计</h3>
+                    <div class="stat-item">
+                        <span class="stat-label">注册时间:</span>
+                        <span class="stat-value" id="joinDate">2024-01-01</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">最后登录:</span>
+                        <span class="stat-value" id="lastLogin">2024-01-15</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-content">
+                <form id="profileForm" class="profile-form">
+                    <div class="form-section">
+                        <h2>基本信息</h2>
+                        <div class="form-group">
+                            <label for="username">用户名:</label>
+                            <input type="text" id="username" name="username" readonly>
+                            <span class="edit-hint">用户名不可修改</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">邮箱地址:</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="nickname">昵称:</label>
+                            <input type="text" id="nickname" name="nickname" maxlength="20">
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h2>个人简介</h2>
+                        <div class="form-group">
+                            <label for="bio">个人简介:</label>
+                            <textarea id="bio" name="bio" rows="4" maxlength="200" 
+                                      placeholder="介绍一下自己..."></textarea>
+                            <span class="char-count"><span id="bioCount">0</span>/200</span>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h2>交易偏好</h2>
+                        <div class="form-group">
+                            <label for="riskLevel">风险偏好:</label>
+                            <select id="riskLevel" name="riskLevel">
+                                <option value="conservative">保守型</option>
+                                <option value="moderate">稳健型</option>
+                                <option value="aggressive">激进型</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="investmentStyle">投资风格:</label>
+                            <select id="investmentStyle" name="investmentStyle">
+                                <option value="longTerm">长线投资</option>
+                                <option value="swing">波段交易</option>
+                                <option value="dayTrading">日内交易</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">保存更改</button>
+                        <button type="button" class="btn-secondary" onclick="resetForm()">重置</button>
+                    </div>
+                </form>
+            </div>
+        </main>
+
+        <div id="notification" class="notification hidden">
+            <span id="notificationText"></span>
+        </div>
+    </div>
+
+    <script src="/js/profile.js"></script>
+</body>
+</html>

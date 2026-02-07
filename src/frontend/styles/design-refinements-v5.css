@@ -1,0 +1,489 @@
+/* MarketBook 设计优化 v5 - 高级视觉层次与微交互增强 */
+
+/* ==================== 高级视觉层次系统 ==================== */
+
+/* 主容器视觉层次 */
+.hero {
+    position: relative;
+    padding: 4rem 2rem;
+    background: linear-gradient(135deg, 
+        rgba(26, 115, 232, 0.02) 0%, 
+        rgba(66, 133, 244, 0.04) 50%, 
+        rgba(52, 168, 83, 0.02) 100%);
+    border-radius: 24px;
+    margin: 2rem auto;
+    max-width: 1200px;
+    overflow: hidden;
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 20% 50%, 
+        rgba(26, 115, 232, 0.05) 0%, 
+        transparent 50%),
+        radial-gradient(circle at 80% 20%, 
+        rgba(66, 133, 244, 0.03) 0%, 
+        transparent 50%);
+    pointer-events: none;
+}
+
+/* 标题层次增强 */
+.hero h1 {
+    font-size: clamp(2.8rem, 6vw, 4.5rem);
+    font-weight: 800;
+    line-height: 1.05;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(135deg, 
+        #1a73e8 0%, 
+        #4285f4 25%, 
+        #34a853 50%, 
+        #fbbc05 75%, 
+        #ea4335 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 
+        0 4px 8px rgba(0, 0, 0, 0.1),
+        0 2px 4px rgba(255, 255, 255, 0.2);
+    position: relative;
+    z-index: 1;
+}
+
+.hero p {
+    font-size: 1.3rem;
+    color: #4b5563;
+    margin-bottom: 2.5rem;
+    max-width: 650px;
+    line-height: 1.7;
+    font-weight: 400;
+    position: relative;
+    z-index: 1;
+}
+
+/* ==================== 功能卡片高级视觉系统 ==================== */
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2.5rem;
+    margin-top: 4rem;
+    position: relative;
+}
+
+.feature {
+    background: linear-gradient(145deg, 
+        rgba(255, 255, 255, 0.95) 0%, 
+        rgba(248, 250, 252, 0.98) 100%);
+    border: 1px solid rgba(229, 231, 235, 0.8);
+    border-radius: 20px;
+    padding: 2.5rem;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.feature::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, 
+        rgba(26, 115, 232, 0.03) 0%, 
+        rgba(66, 133, 244, 0.02) 50%, 
+        rgba(52, 168, 83, 0.01) 100%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.feature::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: conic-gradient(from 0deg, 
+        transparent, 
+        rgba(26, 115, 232, 0.1), 
+        rgba(66, 133, 244, 0.05), 
+        rgba(52, 168, 83, 0.03), 
+        transparent);
+    animation: rotate-shine 6s linear infinite;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.feature:hover::before,
+.feature:hover::after {
+    opacity: 1;
+}
+
+.feature:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 
+        0 25px 50px rgba(0, 0, 0, 0.15),
+        0 10px 20px rgba(26, 115, 232, 0.1);
+    border-color: rgba(156, 163, 175, 0.6);
+}
+
+@keyframes rotate-shine {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ==================== 图标系统增强 ==================== */
+
+.feature-icon {
+    font-size: 3.5rem;
+    margin-bottom: 1.5rem;
+    display: inline-block;
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    z-index: 2;
+}
+
+.feature:hover .feature-icon {
+    transform: 
+        scale(1.15) 
+        rotate(8deg) 
+        translateY(-5px);
+    filter: 
+        drop-shadow(0 8px 16px rgba(0, 0, 0, 0.2))
+        brightness(1.1);
+}
+
+/* ==================== 徽章系统高级动画 ==================== */
+
+.feature-badge {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    padding: 0.4rem 1rem;
+    border-radius: 16px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    z-index: 3;
+    transition: all 0.3s ease;
+}
+
+.feature-badge.NEW {
+    background: linear-gradient(135deg, #10b981, #34d399, #10b981);
+    color: white;
+    background-size: 200% 200%;
+    animation: gradient-shift 3s ease infinite;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.feature-badge.HOT {
+    background: linear-gradient(135deg, #ef4444, #f87171, #ef4444);
+    color: white;
+    background-size: 200% 200%;
+    animation: gradient-shift 2s ease infinite;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.feature-badge.PRO {
+    background: linear-gradient(135deg, #8b5cf6, #a78bfa, #8b5cf6);
+    color: white;
+    background-size: 200% 200%;
+    animation: gradient-shift 4s ease infinite;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+@keyframes gradient-shift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+.feature:hover .feature-badge {
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* ==================== 统计信息高级交互 ==================== */
+
+.feature-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin: 1.5rem 0;
+    position: relative;
+    z-index: 2;
+}
+
+.stat {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.9rem;
+    color: #6b7280;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 12px;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border: 1px solid transparent;
+    backdrop-filter: blur(5px);
+}
+
+.feature:hover .stat {
+    background: rgba(26, 115, 232, 0.08);
+    color: #374151;
+    transform: translateX(8px);
+    border-color: rgba(26, 115, 232, 0.1);
+    box-shadow: 0 4px 12px rgba(26, 115, 232, 0.1);
+}
+
+.stat:nth-child(even) {
+    transition-delay: 0.05s;
+}
+
+.stat:nth-child(odd) {
+    transition-delay: 0.1s;
+}
+
+/* ==================== CTA按钮高级交互系统 ==================== */
+
+.cta-button {
+    background: linear-gradient(135deg, 
+        #1a73e8 0%, 
+        #4285f4 30%, 
+        #34a853 70%, 
+        #1a73e8 100%);
+    color: white;
+    border: none;
+    padding: 1.25rem 2.5rem;
+    border-radius: 16px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    overflow: hidden;
+    background-size: 200% 200%;
+    animation: button-glow 4s ease infinite;
+    box-shadow: 
+        0 8px 25px rgba(26, 115, 232, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+@keyframes button-glow {
+    0%, 100% { 
+        background-position: 0% 50%; 
+        box-shadow: 
+            0 8px 25px rgba(26, 115, 232, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+    50% { 
+        background-position: 100% 50%; 
+        box-shadow: 
+            0 12px 35px rgba(26, 115, 232, 0.5),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    }
+}
+
+.cta-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.3), 
+        transparent);
+    transition: left 0.8s ease;
+}
+
+.cta-button:hover::before {
+    left: 100%;
+}
+
+.cta-button:hover {
+    transform: 
+        translateY(-4px) 
+        scale(1.05);
+    box-shadow: 
+        0 15px 40px rgba(26, 115, 232, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.cta-button:active {
+    transform: translateY(-1px) scale(0.98);
+}
+
+/* ==================== 功能链接高级交互 ==================== */
+
+.feature-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #1a73e8;
+    text-decoration: none;
+    font-weight: 700;
+    padding: 1rem 2rem;
+    border: 2px solid rgba(26, 115, 232, 0.2);
+    border-radius: 12px;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(5px);
+}
+
+.feature-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(26, 115, 232, 0.1), 
+        transparent);
+    transition: left 0.6s ease;
+}
+
+.feature-link::after {
+    content: '→';
+    font-weight: 700;
+    transition: all 0.4s ease;
+}
+
+.feature-link:hover::before {
+    left: 100%;
+}
+
+.feature-link:hover {
+    background: rgba(26, 115, 232, 0.08);
+    border-color: rgba(26, 115, 232, 0.4);
+    transform: translateX(8px) scale(1.05);
+    box-shadow: 0 8px 20px rgba(26, 115, 232, 0.15);
+}
+
+.feature-link:hover::after {
+    transform: translateX(6px) scale(1.2);
+}
+
+/* ==================== 响应式优化 ==================== */
+
+@media (max-width: 768px) {
+    .hero {
+        padding: 3rem 1.5rem;
+        margin: 1rem;
+        border-radius: 20px;
+    }
+    
+    .hero h1 {
+        font-size: clamp(2.2rem, 8vw, 3.5rem);
+    }
+    
+    .hero p {
+        font-size: 1.1rem;
+    }
+    
+    .feature-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        margin: 2rem 1rem;
+    }
+    
+    .feature {
+        padding: 2rem;
+    }
+    
+    .cta-button {
+        padding: 1rem 2rem;
+        font-size: 1.1rem;
+    }
+}
+
+/* ==================== 可访问性优化 ==================== */
+
+@media (prefers-reduced-motion: reduce) {
+    .feature,
+    .feature-icon,
+    .cta-button,
+    .feature-link,
+    .stat,
+    .feature-badge {
+        transition: none !important;
+        animation: none !important;
+    }
+    
+    .feature::after {
+        animation: none !important;
+        opacity: 0 !important;
+    }
+}
+
+/* ==================== 焦点状态增强 ==================== */
+
+.cta-button:focus-visible,
+.feature-link:focus-visible {
+    outline: 3px solid #1a73e8;
+    outline-offset: 2px;
+    border-radius: 8px;
+    box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.1);
+}
+
+/* ==================== 暗色主题适配 ==================== */
+
+@media (prefers-color-scheme: dark) {
+    .hero {
+        background: linear-gradient(135deg, 
+            rgba(26, 115, 232, 0.05) 0%, 
+            rgba(66, 133, 244, 0.08) 50%, 
+            rgba(52, 168, 83, 0.03) 100%);
+    }
+    
+    .hero p {
+        color: #d1d5db;
+    }
+    
+    .feature {
+        background: linear-gradient(145deg, 
+            rgba(31, 41, 55, 0.95) 0%, 
+            rgba(55, 65, 81, 0.98) 100%);
+        border-color: rgba(75, 85, 99, 0.6);
+    }
+    
+    .feature:hover {
+        background: linear-gradient(145deg, 
+            rgba(55, 65, 81, 0.95) 0%, 
+            rgba(75, 85, 99, 0.98) 100%);
+    }
+    
+    .stat {
+        background: rgba(255, 255, 255, 0.05);
+        color: #d1d5db;
+    }
+    
+    .feature:hover .stat {
+        background: rgba(26, 115, 232, 0.15);
+        color: #f9fafb;
+    }
+    
+    .feature-link {
+        background: rgba(255, 255, 255, 0.05);
+        color: #60a5fa;
+        border-color: rgba(96, 165, 250, 0.3);
+    }
+    
+    .feature-link:hover {
+        background: rgba(96, 165, 250, 0.1);
+        border-color: rgba(96, 165, 250, 0.5);
+    }
+}

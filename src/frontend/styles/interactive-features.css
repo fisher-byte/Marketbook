@@ -1,0 +1,149 @@
+/* MarketBook 交互功能增强样式 */
+
+/* 平滑过渡效果 */
+.feature-grid {
+    transition: all 0.3s ease-in-out;
+}
+
+/* 卡片悬停效果增强 */
+.feature {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+}
+
+.feature:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.15),
+        0 0 0 1px rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* 图标动画 */
+.feature-icon {
+    font-size: 3rem;
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+}
+
+.feature:hover .feature-icon {
+    transform: scale(1.1) rotate(5deg);
+    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.3));
+}
+
+/* 徽章动画 */
+.feature-badge {
+    animation: pulse 2s infinite;
+    background: linear-gradient(45deg, #ff6b6b, #ffa726);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+/* 统计信息动画 */
+.feature-stats {
+    opacity: 0.8;
+    transition: all 0.3s ease;
+}
+
+.feature:hover .feature-stats {
+    opacity: 1;
+    transform: translateY(-2px);
+}
+
+/* 链接按钮动画 */
+.feature-link {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(45deg, #1a73e8, #4285f4);
+    color: white;
+    padding: 10px 24px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.feature-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(26, 115, 232, 0.3);
+}
+
+.feature-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.feature-link:hover::before {
+    left: 100%;
+}
+
+/* 响应式交互优化 */
+@media (max-width: 768px) {
+    .feature:hover {
+        transform: translateY(-4px) scale(1.01);
+    }
+    
+    .feature-icon {
+        font-size: 2.5rem;
+    }
+}
+
+/* 加载动画 */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.feature {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.feature:nth-child(1) { animation-delay: 0.1s; }
+.feature:nth-child(2) { animation-delay: 0.2s; }
+.feature:nth-child(3) { animation-delay: 0.3s; }
+.feature:nth-child(4) { animation-delay: 0.4s; }
+
+/* 点击反馈效果 */
+.feature:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+}
+
+/* 无障碍访问增强 */
+.feature:focus-within {
+    outline: 2px solid #1a73e8;
+    outline-offset: 4px;
+}
+
+.feature-link:focus {
+    outline: 2px solid white;
+    outline-offset: 2px;
+}

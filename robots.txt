@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+Allow: /forum/
+Allow: /simulation/
+Allow: /strategies/
+Allow: /community/
+
+# Disallow sensitive areas
+Disallow: /admin/
+Disallow: /api/
+Disallow: /private/
+Disallow: /user/
+Disallow: /settings/
+
+# Crawl delay for search engines
+Crawl-delay: 1
+
+# Sitemap location
+Sitemap: https://marketbook.example.com/sitemap.xml

@@ -1,0 +1,302 @@
+/* MarketBook 功能卡片增强样式 - 3D交互优化 */
+
+/* 新增：3D卡片容器增强 */
+.feature-grid {
+    perspective: 1200px;
+    position: relative;
+}
+
+.feature {
+    transform-style: preserve-3d;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    isolation: isolate;
+}
+
+/* 新增：卡片3D悬停效果 */
+.feature:hover {
+    transform: 
+        translateY(-12px) 
+        translateZ(20px) 
+        rotateX(3deg) 
+        rotateY(1deg) 
+        scale(1.03);
+    box-shadow: 
+        0 25px 50px -12px rgba(0, 0, 0, 0.25),
+        0 8px 24px rgba(37, 99, 235, 0.15),
+        0 0 0 1px rgba(37, 99, 235, 0.1);
+}
+
+/* 新增：卡片背面3D层 */
+.feature::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        135deg, 
+        rgba(37, 99, 235, 0.03) 0%, 
+        rgba(59, 130, 246, 0.08) 50%, 
+        rgba(37, 99, 235, 0.03) 100%
+    );
+    border-radius: var(--radius-lg);
+    transform: translateZ(-10px);
+    opacity: 0;
+    transition: all 0.4s ease;
+    z-index: -1;
+}
+
+.feature:hover::before {
+    opacity: 1;
+    transform: translateZ(-5px);
+}
+
+/* 新增：动态边框光效 */
+.feature::after {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    right: -1px;
+    bottom: -1px;
+    border-radius: calc(var(--radius-lg) + 1px);
+    background: linear-gradient(
+        135deg,
+        rgba(37, 99, 235, 0.8),
+        rgba(245, 158, 11, 0.6),
+        rgba(37, 99, 235, 0.8)
+    );
+    mask: 
+        linear-gradient(#fff 0 0) content-box, 
+        linear-gradient(#fff 0 0);
+    mask-composite: subtract;
+    -webkit-mask-composite: xor;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    z-index: -1;
+}
+
+.feature:hover::after {
+    opacity: 1;
+    animation: borderFlow 3s ease-in-out infinite;
+}
+
+@keyframes borderFlow {
+    0%, 100% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+/* 新增：卡片内容3D层次 */
+.feature-content {
+    transform: translateZ(30px);
+    position: relative;
+    z-index: 2;
+}
+
+/* 新增：图标3D悬浮效果 */
+.feature-icon {
+    transform: translateZ(40px);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+}
+
+.feature:hover .feature-icon {
+    transform: 
+        translateZ(50px) 
+        scale(1.15) 
+        rotateY(10deg);
+    box-shadow: 
+        0 12px 30px rgba(37, 99, 235, 0.4),
+        0 0 0 2px rgba(255, 255, 255, 0.1);
+}
+
+/* 新增：徽章3D效果 */
+.feature-badge {
+    transform: translateZ(35px);
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 3;
+}
+
+.feature:hover .feature-badge {
+    transform: 
+        translateZ(45px) 
+        scale(1.1);
+    animation: badgePulse 2s ease-in-out infinite;
+}
+
+@keyframes badgePulse {
+    0%, 100% { 
+        transform: translateZ(45px) scale(1.1);
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+    }
+    50% { 
+        transform: translateZ(45px) scale(1.15);
+        box-shadow: 0 6px 20px rgba(245, 158, 11, 0.6);
+    }
+}
+
+/* 新增：链接箭头3D动画 */
+.feature-link {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    transition: all 0.3s ease;
+    transform: translateZ(25px);
+}
+
+.feature-link::after {
+    content: '→';
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.feature:hover .feature-link {
+    transform: translateZ(35px);
+}
+
+.feature:hover .feature-link::after {
+    transform: translateX(6px) scale(1.2);
+    text-shadow: 0 0 10px rgba(37, 99, 235, 0.5);
+}
+
+/* 新增：统计信息3D效果 */
+.feature-stats {
+    transform: translateZ(20px);
+    transition: all 0.3s ease;
+}
+
+.feature:hover .feature-stats {
+    transform: translateZ(30px);
+}
+
+.feature-stats .stat {
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.feature:hover .feature-stats .stat {
+    color: var(--primary-color);
+    text-shadow: 0 0 5px rgba(37, 99, 235, 0.3);
+}
+
+/* 新增：卡片加载动画增强 */
+@keyframes cardEntrance {
+    0% {
+        opacity: 0;
+        transform: 
+            translateY(50px) 
+            translateZ(-50px) 
+            rotateX(-15deg);
+    }
+    100% {
+        opacity: 1;
+        transform: 
+            translateY(0) 
+            translateZ(0) 
+            rotateX(0deg);
+    }
+}
+
+.feature {
+    animation: cardEntrance 0.8s cubic-bezier(0.215, 0.610, 0.355, 1) both;
+}
+
+.feature:nth-child(1) { animation-delay: 0.1s; }
+.feature:nth-child(2) { animation-delay: 0.2s; }
+.feature:nth-child(3) { animation-delay: 0.3s; }
+.feature:nth-child(4) { animation-delay: 0.4s; }
+
+/* 新增：触摸设备优化 */
+@media (hover: none) and (pointer: coarse) {
+    .feature:hover {
+        transform: none;
+        box-shadow: var(--shadow-md);
+    }
+    
+    .feature:active {
+        transform: scale(0.98) translateZ(0);
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .feature:hover::before,
+    .feature:hover::after {
+        opacity: 0;
+        animation: none;
+    }
+}
+
+/* 新增：可访问性增强 */
+@media (prefers-reduced-motion: reduce) {
+    .feature {
+        animation: none;
+        transition: none;
+    }
+    
+    .feature:hover {
+        transform: none;
+        box-shadow: var(--shadow-md);
+    }
+    
+    .feature::before,
+    .feature::after {
+        display: none;
+    }
+}
+
+/* 新增：高性能优化 */
+.feature {
+    will-change: transform, box-shadow;
+    backface-visibility: hidden;
+}
+
+.feature:hover {
+    transform-style: preserve-3d;
+}
+
+/* 新增：深色模式适配 */
+@media (prefers-color-scheme: dark) {
+    .feature:hover {
+        box-shadow: 
+            0 25px 50px -12px rgba(0, 0, 0, 0.5),
+            0 8px 24px rgba(37, 99, 235, 0.2),
+            0 0 0 1px rgba(37, 99, 235, 0.15);
+    }
+    
+    .feature:hover .feature-icon {
+        box-shadow: 
+            0 12px 30px rgba(37, 99, 235, 0.3),
+            0 0 0 2px rgba(255, 255, 255, 0.05);
+    }
+}
+
+/* 新增：响应式优化 */
+@media (max-width: 768px) {
+    .feature:hover {
+        transform: translateY(-8px) translateZ(10px);
+    }
+    
+    .feature-grid {
+        perspective: 800px;
+    }
+}
+
+@media (max-width: 480px) {
+    .feature:hover {
+        transform: translateY(-4px);
+    }
+    
+    .feature::before,
+    .feature::after {
+        display: none;
+    }
+}

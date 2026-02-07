@@ -1,0 +1,265 @@
+/* MarketBook 微交互增强样式 - 设计优化 */
+
+/* 高级悬停效果 - 优化版本 */
+.feature {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.feature::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(26, 115, 232, 0.08), transparent);
+  transition: left 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: -1;
+}
+
+.feature:hover::before {
+  left: 100%;
+}
+
+/* 添加渐变背景层增强视觉效果 */
+.feature::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, 
+    rgba(26, 115, 232, 0.02) 0%, 
+    rgba(52, 168, 83, 0.02) 50%, 
+    rgba(251, 188, 5, 0.02) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -2;
+}
+
+.feature:hover::after {
+  opacity: 1;
+}
+
+/* 3D卡片效果 */
+.feature {
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+.feature:hover {
+  transform: translateY(-8px) rotateX(5deg);
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.15),
+    0 5px 15px rgba(26, 115, 232, 0.2);
+}
+
+/* 渐变边框动画 */
+.feature {
+  border: 1px solid transparent;
+  background: linear-gradient(var(--bg-primary), var(--bg-primary)) padding-box,
+              linear-gradient(135deg, var(--primary-color), var(--secondary-color)) border-box;
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+}
+
+.feature:hover {
+  background: linear-gradient(var(--bg-primary), var(--bg-primary)) padding-box,
+              linear-gradient(135deg, var(--primary-color), var(--accent-color)) border-box;
+}
+
+/* 图标动画 */
+.feature-icon {
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.feature:hover .feature-icon {
+  transform: scale(1.2) rotate(5deg);
+  filter: drop-shadow(0 5px 15px rgba(26, 115, 232, 0.3));
+}
+
+/* 徽章脉冲动画 */
+.feature-badge {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(251, 188, 5, 0.7);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 10px rgba(251, 188, 5, 0);
+  }
+}
+
+/* 统计信息渐显效果 */
+.feature-stats {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.4s ease 0.1s;
+}
+
+.feature:hover .feature-stats {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 链接按钮悬浮效果 */
+.feature-link {
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.feature-link::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+  z-index: -1;
+}
+
+.feature-link:hover::before {
+  left: 100%;
+}
+
+/* 导航链接下划线动画 */
+.nav-links a {
+  position: relative;
+}
+
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: var(--primary-color);
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+}
+
+.nav-links a:hover::after {
+  width: 80%;
+}
+
+.nav-links a.active::after {
+  width: 80%;
+}
+
+/* CTA按钮高级效果 */
+.cta-button {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  background-size: 200% 200%;
+  animation: gradientShift 3s ease infinite;
+}
+
+@keyframes gradientShift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.cta-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.cta-button:hover::before {
+  left: 100%;
+}
+
+.cta-button:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 
+    0 10px 25px rgba(26, 115, 232, 0.3),
+    0 5px 10px rgba(26, 115, 232, 0.2);
+}
+
+/* 页面加载动画增强 */
+@keyframes pageLoad {
+  0% {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+body {
+  animation: pageLoad 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* 滚动触发动画 */
+.feature {
+  opacity: 0;
+  transform: translateY(50px);
+  transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.feature.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 触摸设备优化 */
+@media (hover: none) {
+  .feature:hover {
+    transform: none;
+    box-shadow: var(--shadow-md);
+  }
+  
+  .feature-link:hover::before {
+    left: -100%;
+  }
+}
+
+/* 性能优化：减少动画对低端设备的影响 */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .feature {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* 焦点状态增强 */
+.feature:focus-within {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 4px;
+}
+
+.feature-link:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+  background: var(--primary-color);
+  color: white;
+}

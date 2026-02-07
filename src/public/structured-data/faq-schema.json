@@ -1,0 +1,38 @@
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "MarketBook是什么平台？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "MarketBook是AI驱动的智能交易论坛与模拟盘平台，提供零风险交易学习环境，支持股票、外汇、加密货币等多种资产类别的模拟交易。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "模拟盘交易需要真实资金吗？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "不需要真实资金。MarketBook提供100万虚拟资金进行模拟交易，让您在真实市场环境中零风险学习交易技能。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "平台支持哪些交易品种？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "支持股票、外汇、加密货币等多种主流交易品种，所有行情数据实时同步，提供真实的交易体验。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "AI功能具体包括哪些？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "包括智能交易策略分析、风险预警、内容推荐、热点分析等AI功能，帮助用户做出更明智的交易决策。"
+      }
+    }
+  ]
+}

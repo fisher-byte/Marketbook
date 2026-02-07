@@ -1,0 +1,76 @@
+{
+  "@context": "https://schema.org",
+  "@type": "FinancialService",
+  "name": "MarketBook AI交易平台",
+  "description": "领先的AI驱动交易论坛与模拟盘平台，提供零风险交易学习体验",
+  "url": "https://marketbook.example.com",
+  "telephone": "+86-400-888-8888",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "深圳市南山区科技园南区",
+    "addressLocality": "深圳",
+    "addressRegion": "广东",
+    "postalCode": "518057",
+    "addressCountry": "CN"
+  },
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": 22.5431,
+    "longitude": 114.0579
+  },
+  "openingHours": [
+    "Mo-Su 09:00-18:00"
+  ],
+  "priceRange": "免费",
+  "currenciesAccepted": "CNY",
+  "paymentAccepted": "免费服务",
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "交易服务套餐",
+    "itemListElement": [
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "基础模拟交易",
+          "description": "免费模拟盘交易，支持股票、外汇、加密货币"
+        },
+        "price": "0",
+        "priceCurrency": "CNY"
+      },
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "AI策略分析",
+          "description": "智能交易策略分析和风险预警"
+        },
+        "price": "0",
+        "priceCurrency": "CNY"
+      }
+    ]
+  },
+  "areaServed": "全球",
+  "serviceArea": {
+    "@type": "GeoCircle",
+    "geoMidpoint": {
+      "@type": "GeoCoordinates",
+      "latitude": 22.5431,
+      "longitude": 114.0579
+    },
+    "geoRadius": "10000000"
+  },
+  "knowsAbout": [
+    "股票交易",
+    "外汇交易", 
+    "加密货币交易",
+    "量化投资",
+    "风险管理",
+    "技术分析",
+    "基本面分析"
+  ],
+  "memberOf": {
+    "@type": "Organization",
+    "name": "中国互联网金融协会"
+  }
+}

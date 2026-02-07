@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MarketBook - 权限管理演示</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border-left: 4px solid #007bff;
+            background-color: #f8f9fa;
+        }
+        .role-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        .admin { background: #dc3545; color: white; }
+        .moderator { background: #fd7e14; color: white; }
+        .user { background: #28a745; color: white; }
+        .guest { background: #6c757d; color: white; }
+        .api-endpoint {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>MarketBook 权限管理系统</h1>
+        
+        <div class="section">
+            <h2>📋 系统概述</h2>
+            <p>MarketBook 权限管理系统提供基于角色的访问控制（RBAC），支持灵活的权限分配和管理。</p>
+        </div>
+
+        <div class="section">
+            <h2>👥 角色定义</h2>
+            <p>系统预定义了四种角色：</p>
+            <ul>
+                <li><span class="role-badge admin">ADMIN</span> - 系统管理员，拥有所有权限</li>
+                <li><span class="role-badge moderator">MODERATOR</span> - 版主，拥有内容管理权限</li>
+                <li><span class="role-badge user">USER</span> - 普通用户，基础功能权限</li>
+                <li><span class="role-badge guest">GUEST</span> - 访客，只读权限</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>🔐 权限示例</h2>
+            <p>不同角色拥有的权限示例：</p>
+            <ul>
+                <li><strong>ADMIN</strong>: 用户管理、内容审核、系统配置</li>
+                <li><strong>MODERATOR</strong>: 帖子管理、评论审核、用户警告</li>
+                <li><strong>USER</strong>: 发帖、评论、交易操作</li>
+                <li><strong>GUEST</strong>: 浏览内容、搜索</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>🌐 API 接口</h2>
+            <p>权限管理相关接口：</p>
+            <div class="api-endpoint">GET /api/permissions/roles - 获取所有角色列表</div>
+            <div class="api-endpoint">GET /api/permissions/user/:userId - 获取用户权限</div>
+            <div class="api-endpoint">POST /api/permissions/assign - 分配角色权限</div>
+            <div class="api-endpoint">PUT /api/permissions/update - 更新权限设置</div>
+        </div>
+
+        <div class="section">
+            <h2>🛡️ 中间件保护</h2>
+            <p>使用中间件进行权限验证：</p>
+            <ul>
+                <li><code>requireAuth</code> - 要求用户登录</li>
+                <li><code>requireRole('ADMIN')</code> - 要求管理员权限</li>
+                <li><code>requirePermission('MANAGE_USERS')</code> - 要求特定权限</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

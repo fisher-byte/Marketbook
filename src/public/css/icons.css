@@ -1,0 +1,125 @@
+/* MarketBook 图标样式 - 设计优化增强 */
+
+/* 图标字体定义 */
+@font-face {
+    font-family: 'MarketBook Icons';
+    src: url('../fonts/icons.woff2') format('woff2'),
+         url('../fonts/icons.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+    font-display: block;
+}
+
+/* 图标基础样式 */
+.icon {
+    font-family: 'MarketBook Icons';
+    speak: never;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* 功能图标 */
+.icon-forum::before {
+    content: "\e900";
+    color: var(--primary-color);
+}
+
+.icon-simulation::before {
+    content: "\e901";
+    color: var(--success-color);
+}
+
+.icon-strategy::before {
+    content: "\e902";
+    color: var(--accent-color);
+}
+
+.icon-community::before {
+    content: "\e903";
+    color: var(--secondary-color);
+}
+
+.icon-ai::before {
+    content: "\e904";
+    color: var(--primary-light);
+}
+
+.icon-chart::before {
+    content: "\e905";
+    color: var(--success-color);
+}
+
+.icon-analysis::before {
+    content: "\e906";
+    color: var(--accent-color);
+}
+
+/* 图标尺寸变体 */
+.icon-sm {
+    font-size: 1rem;
+}
+
+.icon-md {
+    font-size: 1.5rem;
+}
+
+.icon-lg {
+    font-size: 2rem;
+}
+
+.icon-xl {
+    font-size: 3rem;
+}
+
+/* 图标容器样式 */
+.icon-container {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+    margin-bottom: var(--spacing-md);
+    transition: all var(--transition-normal);
+}
+
+.feature:hover .icon-container {
+    background: linear-gradient(135deg, var(--primary-light), var(--primary-color));
+    transform: scale(1.1);
+}
+
+.feature:hover .icon {
+    color: white;
+}
+
+/* 加载状态图标 */
+.icon-loading {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 响应式图标 */
+@media (max-width: 768px) {
+    .icon-container {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .icon-lg {
+        font-size: 1.5rem;
+    }
+    
+    .icon-xl {
+        font-size: 2rem;
+    }
+}

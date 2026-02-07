@@ -1,0 +1,294 @@
+/* MarketBook 可访问性增强样式 - 设计优化 */
+
+/* 高对比度模式支持 */
+@media (prefers-contrast: high) {
+    :root {
+        --primary-color: #0056b3;
+        --text-primary: #000000;
+        --bg-primary: #ffffff;
+        --border-color: #000000;
+    }
+    
+    .feature {
+        border: 2px solid var(--border-color);
+        background: var(--bg-primary);
+    }
+    
+    .feature-link {
+        text-decoration: underline;
+        font-weight: 600;
+    }
+}
+
+/* 减少动画模式支持 */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    .feature:hover {
+        transform: none !important;
+    }
+    
+    .feature-icon {
+        transition: none !important;
+    }
+}
+
+/* 增强焦点可见性 */
+.feature:focus-visible {
+    outline: 3px solid var(--primary-color);
+    outline-offset: 3px;
+    box-shadow: 
+        0 0 0 6px rgba(37, 99, 235, 0.15),
+        0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: scale(1.02);
+}
+
+/* 键盘导航增强 */
+.feature-link:focus-visible {
+    background: var(--primary-color);
+    color: white;
+    text-decoration: none;
+    border-radius: var(--radius-md);
+    padding: 8px 16px;
+    margin: -8px -16px;
+}
+
+/* 屏幕阅读器优化 */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* 为图标添加描述性文本 */
+.feature-icon {
+    position: relative;
+}
+
+.feature-icon::before {
+    content: attr(aria-label);
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--text-primary);
+    color: var(--bg-primary);
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.feature:hover .feature-icon::before,
+.feature:focus-within .feature-icon::before {
+    opacity: 1;
+}
+
+/* 增强表单可访问性 */
+.cta-button:focus-visible {
+    outline: 3px solid var(--primary-color);
+    outline-offset: 2px;
+    background: var(--primary-dark);
+    transform: scale(1.05);
+}
+
+/* 增强导航可访问性 */
+.nav-links a:focus-visible {
+    background: var(--primary-color);
+    color: white;
+    border-radius: var(--radius-md);
+    padding: 8px 16px;
+    margin: -8px -16px;
+}
+
+/* 增强统计信息可读性 */
+.feature-stats .stat {
+    position: relative;
+}
+
+.feature-stats .stat::before {
+    content: attr(data-label);
+    position: absolute;
+    top: -20px;
+    left: 0;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    font-size: 10px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.feature-stats .stat:hover::before,
+.feature-stats .stat:focus-within::before {
+    opacity: 1;
+}
+
+/* 增强错误状态的可访问性 */
+.feature.error {
+    border-left: 4px solid var(--error-color);
+}
+
+.feature.error::before {
+    content: '错误状态';
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--error-color);
+    color: white;
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    font-size: 10px;
+    font-weight: 600;
+}
+
+/* 增强成功状态的可访问性 */
+.feature.success {
+    border-left: 4px solid var(--success-color);
+}
+
+.feature.success::before {
+    content: '成功状态';
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--success-color);
+    color: white;
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    font-size: 10px;
+    font-weight: 600;
+}
+
+/* 增强加载状态的可访问性 */
+.feature.loading {
+    position: relative;
+}
+
+.feature.loading::after {
+    content: '加载中...';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    padding: 8px 16px;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    z-index: 10;
+}
+
+/* 增强页面标题结构 */
+h1, h2, h3, h4, h5, h6 {
+    scroll-margin-top: 80px;
+}
+
+/* 增强链接跳转体验 */
+:target {
+    scroll-margin-top: 80px;
+    background: rgba(37, 99, 235, 0.05);
+    border-radius: var(--radius-md);
+    padding: 8px 16px;
+    margin: -8px -16px;
+}
+
+/* 增强图片可访问性 */
+img:not([alt]) {
+    border: 2px dashed var(--error-color);
+}
+
+/* 增强表单标签关联 */
+label {
+    cursor: pointer;
+}
+
+label:has(+ input:focus-visible) {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+/* 增强按钮状态反馈 */
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    position: relative;
+}
+
+button:disabled::after {
+    content: '不可用';
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--text-secondary);
+    color: var(--bg-primary);
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    font-size: 10px;
+    white-space: nowrap;
+}
+
+/* 增强滚动条可访问性 */
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-dark);
+}
+
+/* 增强选择文本可读性 */
+::selection {
+    background: var(--primary-color);
+    color: white;
+}
+
+::-moz-selection {
+    background: var(--primary-color);
+    color: white;
+}
+
+/* 增强打印样式 */
+@media print {
+    .feature-badge,
+    .feature-link,
+    .nav-links {
+        display: none !important;
+    }
+    
+    .feature {
+        border: 1px solid #000 !important;
+        box-shadow: none !important;
+        transform: none !important;
+    }
+    
+    body {
+        font-size: 12pt;
+        line-height: 1.4;
+    }
+}
