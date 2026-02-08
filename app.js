@@ -5,6 +5,7 @@
 
 const express = require('express');
 const path = require('path');
+const apiRoutes = require('./src/routes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -19,6 +20,9 @@ app.use(express.urlencoded({ extended: true }));
 
 // 静态文件服务 - /css, /js, /structured-data 等
 app.use(express.static(publicPath));
+
+// API 路由挂载
+app.use('/api', apiRoutes);
 
 // 首页 - 展示优化后的设计页面
 app.get('/', (req, res) => {

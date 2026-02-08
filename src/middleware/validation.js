@@ -58,8 +58,14 @@ const handleValidationErrors = (req, res, next) => {
     next();
 };
 
+// 组合导出：验证规则 + 错误处理
+const validateRegistration = [...registerValidation, handleValidationErrors];
+const validateLogin = [...loginValidation, handleValidationErrors];
+
 module.exports = {
     registerValidation,
     loginValidation,
-    handleValidationErrors
+    handleValidationErrors,
+    validateRegistration,
+    validateLogin
 };
