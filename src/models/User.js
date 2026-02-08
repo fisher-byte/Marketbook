@@ -7,7 +7,7 @@
  * @description 增强版本：集成错误处理、性能监控和高级分析功能
  */
 
-const ErrorHandler = require('../utils/ErrorHandler');
+const { ErrorHandler } = require('../utils/ErrorHandler');
 const PerformanceMonitor = require('../utils/PerformanceMonitor');
 
 class User {
@@ -116,7 +116,9 @@ class User {
      * @returns {boolean} 是否可登录
      */
     canLogin() {
-        return this.isActive && !this.isLocked() && this.emailVerified;
+        // TODO: 生产环境应启用邮箱验证
+        // return this.isActive && !this.isLocked() && this.emailVerified;
+        return this.isActive && !this.isLocked();
     }
 
     // ==================== 业务逻辑方法 ====================

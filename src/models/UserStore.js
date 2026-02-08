@@ -8,7 +8,7 @@
 const memoryStore = require('../db/memoryStore');
 const User = require('./User');
 const UserProfile = require('./UserProfile');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 class UserStore {
     /**
