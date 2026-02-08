@@ -12,14 +12,17 @@ const { authenticateToken } = require('../middleware/auth');
 
 // 交易账户相关路由
 router.post('/accounts', authenticateToken, tradingController.createAccount);
-router.get('/accounts/:userId', authenticateToken, tradingController.getAccountInfo);
+router.get('/accounts', authenticateToken, tradingController.getUserAccounts);
+router.get('/accounts/:accountId', authenticateToken, tradingController.getAccountInfo);
 
 // 交易执行相关路由
+router.post('/orders/buy', authenticateToken, tradingController.placeBuyOrder);
+router.post('/orders/sell', authenticateToken, tradingController.placeSellOrder);
 router.post('/orders/execute', authenticateToken, tradingController.executeTrade);
 router.get('/orders/history/:userId', authenticateToken, tradingController.getTradeHistory);
 
 // 持仓相关路由
-router.get('/positions/:userId', authenticateToken, tradingController.getPositions);
+router.get('/accounts/:accountId/positions', authenticateToken, tradingController.getPositions);
 
 // 暂时注释未实现的路由
 /*

@@ -8,27 +8,36 @@ const TradingAccountStore = require('../models/TradingAccountStore');
 const TradingRecord = require('../models/TradingRecord');
 
 /**
- * 获取用户交易账户信息
+ * 获取用户交易账户信息（通过accountId）
  * @param {Object} req - 请求对象
  * @param {Object} res - 响应对象
  */
 const getAccountInfo = async (req, res) => {
     try {
-        const { userId } = req.params;
+        const userId = req.userId; // 从认证中间件获取
+        const { accountId } = req.params;
         
-        if (!userId) {
+        if (!accountId) {
             return res.status(400).json({
                 success: false,
-                message: '用户ID不能为空'
+                message: '账户ID不能为空'
             });
         }
 
-        const account = await TradingAccount.findByUserId(userId);
+        const account = TradingAccountStore.findById(accountId);
         
         if (!account) {
             return res.status(404).json({
                 success: false,
                 message: '交易账户不存在'
+            });
+        }
+
+        // 验证账户所有权
+        if (account.userId !== userId) {
+            return res.status(403).json({
+                success: false,
+                message: '无权访问该交易账户'
             });
         }
 
@@ -46,13 +55,39 @@ const getAccountInfo = async (req, res) => {
 };
 
 /**
+ * 获取用户所有交易账户
+ * @param {Object} req - 请求对象
+ * @param {Object} res - 响应对象
+ */
+const getUserAccounts = async (req, res) => {
+    try {
+        const userId = req.userId; // 从认证中间件获取
+        
+        const accounts = TradingAccountStore.findByUserId(userId);
+        
+        res.status(200).json({
+            success: true,
+            data: accounts ? [accounts] : [] // 目前一个用户只有一个账户
+        });
+    } catch (error) {
+        console.error('获取用户交易账户错误:', error);
+        res.status(500).json({
+            success: false,
+            message: '服务器内部错误'
+        });
+    }
+};
+
+/**
  * 创建交易账户
  * @param {Object} req - 请求对象
  * @param {Object} res - 响应对象
  */
 const createAccount = async (req, res) => {
     try {
-        const { userId, initialBalance = 100000 } = req.body;
+        // 从认证中间件注入的userId获取用户ID
+        const userId = req.userId;
+        const { initialBalance = 100000 } = req.body;
         
         if (!userId) {
             return res.status(400).json({
@@ -95,35 +130,44 @@ const createAccount = async (req, res) => {
 };
 
 /**
- * 执行交易（买入/卖出）
+ * 执行交易（买入/卖出）- 通用方法
  * @param {Object} req - 请求对象
  * @param {Object} res - 响应对象
  */
 const executeTrade = async (req, res) => {
     try {
-        const { userId, symbol, quantity, price, type = 'buy' } = req.body;
+        const userId = req.userId; // 从认证中间件获取
+        const { accountId, symbol, quantity, price, type = 'buy' } = req.body;
         
         // 验证必填字段
-        if (!userId || !symbol || !quantity || !price) {
+        if (!userId || !accountId || !symbol || !quantity) {
             return res.status(400).json({
                 success: false,
-                message: '缺少必要参数：userId, symbol, quantity, price'
+                message: '缺少必要参数：accountId, symbol, quantity'
             });
         }
 
-        if (quantity <= 0 || price <= 0) {
+        if (quantity <= 0) {
             return res.status(400).json({
                 success: false,
-                message: '数量和价格必须大于0'
+                message: '数量必须大于0'
             });
         }
 
         // 获取交易账户
-        const account = TradingAccountStore.findByUserId(userId);
+        const account = TradingAccountStore.findById(accountId);
         if (!account) {
             return res.status(404).json({
                 success: false,
                 message: '交易账户不存在'
+            });
+        }
+
+        // 验证账户所有权
+        if (account.userId !== userId) {
+            return res.status(403).json({
+                success: false,
+                message: '无权访问该交易账户'
             });
         }
 
@@ -135,8 +179,9 @@ const executeTrade = async (req, res) => {
             });
         }
 
-        // 计算交易金额
-        const tradeAmount = quantity * price;
+        // 使用市场价（模拟）或指定价格
+        const tradePrice = price || 150; // 模拟市场价
+        const tradeAmount = quantity * tradePrice;
         
         // 买入交易验证资金充足性
         if (type === 'buy' && account.availableBalance < tradeAmount) {
@@ -146,18 +191,18 @@ const executeTrade = async (req, res) => {
             });
         }
 
-        // 创建交易记录
-        const tradeRecord = new TradingRecord({
+        // 创建交易记录（模拟，暂不保存）
+        const tradeRecord = {
             userId,
+            accountId,
             symbol,
             type,
             quantity,
-            price,
+            price: tradePrice,
             amount: tradeAmount,
-            status: 'executed'
-        });
-
-        await tradeRecord.save();
+            status: 'executed',
+            timestamp: new Date()
+        };
 
         // 更新账户余额
         if (type === 'buy') {
@@ -174,8 +219,8 @@ const executeTrade = async (req, res) => {
             success: true,
             message: '交易执行成功',
             data: {
-                tradeRecord,
-                updatedAccount: account
+                order: tradeRecord,
+                account: account
             }
         });
     } catch (error) {
@@ -185,6 +230,26 @@ const executeTrade = async (req, res) => {
             message: '服务器内部错误'
         });
     }
+};
+
+/**
+ * 买入（做多）
+ * @param {Object} req - 请求对象
+ * @param {Object} res - 响应对象
+ */
+const placeBuyOrder = async (req, res) => {
+    req.body.type = 'buy';
+    return executeTrade(req, res);
+};
+
+/**
+ * 卖出（做空）
+ * @param {Object} req - 请求对象
+ * @param {Object} res - 响应对象
+ */
+const placeSellOrder = async (req, res) => {
+    req.body.type = 'sell';
+    return executeTrade(req, res);
 };
 
 /**
@@ -244,16 +309,35 @@ const getTradeHistory = async (req, res) => {
  */
 const getPositions = async (req, res) => {
     try {
-        const { userId } = req.params;
+        const userId = req.userId; // 从认证中间件获取
+        const { accountId } = req.params;
         
-        if (!userId) {
+        if (!accountId) {
             return res.status(400).json({
                 success: false,
-                message: '用户ID不能为空'
+                message: '账户ID不能为空'
             });
         }
 
-        const positions = await TradingRecord.getPositionsByUserId(userId);
+        const account = TradingAccountStore.findById(accountId);
+        if (!account) {
+            return res.status(404).json({
+                success: false,
+                message: '交易账户不存在'
+            });
+        }
+
+        // 验证账户所有权
+        if (account.userId !== userId) {
+            return res.status(403).json({
+                success: false,
+                message: '无权访问该交易账户'
+            });
+        }
+
+        // TODO: 实现真实的持仓查询（从TradingRecord聚合）
+        // 目前返回模拟数据
+        const positions = [];
 
         res.status(200).json({
             success: true,
@@ -270,8 +354,11 @@ const getPositions = async (req, res) => {
 
 module.exports = {
     getAccountInfo,
+    getUserAccounts,
     createAccount,
     executeTrade,
+    placeBuyOrder,
+    placeSellOrder,
     getTradeHistory,
     getPositions
 };

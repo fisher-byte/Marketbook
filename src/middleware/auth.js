@@ -26,6 +26,7 @@ const authenticateToken = async (req, res, next) => {
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
         req.user = decoded;
+        req.userId = decoded.id || decoded.userId; // 添加 req.userId 便于控制器使用
         next();
     } catch (error) {
         return res.status(403).json({
