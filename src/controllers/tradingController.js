@@ -303,97 +303,157 @@ const getPositions = asyncHandler(async (req, res) => {
 
 /**
  * 获取单个股票实时行情
+ * @route GET /api/trading/quotes/:symbol
  * @param {Object} req - 请求对象
  * @param {Object} res - 响应对象
+ * @throws {ApiError} 400 - 股票代码为空
+ * @throws {ApiError} 404 - 股票不存在
+ * @example 成功响应:
+ * {
+ *   success: true,
+ *   data: {
+ *     symbol: 'AAPL',
+ *     name: 'Apple Inc.',
+ *     currentPrice: 176.52,
+ *     openPrice: 175.00,
+ *     highPrice: 177.00,
+ *     lowPrice: 174.50,
+ *     change: 1.52,
+ *     changePercent: 0.87,
+ *     volume: 52847500,
+ *     lastUpdated: '2026-02-08T07:53:30.357Z'
+ *   }
+ * }
  */
-const getQuote = async (req, res) => {
-    try {
-        const { symbol } = req.params;
-        
-        if (!symbol) {
-            return res.status(400).json({
-                success: false,
-                message: '股票代码不能为空'
-            });
-        }
+const getQuote = asyncHandler(async (req, res) => {
+    const { symbol } = req.params;
+    
+    // 输入验证
+    validate.required(req.params, ['symbol']);
+    validate.string(symbol, '股票代码', { maxLength: 10 });
 
-        const quote = marketDataService.getQuote(symbol);
-        
-        if (!quote) {
-            return res.status(404).json({
-                success: false,
-                message: `未找到股票 ${symbol} 的行情数据`
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            data: quote
-        });
-    } catch (error) {
-        console.error('获取行情数据错误:', error);
-        res.status(500).json({
-            success: false,
-            message: '服务器内部错误'
-        });
+    // 查询行情数据
+    const quote = marketDataService.getQuote(symbol.toUpperCase());
+    
+    if (!quote) {
+        throw createError.notFound(`股票 ${symbol.toUpperCase()}`);
     }
-};
+
+    res.status(200).json({
+        success: true,
+        data: quote,
+        meta: {
+            symbol: symbol.toUpperCase(),
+            timestamp: new Date().toISOString()
+        }
+    });
+});
 
 /**
  * 批量获取股票行情
+ * @route GET /api/trading/quotes?symbols=AAPL,GOOGL,MSFT
  * @param {Object} req - 请求对象
  * @param {Object} res - 响应对象
+ * @throws {ApiError} 400 - 股票代码列表为空或格式错误
+ * @example 成功响应:
+ * {
+ *   success: true,
+ *   data: [
+ *     { symbol: 'AAPL', currentPrice: 176.52, ... },
+ *     { symbol: 'GOOGL', currentPrice: 140.21, ... }
+ *   ],
+ *   meta: {
+ *     totalRequested: 2,
+ *     totalFound: 2,
+ *     notFound: []
+ *   }
+ * }
  */
-const getBatchQuotes = async (req, res) => {
-    try {
-        const { symbols } = req.query; // ?symbols=AAPL,GOOGL,MSFT
-        
-        if (!symbols) {
-            return res.status(400).json({
-                success: false,
-                message: '请提供股票代码列表（用逗号分隔）'
-            });
-        }
+const getBatchQuotes = asyncHandler(async (req, res) => {
+    const { symbols } = req.query; // ?symbols=AAPL,GOOGL,MSFT
+    
+    // 输入验证
+    validate.required(req.query, ['symbols']);
+    validate.string(symbols, '股票代码列表', { maxLength: 500 });
 
-        const symbolArray = symbols.split(',').map(s => s.trim()).filter(Boolean);
-        const quotes = marketDataService.getBatchQuotes(symbolArray);
+    // 解析并清理股票代码
+    const symbolArray = symbols
+        .split(',')
+        .map(s => s.trim().toUpperCase())
+        .filter(Boolean);
 
-        res.status(200).json({
-            success: true,
-            data: quotes
-        });
-    } catch (error) {
-        console.error('批量获取行情数据错误:', error);
-        res.status(500).json({
-            success: false,
-            message: '服务器内部错误'
-        });
+    if (symbolArray.length === 0) {
+        throw createError.badRequest('股票代码列表不能为空');
     }
-};
+
+    // 限制批量查询数量（防止滥用）
+    if (symbolArray.length > 50) {
+        throw createError.badRequest('单次查询最多支持50个股票代码');
+    }
+
+    // 批量查询行情
+    const quotesArray = marketDataService.getBatchQuotes(symbolArray);
+
+    // 构建结果对象（方便查找已找到和未找到的）
+    const quotesMap = {};
+    quotesArray.forEach(quote => {
+        if (quote) quotesMap[quote.symbol] = quote;
+    });
+
+    // 统计查询结果
+    const foundSymbols = Object.keys(quotesMap);
+    const notFoundSymbols = symbolArray.filter(s => !quotesMap[s]);
+
+    res.status(200).json({
+        success: true,
+        data: quotesArray,  // 返回数组格式
+        meta: {
+            totalRequested: symbolArray.length,
+            totalFound: foundSymbols.length,
+            notFound: notFoundSymbols
+        }
+    });
+});
 
 /**
  * 搜索股票代码
+ * @route GET /api/trading/market/symbols?keyword=apple
  * @param {Object} req - 请求对象
  * @param {Object} res - 响应对象
+ * @throws {ApiError} 400 - 搜索关键词为空或过短
+ * @example 成功响应:
+ * {
+ *   success: true,
+ *   data: [
+ *     { symbol: 'AAPL', name: 'Apple Inc.', currentPrice: 176.52 },
+ *     { symbol: 'MSFT', name: 'Microsoft Corporation', currentPrice: 385.23 }
+ *   ],
+ *   meta: {
+ *     keyword: 'apple',
+ *     totalResults: 1
+ *   }
+ * }
  */
-const searchSymbols = async (req, res) => {
-    try {
-        const { keyword } = req.query;
-        
-        const results = marketDataService.searchSymbols(keyword);
-
-        res.status(200).json({
-            success: true,
-            data: results
-        });
-    } catch (error) {
-        console.error('搜索股票错误:', error);
-        res.status(500).json({
-            success: false,
-            message: '服务器内部错误'
-        });
+const searchSymbols = asyncHandler(async (req, res) => {
+    const { keyword } = req.query;
+    
+    // 输入验证
+    if (keyword) {
+        validate.string(keyword, '搜索关键词', { minLength: 1, maxLength: 50 });
     }
-};
+
+    // 允许空关键词（返回所有股票）
+    const results = marketDataService.searchSymbols(keyword || '');
+
+    res.status(200).json({
+        success: true,
+        data: results,
+        meta: {
+            keyword: keyword || '',
+            totalResults: results.length
+        }
+    });
+});
 
 module.exports = {
     getAccountInfo,

@@ -1,35 +1,39 @@
 const express = require('express');
 const router = express.Router();
 const tradingController = require('../controllers/tradingController');
-// const tradingEngineController = require('../controllers/TradingEngineController');
-// const leaderboardController = require('../controllers/LeaderboardController');
 const { authenticateToken } = require('../middleware/auth');
+const { rateLimitPresets } = require('../middlewares/rateLimiter');
 
 /**
  * 交易功能路由模块
  * 提供交易账户管理、交易执行、持仓查询等功能
+ * 
+ * 频率限制策略:
+ * - 交易操作: 1分钟内最多30次请求
+ * - 查询操作: 1分钟内最多60次请求
+ * - 行情查询: 1分钟内最多120次请求
  */
 
-// 交易账户相关路由
-router.post('/accounts', authenticateToken, tradingController.createAccount);
-router.get('/accounts', authenticateToken, tradingController.getUserAccounts);
-router.get('/accounts/:accountId', authenticateToken, tradingController.getAccountInfo);
+// 交易账户相关路由（查询限流）
+router.post('/accounts', authenticateToken, rateLimitPresets.trading, tradingController.createAccount);
+router.get('/accounts', authenticateToken, rateLimitPresets.query, tradingController.getUserAccounts);
+router.get('/accounts/:accountId', authenticateToken, rateLimitPresets.query, tradingController.getAccountInfo);
 
-// 交易执行相关路由
-router.post('/orders/buy', authenticateToken, tradingController.placeBuyOrder);
-router.post('/orders/sell', authenticateToken, tradingController.placeSellOrder);
-router.post('/orders/execute', authenticateToken, tradingController.executeTrade);
+// 交易执行相关路由（交易限流）
+router.post('/orders/buy', authenticateToken, rateLimitPresets.trading, tradingController.placeBuyOrder);
+router.post('/orders/sell', authenticateToken, rateLimitPresets.trading, tradingController.placeSellOrder);
+router.post('/orders/execute', authenticateToken, rateLimitPresets.trading, tradingController.executeTrade);
 
-// 持仓相关路由
-router.get('/accounts/:accountId/positions', authenticateToken, tradingController.getPositions);
+// 持仓相关路由（查询限流）
+router.get('/accounts/:accountId/positions', authenticateToken, rateLimitPresets.query, tradingController.getPositions);
 
-// 交易历史相关路由
-router.get('/accounts/:accountId/history', authenticateToken, tradingController.getTradeHistory);
+// 交易历史相关路由（查询限流）
+router.get('/accounts/:accountId/history', authenticateToken, rateLimitPresets.query, tradingController.getTradeHistory);
 
-// 行情数据相关路由
-router.get('/quotes/:symbol', tradingController.getQuote);
-router.get('/quotes', tradingController.getBatchQuotes);
-router.get('/market/symbols', tradingController.searchSymbols);
+// 行情数据相关路由（行情限流 - 最宽松，支持实时刷新）
+router.get('/quotes/:symbol', rateLimitPresets.market, tradingController.getQuote);
+router.get('/quotes', rateLimitPresets.market, tradingController.getBatchQuotes);
+router.get('/market/symbols', rateLimitPresets.market, tradingController.searchSymbols);
 
 // 暂时注释未实现的路由
 /*

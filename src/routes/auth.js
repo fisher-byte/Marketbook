@@ -2,13 +2,15 @@ const express = require('express');
 const authService = require('../services/authService');
 const registrationFlowService = require('../services/registrationFlowService');
 const { validateRegistration, validateLogin } = require('../middleware/validation');
+const { rateLimitPresets } = require('../middlewares/rateLimiter');
 
 const router = express.Router();
 
 /**
  * 用户注册接口
+ * 频率限制: 15分钟内最多20次请求
  */
-router.post('/register', validateRegistration, async (req, res) => {
+router.post('/register', rateLimitPresets.auth, validateRegistration, async (req, res) => {
     try {
         const { username, email, password } = req.body;
         
@@ -36,8 +38,9 @@ router.post('/register', validateRegistration, async (req, res) => {
 
 /**
  * 用户登录接口
+ * 频率限制: 15分钟内最多20次请求
  */
-router.post('/login', validateLogin, async (req, res) => {
+router.post('/login', rateLimitPresets.auth, validateLogin, async (req, res) => {
     try {
         const { email, password } = req.body;
         
@@ -64,8 +67,9 @@ router.post('/login', validateLogin, async (req, res) => {
 
 /**
  * 刷新令牌接口
+ * 频率限制: 1分钟内最多5次请求（严格限流）
  */
-router.post('/refresh', async (req, res) => {
+router.post('/refresh', rateLimitPresets.strict, async (req, res) => {
     try {
         const { refreshToken } = req.body;
         

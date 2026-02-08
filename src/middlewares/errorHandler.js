@@ -3,7 +3,7 @@
  * @fileoverview 提供全局错误处理、统一响应格式、错误日志记录
  */
 
-const { errorHandler: globalErrorHandler } = require('../utils/ErrorHandler');
+const { errorHandler: errorLogger } = require('../utils/ErrorHandler');
 
 /**
  * 自定义API错误类
@@ -91,7 +91,7 @@ const globalErrorHandler = (err, req, res, next) => {
     err.type = err.type || 'internal';
 
     // 记录错误到ErrorHandler
-    const errorId = globalErrorHandler.logError(
+    const errorId = errorLogger.logError(
         err.type,
         err.message,
         {
