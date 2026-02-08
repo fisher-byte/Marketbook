@@ -5,11 +5,13 @@
 
 const express = require('express');
 const path = require('path');
+const config = require('./src/config');
+const logger = require('./src/utils/logger');
 const apiRoutes = require('./src/routes');
 const { globalErrorHandler } = require('./src/middlewares/errorHandler');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = config.server.port;
 
 // 静态资源目录
 const publicPath = path.join(__dirname, 'src', 'public');
@@ -18,6 +20,9 @@ const viewsPath = path.join(__dirname, 'src', 'views');
 // 中间件
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// HTTP 请求日志中间件
+app.use(logger.httpLogger);
 
 // 静态文件服务 - /css, /js, /structured-data 等
 app.use(express.static(publicPath));
@@ -72,12 +77,21 @@ app.get('/api/health', (req, res) => {
 app.use(globalErrorHandler);
 
 // 启动服务器
-app.listen(PORT, () => {
+app.listen(PORT, config.server.host, () => {
+  logger.info('MarketBook server started', {
+    port: PORT,
+    host: config.server.host,
+    env: config.server.env,
+    mode: 'demo',
+  });
+  
   console.log(`
   ✅ MarketBook 已启动
   
   📍 本地访问: http://localhost:${PORT}
   📍 首页: http://localhost:${PORT}/
+  📍 环境: ${config.server.env}
+  📍 日志级别: ${config.logging.level}
   
   💡 当前为演示模式，仅展示前端界面
   `);
