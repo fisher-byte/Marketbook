@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户中心 | MarketBook</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --text-primary: #2d3748;
+            --text-secondary: #718096;
+            --border: #e2e8f0;
+        }
+        
+        body { 
+            margin: 0; 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            background: #f7fafc; 
+        }
+        
+        /* 头部导航 */
+        .header { 
+            background: white; 
+            border-bottom: 1px solid var(--border); 
+            padding: 1rem 2rem; 
+        }
+        .header-content { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
+        .logo { 
+            font-weight: 700; 
+            font-size: 1.5rem; 
+            background: var(--primary-gradient); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            text-decoration: none; 
+        }
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        .nav-link:hover {
+            color: #667eea;
+        }
+        .nav-link.active {
+            color: #667eea;
+            font-weight: 600;
+        }
+        .user-info { 
+            display: flex; 
+            align-items: center; 
+            gap: 1rem; 
+        }
+        .user-email { 
+            color: var(--text-secondary); 
+            font-size: 0.9rem; 
+        }
+        .logout-btn { 
+            padding: 0.5rem 1rem; 
+            border: 1px solid var(--border); 
+            border-radius: 8px; 
+            background: white; 
+            cursor: pointer; 
+            transition: all 0.3s; 
+        }
+        .logout-btn:hover { 
+            background: #f7fafc; 
+        }
+        
+        /* 主内容区 */
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 2rem; 
+        }
+        
+        .welcome-banner {
+            background: var(--primary-gradient);
+            border-radius: 16px;
+            padding: 3rem;
+            color: white;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.2);
+        }
+        .welcome-banner h1 {
+            margin: 0 0 0.5rem 0;
+            font-size: 2rem;
+        }
+        .welcome-banner p {
+            margin: 0;
+            opacity: 0.95;
+            font-size: 1.1rem;
+        }
+        
+        /* 功能卡片网格 */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .feature-icon.purple { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .feature-icon.blue { background: linear-gradient(135deg, #4299e1 0%, #2b6cb0 100%); }
+        .feature-icon.green { background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); }
+        .feature-icon.orange { background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%); }
+        
+        .feature-card h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.25rem;
+        }
+        .feature-card p {
+            margin: 0;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        /* 快速统计 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        
+        /* 消息提示 */
+        .message {
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        .message.success { background: #c6f6d5; color: #22543d; border: 1px solid #9ae6b4; }
+        .message.error { background: #fed7d7; color: #742a2a; border: 1px solid #fc8181; }
+        
+    </style>
+</head>
+<body>
+    <!-- 头部导航 -->
+    <header class="header">
+        <div class="header-content">
+            <a href="/" class="logo">MarketBook</a>
+            <nav class="nav-links">
+                <a href="/dashboard" class="nav-link active">用户中心</a>
+                <a href="/simulation" class="nav-link">模拟盘</a>
+                <a href="#" class="nav-link">学习中心</a>
+            </nav>
+            <div class="user-info">
+                <span class="user-email" id="userEmail">加载中...</span>
+                <button class="logout-btn" id="logoutBtn">退出登录</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <div class="container">
+        <!-- 消息提示 -->
+        <div id="messageBox" class="message"></div>
+
+        <!-- 欢迎横幅 -->
+        <div class="welcome-banner">
+            <h1 id="welcomeText">欢迎回来！</h1>
+            <p>MarketBook 股票学习与模拟交易平台</p>
+        </div>
+
+        <!-- 快速统计 -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">模拟账户</div>
+                <div class="stat-value" id="accountCount">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">账户余额</div>
+                <div class="stat-value" id="totalBalance">¥ 0.00</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">总资产</div>
+                <div class="stat-value" id="totalAssets">¥ 0.00</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">持仓数</div>
+                <div class="stat-value" id="positionCount">0</div>
+            </div>
+        </div>
+
+        <!-- 功能卡片 -->
+        <div class="feature-grid">
+            <a href="/simulation" class="feature-card">
+                <div class="feature-icon purple">📈</div>
+                <h3>实时模拟盘</h3>
+                <p>在零风险的环境中练习交易策略，创建模拟账户，买卖股票，查看实时盈亏。</p>
+            </a>
+
+            <a href="#" class="feature-card">
+                <div class="feature-icon blue">📚</div>
+                <h3>学习中心</h3>
+                <p>从基础到进阶，系统学习股票投资知识，掌握技术分析与基本面分析。</p>
+            </a>
+
+            <a href="#" class="feature-card">
+                <div class="feature-icon green">💡</div>
+                <h3>策略分析</h3>
+                <p>分析您的交易历史，生成绩效报告，发现优化空间，提升交易能力。</p>
+            </a>
+
+            <a href="#" class="feature-card">
+                <div class="feature-icon orange">👥</div>
+                <h3>社区讨论</h3>
+                <p>与其他投资者交流经验，分享策略，共同成长，建立投资人脉。</p>
+            </a>
+        </div>
+    </div>
+
+    <script src="/js/utils.js"></script>
+    <script>
+        // 登录态检查
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+            window.location.href = '/login-enhanced.html';
+        }
+
+        // 显示消息
+        function showMessage(text, type = 'success') {
+            const box = document.getElementById('messageBox');
+            box.textContent = text;
+            box.className = `message ${type}`;
+            box.style.display = 'block';
+            setTimeout(() => box.style.display = 'none', 3000);
+        }
+
+        // 获取用户信息
+        async function loadUserInfo() {
+            try {
+                // 解析JWT获取用户email (简化版，实际应该调用API)
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                const userEmail = payload.email || '用户';
+                
+                document.getElementById('userEmail').textContent = userEmail;
+                document.getElementById('welcomeText').textContent = `欢迎回来，${userEmail.split('@')[0]}！`;
+            } catch (error) {
+                console.error('获取用户信息失败:', error);
+            }
+        }
+
+        // 加载账户统计
+        async function loadAccountStats() {
+            try {
+                const response = await fetch('/api/trading/accounts', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const accounts = await response.json();
+                    
+                    if (accounts.length > 0) {
+                        const account = accounts[0]; // 取第一个账户
+                        document.getElementById('accountCount').textContent = accounts.length;
+                        document.getElementById('totalBalance').textContent = `¥ ${account.balance.toLocaleString('zh-CN', { minimumFractionDigits: 2 })}`;
+                        
+                        // 获取持仓信息计算总资产
+                        const posResponse = await fetch(`/api/trading/accounts/${account.id}/positions`, {
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json'
+                            }
+                        });
+                        
+                        if (posResponse.ok) {
+                            const positions = await posResponse.json();
+                            document.getElementById('positionCount').textContent = positions.length;
+                            
+                            // 计算总市值
+                            const totalMarketValue = positions.reduce((sum, pos) => sum + pos.marketValue, 0);
+                            const totalAssets = account.balance + totalMarketValue;
+                            document.getElementById('totalAssets').textContent = `¥ ${totalAssets.toLocaleString('zh-CN', { minimumFractionDigits: 2 })}`;
+                        }
+                    } else {
+                        document.getElementById('accountCount').textContent = '0';
+                    }
+                }
+            } catch (error) {
+                console.error('加载账户统计失败:', error);
+            }
+        }
+
+        // 退出登录
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login-enhanced.html';
+        });
+
+        // 初始化
+        loadUserInfo();
+        loadAccountStats();
+    </script>
+</body>
+</html>

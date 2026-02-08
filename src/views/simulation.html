@@ -20,6 +20,10 @@
         .header { background: white; border-bottom: 1px solid #e2e8f0; padding: 1rem 2rem; }
         .header-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
         .logo { font-weight: 700; font-size: 1.5rem; background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; }
+        .nav-links { display: flex; gap: 2rem; align-items: center; }
+        .nav-link { color: var(--text-secondary); text-decoration: none; font-weight: 500; transition: color 0.3s; }
+        .nav-link:hover { color: #667eea; }
+        .nav-link.active { color: #667eea; font-weight: 600; }
         .user-info { display: flex; align-items: center; gap: 1rem; }
         .user-email { color: var(--text-secondary); font-size: 0.9rem; }
         .logout-btn { padding: 0.5rem 1rem; border: 1px solid #e2e8f0; border-radius: 8px; background: white; cursor: pointer; transition: all 0.3s; }
@@ -84,6 +88,11 @@
     <header class="header">
         <div class="header-content">
             <a href="/" class="logo">MarketBook</a>
+            <nav class="nav-links">
+                <a href="/dashboard" class="nav-link">用户中心</a>
+                <a href="/simulation" class="nav-link active">模拟盘</a>
+                <a href="#" class="nav-link">学习中心</a>
+            </nav>
             <div class="user-info">
                 <span class="user-email" id="userEmail">加载中...</span>
                 <button class="logout-btn" onclick="logout()">退出</button>

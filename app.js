@@ -39,13 +39,16 @@ app.get('/register', (req, res) => {
 app.get('/profile', (req, res) => {
   res.sendFile(path.join(viewsPath, 'profile-enhanced.html'));
 });
+app.get('/dashboard', (req, res) => {
+  res.sendFile(path.join(viewsPath, 'dashboard.html'));
+});
 
 // 功能模块占位页（演示原型）
 app.get('/forum', (req, res) => {
   res.sendFile(path.join(viewsPath, 'forum-demo.html'));
 });
 app.get('/simulation', (req, res) => {
-  res.sendFile(path.join(viewsPath, 'simulation-demo.html'));
+  res.sendFile(path.join(viewsPath, 'simulation.html'));
 });
 app.get('/strategies', (req, res) => {
   res.sendFile(path.join(viewsPath, 'strategies-demo.html'));

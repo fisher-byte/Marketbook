@@ -419,7 +419,7 @@ const Router = {
      */
     returnAfterLogin() {
         const params = new URLSearchParams(window.location.search);
-        const returnUrl = params.get('returnUrl') || '/';
+        const returnUrl = params.get('returnUrl') || '/dashboard';
         this.navigate(returnUrl);
     },
 
