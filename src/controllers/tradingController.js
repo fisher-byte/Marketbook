@@ -7,6 +7,7 @@ const TradingAccount = require('../models/TradingAccount');
 const TradingAccountStore = require('../models/TradingAccountStore');
 const TradingRecord = require('../models/TradingRecord');
 const TradingRecordStore = require('../models/TradingRecordStore');
+const marketDataService = require('../services/marketDataService');
 
 /**
  * 获取用户交易账户信息（通过accountId）
@@ -180,8 +181,16 @@ const executeTrade = async (req, res) => {
             });
         }
 
-        // 使用市场价（模拟）或指定价格
-        const tradePrice = price || 150; // 模拟市场价
+        // 使用实时市场价格
+        const quoteData = marketDataService.getQuote(symbol);
+        if (!quoteData) {
+            return res.status(400).json({
+                success: false,
+                message: `无法获取 ${symbol} 的实时行情`
+            });
+        }
+        
+        const tradePrice = price || quoteData.currentPrice; // 优先使用市场价
         const tradeAmount = quantity * tradePrice;
         
         // 买入交易验证资金充足性
@@ -363,6 +372,100 @@ const getPositions = async (req, res) => {
     }
 };
 
+/**
+ * 获取单个股票实时行情
+ * @param {Object} req - 请求对象
+ * @param {Object} res - 响应对象
+ */
+const getQuote = async (req, res) => {
+    try {
+        const { symbol } = req.params;
+        
+        if (!symbol) {
+            return res.status(400).json({
+                success: false,
+                message: '股票代码不能为空'
+            });
+        }
+
+        const quote = marketDataService.getQuote(symbol);
+        
+        if (!quote) {
+            return res.status(404).json({
+                success: false,
+                message: `未找到股票 ${symbol} 的行情数据`
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: quote
+        });
+    } catch (error) {
+        console.error('获取行情数据错误:', error);
+        res.status(500).json({
+            success: false,
+            message: '服务器内部错误'
+        });
+    }
+};
+
+/**
+ * 批量获取股票行情
+ * @param {Object} req - 请求对象
+ * @param {Object} res - 响应对象
+ */
+const getBatchQuotes = async (req, res) => {
+    try {
+        const { symbols } = req.query; // ?symbols=AAPL,GOOGL,MSFT
+        
+        if (!symbols) {
+            return res.status(400).json({
+                success: false,
+                message: '请提供股票代码列表（用逗号分隔）'
+            });
+        }
+
+        const symbolArray = symbols.split(',').map(s => s.trim()).filter(Boolean);
+        const quotes = marketDataService.getBatchQuotes(symbolArray);
+
+        res.status(200).json({
+            success: true,
+            data: quotes
+        });
+    } catch (error) {
+        console.error('批量获取行情数据错误:', error);
+        res.status(500).json({
+            success: false,
+            message: '服务器内部错误'
+        });
+    }
+};
+
+/**
+ * 搜索股票代码
+ * @param {Object} req - 请求对象
+ * @param {Object} res - 响应对象
+ */
+const searchSymbols = async (req, res) => {
+    try {
+        const { keyword } = req.query;
+        
+        const results = marketDataService.searchSymbols(keyword);
+
+        res.status(200).json({
+            success: true,
+            data: results
+        });
+    } catch (error) {
+        console.error('搜索股票错误:', error);
+        res.status(500).json({
+            success: false,
+            message: '服务器内部错误'
+        });
+    }
+};
+
 module.exports = {
     getAccountInfo,
     getUserAccounts,
@@ -371,5 +474,8 @@ module.exports = {
     placeBuyOrder,
     placeSellOrder,
     getTradeHistory,
-    getPositions
+    getPositions,
+    getQuote,
+    getBatchQuotes,
+    searchSymbols
 };

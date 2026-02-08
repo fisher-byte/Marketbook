@@ -26,6 +26,11 @@ router.get('/accounts/:accountId/positions', authenticateToken, tradingControlle
 // 交易历史相关路由
 router.get('/accounts/:accountId/history', authenticateToken, tradingController.getTradeHistory);
 
+// 行情数据相关路由
+router.get('/quotes/:symbol', tradingController.getQuote);
+router.get('/quotes', tradingController.getBatchQuotes);
+router.get('/market/symbols', tradingController.searchSymbols);
+
 // 暂时注释未实现的路由
 /*
 // router.get('/accounts', auth, tradingController.getUserAccounts);
