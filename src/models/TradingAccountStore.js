@@ -93,7 +93,7 @@ function save(account) {
  * @returns {boolean} 删除是否成功
  */
 function deleteById(accountId) {
-    return memoryStore.delete('tradingAccounts', { accountId });
+    return memoryStore.deleteOne('tradingAccounts', { accountId });
 }
 
 /**
