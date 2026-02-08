@@ -6,6 +6,7 @@
 const express = require('express');
 const path = require('path');
 const apiRoutes = require('./src/routes');
+const { errorMiddleware } = require('./src/middlewares/errorHandler');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -66,6 +67,9 @@ app.get('/api/health', (req, res) => {
     message: '演示模式运行中'
   });
 });
+
+// ⚠️ 全局错误处理中间件（必须放在所有路由之后）
+app.use(errorMiddleware);
 
 // 启动服务器
 app.listen(PORT, () => {
