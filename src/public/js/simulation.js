@@ -1,11 +1,33 @@
-// simulation.js - 模拟盘前端逻辑
+/**
+ * simulation.js - 模拟盘前端逻辑
+ * 
+ * 功能概览：
+ * - 账户管理：创建、查询、刷新模拟盘账户
+ * - 交易操作：买入、卖出股票
+ * - 持仓管理：查看持仓、实时计算盈亏
+ * - 行情数据：实时获取股票报价，每5秒自动更新
+ * - 交易历史：查看历史交易记录
+ * 
+ * @author MarketBook Team
+ * @version 2.0 (实时行情版本)
+ */
 
+/** @type {Object|null} 当前模拟盘账户对象 */
 let currentAccount = null;
-let marketDataCache = {}; // 缓存行情数据
-let priceUpdateInterval = null; // 价格更新定时器
+
+/** @type {Object} 行情数据缓存 (symbol -> quoteData) */
+let marketDataCache = {};
+
+/** @type {number|null} 价格更新定时器ID */
+let priceUpdateInterval = null;
+
+/** @constant {string} API基础路径 */
 const API_BASE = '/api';
 
-// 页面加载
+/**
+ * 页面加载初始化
+ * 检查登录状态 → 加载用户信息 → 加载账户信息
+ */
 document.addEventListener('DOMContentLoaded', async () => {
     // 检查登录状态
     const token = localStorage.getItem('token');
@@ -21,7 +43,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     await loadAccount();
 });
 
-// 加载用户信息
+/**
+ * 加载当前登录用户信息
+ * 从服务器获取用户数据并显示在导航栏
+ * @async
+ * @returns {Promise<void>}
+ */
 async function loadUserInfo() {
     try {
         const token = localStorage.getItem('token');
@@ -43,7 +70,12 @@ async function loadUserInfo() {
     }
 }
 
-// 加载账户信息
+/**
+ * 加载用户的模拟盘账户信息
+ * 如果账户存在则显示账户界面，否则显示创建账户界面
+ * @async
+ * @returns {Promise<void>}
+ */
 async function loadAccount() {
     try {
         const token = localStorage.getItem('token');
@@ -75,7 +107,12 @@ async function loadAccount() {
     }
 }
 
-// 创建账户
+/**
+ * 创建新的模拟盘账户
+ * 默认初始资金: ¥100,000
+ * @async
+ * @returns {Promise<void>}
+ */
 async function createAccount() {
     try {
         const token = localStorage.getItem('token');
@@ -109,7 +146,12 @@ async function createAccount() {
     }
 }
 
-// 刷新账户
+/**
+ * 刷新账户数据
+ * 重新加载账户信息、持仓和历史记录
+ * @async
+ * @returns {Promise<void>}
+ */
 async function refreshAccount() {
     if (!currentAccount) return;
 
@@ -138,7 +180,12 @@ async function refreshAccount() {
     }
 }
 
-// 买入下单（显示实时报价）
+/**
+ * 买入股票下单
+ * 从表单获取股票代码、价格、数量，调用买入API
+ * @async
+ * @returns {Promise<void>}
+ */
 async function placeBuyOrder() {
     const symbol = document.getElementById('buySymbol').value.trim().toUpperCase();
     const price = parseFloat(document.getElementById('buyPrice').value);
@@ -189,7 +236,12 @@ async function placeBuyOrder() {
     }
 }
 
-// 卖出下单（显示实时报价）
+/**
+ * 卖出股票下单
+ * 从表单获取股票代码、价格、数量，调用卖出API
+ * @async
+ * @returns {Promise<void>}
+ */
 async function placeSellOrder() {
     const symbol = document.getElementById('sellSymbol').value.trim().toUpperCase();
     const price = parseFloat(document.getElementById('sellPrice').value);
@@ -240,7 +292,13 @@ async function placeSellOrder() {
     }
 }
 
-// 查询实时报价并填入表单
+/**
+ * 查询股票实时报价并自动填入表单
+ * @async
+ * @param {string} symbol - 股票代码 (如 'AAPL')
+ * @param {string} targetField - 目标价格输入框ID (如 'buyPrice' 或 'sellPrice')
+ * @returns {Promise<void>}
+ */
 async function fetchQuote(symbol, targetField) {
     if (!symbol) return;
 
@@ -267,7 +325,12 @@ async function fetchQuote(symbol, targetField) {
     }
 }
 
-// 加载持仓（附带实时行情）
+/**
+ * 加载持仓列表
+ * 获取账户持仓数据，并同步加载实时行情用于盈亏计算
+ * @async
+ * @returns {Promise<void>}
+ */
 async function loadPositions() {
     if (!currentAccount) return;
 
@@ -303,7 +366,13 @@ async function loadPositions() {
     }
 }
 
-// 加载市场行情数据
+/**
+ * 批量加载市场行情数据
+ * 获取多个股票的实时报价并缓存到 marketDataCache
+ * @async
+ * @param {string} symbols - 股票代码列表，逗号分隔 (如 'AAPL,GOOGL,MSFT')
+ * @returns {Promise<void>}
+ */
 async function loadMarketData(symbols) {
     try {
         const token = localStorage.getItem('token');
@@ -326,7 +395,11 @@ async function loadMarketData(symbols) {
     }
 }
 
-// 启动价格实时更新
+/**
+ * 启动价格实时更新定时器
+ * 每5秒自动刷新持仓行情和盈亏计算
+ * @param {Array} positions - 持仓列表
+ */
 function startPriceUpdates(positions) {
     // 清除旧的定时器
     if (priceUpdateInterval) {
@@ -344,7 +417,10 @@ function startPriceUpdates(positions) {
     }, 5000);
 }
 
-// 停止价格更新
+/**
+ * 停止价格更新定时器
+ * 清除定时器，停止自动刷新行情
+ */
 function stopPriceUpdates() {
     if (priceUpdateInterval) {
         clearInterval(priceUpdateInterval);
@@ -352,7 +428,12 @@ function stopPriceUpdates() {
     }
 }
 
-// 加载交易历史
+/**
+ * 加载交易历史记录
+ * 获取账户的历史交易记录并显示在表格中
+ * @async
+ * @returns {Promise<void>}
+ */
 async function loadHistory() {
     if (!currentAccount) return;
 
@@ -377,7 +458,11 @@ async function loadHistory() {
     }
 }
 
-// 显示持仓（基于实时行情计算盈亏）
+/**
+ * 渲染持仓列表
+ * 基于实时行情数据计算持仓盈亏、市值、盈亏率
+ * @param {Array} positions - 持仓数据数组
+ */
 function displayPositions(positions) {
     const container = document.getElementById('positionsContent');
     
@@ -484,7 +569,12 @@ function displayHistory(history) {
     container.innerHTML = html;
 }
 
-// 更新账户显示（基于实时行情计算总盈亏）
+/**
+ * 更新账户总览显示
+ * 基于实时行情计算持仓市值和总盈亏
+ * @async
+ * @returns {Promise<void>}
+ */
 async function updateAccountDisplay() {
     if (!currentAccount) return;
 
@@ -536,7 +626,12 @@ function showAccountSection() {
     document.getElementById('accountSection').style.display = 'block';
 }
 
-// 显示提示
+/**
+ * 显示提示消息
+ * 在页面顶部显示临时提示框，5秒后自动消失
+ * @param {string} message - 提示内容
+ * @param {string} [type='info'] - 提示类型 ('success'|'error'|'warning'|'info')
+ */
 function showAlert(message, type = 'info') {
     const container = document.getElementById('alertContainer');
     const alert = document.createElement('div');
@@ -549,7 +644,10 @@ function showAlert(message, type = 'info') {
     }, 5000);
 }
 
-// 退出登录
+/**
+ * 退出登录
+ * 清除本地token并跳转到登录页
+ */
 function logout() {
     localStorage.removeItem('token');
     window.location.href = '/login';
