@@ -98,8 +98,9 @@ class User {
             throw new Error('密码必须是字符串类型');
         }
         
-        // 增强密码策略：至少8位，包含大小写字母、数字和特殊字符
-        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        // 开发环境：放宽密码策略为至少6位，包含字母和数字
+        // 生产环境建议改为：至少8位，包含大小写字母、数字和特殊字符
+        const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).{6,}$/;
         return passwordRegex.test(this.password);
     }
 
@@ -147,7 +148,7 @@ class User {
             
             // 密码验证（仅在创建或修改密码时验证）
             if (this.password && !this.validatePassword()) {
-                errors.push('密码强度不足（至少8位，包含大小写字母、数字和特殊字符）');
+                errors.push('密码强度不足（至少6位，包含字母和数字）');
             }
             
         } catch (error) {

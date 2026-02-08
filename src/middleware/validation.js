@@ -21,12 +21,13 @@ const registerValidation = [
     body('password')
         .isLength({ min: 6 })
         .withMessage('密码长度至少6位')
-        .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
-        .withMessage('密码必须包含大小写字母和数字'),
+        .matches(/^(?=.*[A-Za-z])(?=.*\d)/)
+        .withMessage('密码必须包含字母和数字'),
     
     body('confirmPassword')
+        .optional()
         .custom((value, { req }) => {
-            if (value !== req.body.password) {
+            if (value && value !== req.body.password) {
                 throw new Error('两次输入的密码不一致');
             }
             return true;
