@@ -4,6 +4,7 @@
 
 const express = require('express');
 const authRoutes = require('./auth');
+const tradingRoutes = require('./trading');
 // TODO: 其他路由需要修复 controller 的格式后再启用
 // const profileRoutes = require('./profile');
 // const avatarRoutes = require('./avatar');
@@ -14,6 +15,9 @@ const router = express.Router();
 
 // 注册认证相关路由
 router.use('/auth', authRoutes);
+
+// 注册交易相关路由
+router.use('/trading', tradingRoutes);
 
 // TODO: 其他路由暂时注释，待修复
 // 注册用户资料相关路由

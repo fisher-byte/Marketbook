@@ -4,6 +4,7 @@
  */
 
 const TradingAccount = require('../models/TradingAccount');
+const TradingAccountStore = require('../models/TradingAccountStore');
 const TradingRecord = require('../models/TradingRecord');
 
 /**
@@ -61,7 +62,7 @@ const createAccount = async (req, res) => {
         }
 
         // 检查是否已存在账户
-        const existingAccount = await TradingAccount.findByUserId(userId);
+        const existingAccount = TradingAccountStore.findByUserId(userId);
         if (existingAccount) {
             return res.status(409).json({
                 success: false,
@@ -71,12 +72,13 @@ const createAccount = async (req, res) => {
 
         const account = new TradingAccount({
             userId,
-            balance: initialBalance,
+            initialBalance: initialBalance,
+            currentBalance: initialBalance,
             availableBalance: initialBalance,
             status: 'active'
         });
 
-        await account.save();
+        TradingAccountStore.save(account);
 
         res.status(201).json({
             success: true,
@@ -117,7 +119,7 @@ const executeTrade = async (req, res) => {
         }
 
         // 获取交易账户
-        const account = await TradingAccount.findByUserId(userId);
+        const account = TradingAccountStore.findByUserId(userId);
         if (!account) {
             return res.status(404).json({
                 success: false,
@@ -159,14 +161,14 @@ const executeTrade = async (req, res) => {
 
         // 更新账户余额
         if (type === 'buy') {
-            account.balance -= tradeAmount;
+            account.currentBalance -= tradeAmount;
             account.availableBalance -= tradeAmount;
         } else {
-            account.balance += tradeAmount;
+            account.currentBalance += tradeAmount;
             account.availableBalance += tradeAmount;
         }
 
-        await account.save();
+        TradingAccountStore.save(account);
 
         res.status(200).json({
             success: true,
