@@ -58,6 +58,7 @@ function save(account) {
     
     // 转换为普通对象保存
     const accountData = {
+        id: account.accountId, // 使用 accountId 作为 id 字段（memoryStore的主键）
         accountId: account.accountId,
         userId: account.userId,
         accountName: account.accountName,

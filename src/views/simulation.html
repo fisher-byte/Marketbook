@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>实时模拟盘 | MarketBook</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --text-primary: #2d3748;
+            --text-secondary: #718096;
+            --success: #48bb78;
+            --danger: #f56565;
+            --warning: #ed8936;
+        }
+        
+        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f7fafc; }
+        
+        .header { background: white; border-bottom: 1px solid #e2e8f0; padding: 1rem 2rem; }
+        .header-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-weight: 700; font-size: 1.5rem; background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; }
+        .user-info { display: flex; align-items: center; gap: 1rem; }
+        .user-email { color: var(--text-secondary); font-size: 0.9rem; }
+        .logout-btn { padding: 0.5rem 1rem; border: 1px solid #e2e8f0; border-radius: 8px; background: white; cursor: pointer; transition: all 0.3s; }
+        .logout-btn:hover { background: #f7fafc; }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        
+        .page-header { margin-bottom: 2rem; }
+        .page-header h1 { font-size: 2rem; color: var(--text-primary); margin-bottom: 0.5rem; }
+        .page-header p { color: var(--text-secondary); }
+        
+        .account-card { background: white; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .account-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .account-header h2 { margin: 0; font-size: 1.3rem; color: var(--text-primary); }
+        .account-balance { font-size: 2rem; font-weight: 700; color: var(--primary-gradient); background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .account-info { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1rem; }
+        .info-item { text-align: center; padding: 1rem; background: #f7fafc; border-radius: 8px; }
+        .info-label { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.5rem; }
+        .info-value { font-size: 1.3rem; font-weight: 600; color: var(--text-primary); }
+        
+        .create-account-card { background: white; border-radius: 12px; padding: 2rem; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .create-btn { padding: 1rem 2rem; background: var(--primary-gradient); color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: transform 0.3s; }
+        .create-btn:hover { transform: translateY(-2px); }
+        
+        .trading-section { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem; }
+        .trading-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .trading-card h3 { margin: 0 0 1rem 0; font-size: 1.2rem; color: var(--text-primary); }
+        .form-group { margin-bottom: 1rem; }
+        .form-label { display: block; margin-bottom: 0.5rem; color: var(--text-secondary); font-size: 0.9rem; }
+        .form-input { width: 100%; padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 1rem; box-sizing: border-box; }
+        .form-input:focus { outline: none; border-color: #667eea; }
+        .trade-btn { width: 100%; padding: 0.75rem; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .buy-btn { background: var(--success); color: white; }
+        .sell-btn { background: var(--danger); color: white; }
+        .trade-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+        
+        .positions-section { background: white; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .positions-section h3 { margin: 0 0 1rem 0; font-size: 1.2rem; color: var(--text-primary); }
+        .positions-table { width: 100%; border-collapse: collapse; }
+        .positions-table th { text-align: left; padding: 0.75rem; border-bottom: 2px solid #e2e8f0; color: var(--text-secondary); font-size: 0.9rem; font-weight: 600; }
+        .positions-table td { padding: 0.75rem; border-bottom: 1px solid #f7fafc; color: var(--text-primary); }
+        .positive { color: var(--success); font-weight: 600; }
+        .negative { color: var(--danger); font-weight: 600; }
+        
+        .history-section { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .history-section h3 { margin: 0 0 1rem 0; font-size: 1.2rem; color: var(--text-primary); }
+        .history-table { width: 100%; border-collapse: collapse; }
+        .history-table th { text-align: left; padding: 0.75rem; border-bottom: 2px solid #e2e8f0; color: var(--text-secondary); font-size: 0.9rem; font-weight: 600; }
+        .history-table td { padding: 0.75rem; border-bottom: 1px solid #f7fafc; color: var(--text-primary); font-size: 0.9rem; }
+        
+        .empty-state { text-align: center; padding: 2rem; color: var(--text-secondary); }
+        
+        .alert { padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
+        .alert-success { background: #c6f6d5; color: #22543d; }
+        .alert-error { background: #fed7d7; color: #742a2a; }
+        .alert-info { background: #bee3f8; color: #2c5282; }
+        
+        .loading { text-align: center; padding: 2rem; color: var(--text-secondary); }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <a href="/" class="logo">MarketBook</a>
+            <div class="user-info">
+                <span class="user-email" id="userEmail">加载中...</span>
+                <button class="logout-btn" onclick="logout()">退出</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>📈 实时模拟盘</h1>
+            <p>零风险体验真实交易环境</p>
+        </div>
+
+        <div id="alertContainer"></div>
+
+        <!-- 创建账户卡片（无账户时显示） -->
+        <div id="createAccountSection" style="display: none;">
+            <div class="create-account-card">
+                <h2>🎯 开始你的交易之旅</h2>
+                <p style="color: var(--text-secondary); margin: 1rem 0 2rem;">创建模拟盘账户，获得虚拟资金进行交易练习</p>
+                <button class="create-btn" onclick="createAccount()">创建模拟盘账户</button>
+            </div>
+        </div>
+
+        <!-- 账户信息卡片（有账户时显示） -->
+        <div id="accountSection" style="display: none;">
+            <div class="account-card">
+                <div class="account-header">
+                    <h2>📊 账户概览</h2>
+                    <button onclick="refreshAccount()" style="padding: 0.5rem 1rem; border: 1px solid #e2e8f0; border-radius: 6px; background: white; cursor: pointer;">🔄 刷新</button>
+                </div>
+                <div class="account-balance" id="accountBalance">¥0.00</div>
+                <div class="account-info">
+                    <div class="info-item">
+                        <div class="info-label">初始资金</div>
+                        <div class="info-value" id="initialBalance">¥0.00</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">持仓市值</div>
+                        <div class="info-value" id="positionsValue">¥0.00</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">总盈亏</div>
+                        <div class="info-value" id="totalPnl">¥0.00</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 交易区域 -->
+            <div class="trading-section">
+                <div class="trading-card">
+                    <h3>📈 买入</h3>
+                    <div class="form-group">
+                        <label class="form-label">股票代码</label>
+                        <input type="text" class="form-input" id="buySymbol" placeholder="例如: AAPL">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">价格 (¥)</label>
+                        <input type="number" class="form-input" id="buyPrice" placeholder="例如: 150.50" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">数量</label>
+                        <input type="number" class="form-input" id="buyQuantity" placeholder="例如: 100" step="1">
+                    </div>
+                    <button class="trade-btn buy-btn" onclick="placeBuyOrder()">买入</button>
+                </div>
+
+                <div class="trading-card">
+                    <h3>📉 卖出</h3>
+                    <div class="form-group">
+                        <label class="form-label">股票代码</label>
+                        <input type="text" class="form-input" id="sellSymbol" placeholder="例如: AAPL">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">价格 (¥)</label>
+                        <input type="number" class="form-input" id="sellPrice" placeholder="例如: 155.50" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">数量</label>
+                        <input type="number" class="form-input" id="sellQuantity" placeholder="例如: 50" step="1">
+                    </div>
+                    <button class="trade-btn sell-btn" onclick="placeSellOrder()">卖出</button>
+                </div>
+            </div>
+
+            <!-- 持仓列表 -->
+            <div class="positions-section">
+                <h3>💼 当前持仓</h3>
+                <div id="positionsContent">
+                    <div class="loading">加载中...</div>
+                </div>
+            </div>
+
+            <!-- 交易历史 -->
+            <div class="history-section">
+                <h3>📜 交易历史</h3>
+                <div id="historyContent">
+                    <div class="loading">加载中...</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="loadingSection" class="loading">
+            正在加载账户信息...
+        </div>
+    </div>
+
+    <script src="/js/simulation.js"></script>
+</body>
+</html>

@@ -19,10 +19,12 @@ router.get('/accounts/:accountId', authenticateToken, tradingController.getAccou
 router.post('/orders/buy', authenticateToken, tradingController.placeBuyOrder);
 router.post('/orders/sell', authenticateToken, tradingController.placeSellOrder);
 router.post('/orders/execute', authenticateToken, tradingController.executeTrade);
-router.get('/orders/history/:userId', authenticateToken, tradingController.getTradeHistory);
 
 // 持仓相关路由
 router.get('/accounts/:accountId/positions', authenticateToken, tradingController.getPositions);
+
+// 交易历史相关路由
+router.get('/accounts/:accountId/history', authenticateToken, tradingController.getTradeHistory);
 
 // 暂时注释未实现的路由
 /*
