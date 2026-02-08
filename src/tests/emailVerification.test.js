@@ -3,13 +3,6 @@
  */
 
 const EmailVerification = require('../models/EmailVerification');
-const emailService = require('../utils/emailService');
-
-// 模拟邮件服务
-jest.mock('../utils/emailService', () => ({
-    sendVerificationEmail: jest.fn().mockResolvedValue(true),
-    sendWelcomeEmail: jest.fn().mockResolvedValue(true)
-}));
 
 describe('邮箱验证功能测试', () => {
     let verificationToken;
@@ -32,66 +25,83 @@ describe('邮箱验证功能测试', () => {
     });
 
     test('验证令牌有效性 - 有效令牌', () => {
-        expect(verificationToken.isValid()).toBe(true);
+        expect(verificationToken.isExpired()).toBe(false);
+        expect(verificationToken.isVerified).toBe(false);
     });
 
     test('验证令牌有效性 - 过期令牌', () => {
         verificationToken.expiresAt = new Date(Date.now() - 1000); // 已过期
-        expect(verificationToken.isValid()).toBe(false);
+        expect(verificationToken.isExpired()).toBe(true);
     });
 
-    test('验证令牌有效性 - 已验证令牌', () => {
-        verificationToken.isVerified = true;
-        expect(verificationToken.isValid()).toBe(false);
-    });
-
-    test('验证令牌有效性 - 无效令牌', () => {
-        verificationToken.token = '';
-        expect(verificationToken.isValid()).toBe(false);
-    });
-
-    test('生成验证链接', () => {
-        const verificationUrl = verificationToken.generateVerificationUrl('http://localhost:3000');
-        expect(verificationUrl).toContain('http://localhost:3000/auth/verify-email');
-        expect(verificationUrl).toContain('token=test-token-123');
-        expect(verificationUrl).toContain('userId=1234567890');
-    });
-
-    test('发送验证邮件', async () => {
-        const result = await verificationToken.sendVerificationEmail('http://localhost:3000');
+    test('验证令牌成功', () => {
+        const result = verificationToken.verify('test-token-123');
         expect(result).toBe(true);
-        expect(emailService.sendVerificationEmail).toHaveBeenCalledWith(
-            'test@example.com',
-            expect.stringContaining('http://localhost:3000/auth/verify-email')
-        );
+        expect(verificationToken.isVerified).toBe(true);
+        expect(verificationToken.verifiedAt).toBeInstanceOf(Date);
+    });
+
+    test('验证令牌失败 - 错误令牌', () => {
+        const result = verificationToken.verify('wrong-token');
+        expect(result).toBe(false);
+        expect(verificationToken.isVerified).toBe(false);
+    });
+
+    test('验证令牌失败 - 已过期', () => {
+        verificationToken.expiresAt = new Date(Date.now() - 1000); // 已过期
+        const result = verificationToken.verify('test-token-123');
+        expect(result).toBe(false);
+    });
+
+    test('重新生成令牌', () => {
+        const oldToken = verificationToken.token;
+        const oldExpiresAt = verificationToken.expiresAt;
+        
+        verificationToken.regenerateToken();
+        
+        expect(verificationToken.token).not.toBe(oldToken);
+        expect(verificationToken.token).toHaveLength(64);
+        expect(verificationToken.expiresAt.getTime()).toBeGreaterThanOrEqual(oldExpiresAt.getTime());
+        expect(verificationToken.isVerified).toBe(false);
+        expect(verificationToken.verifiedAt).toBe(null);
+    });
+
+    test('数据完整性验证 - 有效数据', () => {
+        const validation = verificationToken.validate();
+        expect(validation.isValid).toBe(true);
+        expect(validation.errors).toHaveLength(0);
+    });
+
+    test('数据完整性验证 - 缺少用户ID', () => {
+        verificationToken.userId = null;
+        const validation = verificationToken.validate();
+        expect(validation.isValid).toBe(false);
+        expect(validation.errors).toContain('用户ID不能为空');
+    });
+
+    test('数据完整性验证 - 缺少邮箱', () => {
+        verificationToken.email = '';
+        const validation = verificationToken.validate();
+        expect(validation.isValid).toBe(false);
+        expect(validation.errors).toContain('邮箱不能为空');
     });
 
     test('生成随机令牌', () => {
-        const token1 = EmailVerification.generateToken();
-        const token2 = EmailVerification.generateToken();
+        const token1 = new EmailVerification({}).generateToken();
+        const token2 = new EmailVerification({}).generateToken();
         
         expect(token1).toHaveLength(64); // 32字节的十六进制字符串
         expect(token2).toHaveLength(64);
         expect(token1).not.toBe(token2); // 每次生成不同的令牌
     });
 
-    test('创建验证令牌实例', () => {
-        const newToken = EmailVerification.createVerification('user123', 'user@example.com');
+    test('获取验证信息', () => {
+        const info = verificationToken.getInfo();
         
-        expect(newToken.userId).toBe('user123');
-        expect(newToken.email).toBe('user@example.com');
-        expect(newToken.token).toHaveLength(64);
-        expect(newToken.isVerified).toBe(false);
-        expect(newToken.expiresAt.getTime()).toBeGreaterThan(Date.now());
-    });
-});
-
-describe('邮件服务测试', () => {
-    test('发送验证邮件被调用', async () => {
-        await emailService.sendVerificationEmail('test@example.com', 'http://localhost:3000/verify?token=abc123');
-        expect(emailService.sendVerificationEmail).toHaveBeenCalledWith(
-            'test@example.com',
-            'http://localhost:3000/verify?token=abc123'
-        );
+        expect(info.userId).toBe('1234567890');
+        expect(info.email).toBe('test@example.com');
+        expect(info.isVerified).toBe(false);
+        expect(info.isExpired).toBe(false);
+        expect(info.createdAt).toBeInstanceOf(Date);
     });
 });
