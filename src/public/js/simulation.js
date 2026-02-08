@@ -1,6 +1,8 @@
 // simulation.js - 模拟盘前端逻辑
 
 let currentAccount = null;
+let marketDataCache = {}; // 缓存行情数据
+let priceUpdateInterval = null; // 价格更新定时器
 const API_BASE = '/api';
 
 // 页面加载
@@ -136,9 +138,9 @@ async function refreshAccount() {
     }
 }
 
-// 买入下单
+// 买入下单（显示实时报价）
 async function placeBuyOrder() {
-    const symbol = document.getElementById('buySymbol').value.trim();
+    const symbol = document.getElementById('buySymbol').value.trim().toUpperCase();
     const price = parseFloat(document.getElementById('buyPrice').value);
     const quantity = parseInt(document.getElementById('buyQuantity').value);
 
@@ -187,9 +189,9 @@ async function placeBuyOrder() {
     }
 }
 
-// 卖出下单
+// 卖出下单（显示实时报价）
 async function placeSellOrder() {
-    const symbol = document.getElementById('sellSymbol').value.trim();
+    const symbol = document.getElementById('sellSymbol').value.trim().toUpperCase();
     const price = parseFloat(document.getElementById('sellPrice').value);
     const quantity = parseInt(document.getElementById('sellQuantity').value);
 
@@ -238,7 +240,34 @@ async function placeSellOrder() {
     }
 }
 
-// 加载持仓
+// 查询实时报价并填入表单
+async function fetchQuote(symbol, targetField) {
+    if (!symbol) return;
+
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_BASE}/trading/quotes/${symbol.toUpperCase()}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.quote) {
+            const quote = data.quote;
+            document.getElementById(targetField).value = quote.price.toFixed(2);
+            showAlert(`${symbol} 当前价: ¥${quote.price.toFixed(2)} (${quote.change >= 0 ? '+' : ''}${quote.changePercent.toFixed(2)}%)`, 'info');
+        } else {
+            showAlert('未找到该股票行情', 'error');
+        }
+    } catch (error) {
+        console.error('查询报价失败:', error);
+        showAlert('查询报价失败', 'error');
+    }
+}
+
+// 加载持仓（附带实时行情）
 async function loadPositions() {
     if (!currentAccount) return;
 
@@ -253,13 +282,73 @@ async function loadPositions() {
         const data = await response.json();
 
         if (response.ok) {
-            displayPositions(data.positions || []);
+            const positions = data.positions || [];
+            
+            // 获取所有持仓股票的实时行情
+            if (positions.length > 0) {
+                const symbols = positions.map(p => p.symbol).join(',');
+                await loadMarketData(symbols);
+                
+                // 启动实时价格更新（每5秒）
+                startPriceUpdates(positions);
+            }
+            
+            displayPositions(positions);
         } else {
             document.getElementById('positionsContent').innerHTML = '<div class="empty-state">加载持仓失败</div>';
         }
     } catch (error) {
         console.error('加载持仓失败:', error);
         document.getElementById('positionsContent').innerHTML = '<div class="empty-state">加载持仓失败</div>';
+    }
+}
+
+// 加载市场行情数据
+async function loadMarketData(symbols) {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_BASE}/trading/quotes?symbols=${symbols}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.quotes) {
+            // 更新缓存
+            data.quotes.forEach(quote => {
+                marketDataCache[quote.symbol] = quote;
+            });
+        }
+    } catch (error) {
+        console.error('加载行情数据失败:', error);
+    }
+}
+
+// 启动价格实时更新
+function startPriceUpdates(positions) {
+    // 清除旧的定时器
+    if (priceUpdateInterval) {
+        clearInterval(priceUpdateInterval);
+    }
+
+    // 每5秒更新一次行情和持仓显示
+    priceUpdateInterval = setInterval(async () => {
+        if (positions.length > 0) {
+            const symbols = positions.map(p => p.symbol).join(',');
+            await loadMarketData(symbols);
+            displayPositions(positions); // 用最新行情重新渲染持仓
+            updateAccountDisplay(); // 更新账户总览
+        }
+    }, 5000);
+}
+
+// 停止价格更新
+function stopPriceUpdates() {
+    if (priceUpdateInterval) {
+        clearInterval(priceUpdateInterval);
+        priceUpdateInterval = null;
     }
 }
 
@@ -288,7 +377,7 @@ async function loadHistory() {
     }
 }
 
-// 显示持仓
+// 显示持仓（基于实时行情计算盈亏）
 function displayPositions(positions) {
     const container = document.getElementById('positionsContent');
     
@@ -304,6 +393,7 @@ function displayPositions(positions) {
                     <th>股票代码</th>
                     <th>持仓数量</th>
                     <th>成本价</th>
+                    <th>当前价 <span style="font-size:0.8em;color:#888;">(实时)</span></th>
                     <th>市值</th>
                     <th>盈亏</th>
                     <th>盈亏率</th>
@@ -313,17 +403,34 @@ function displayPositions(positions) {
     `;
 
     positions.forEach(pos => {
-        const pnlClass = pos.unrealizedPnl >= 0 ? 'positive' : 'negative';
-        const pnlSign = pos.unrealizedPnl >= 0 ? '+' : '';
+        // 获取实时价格
+        const quote = marketDataCache[pos.symbol];
+        const currentPrice = quote ? quote.price : pos.avgCost; // 无行情时用成本价
+        const marketValue = currentPrice * pos.quantity;
+        const unrealizedPnl = marketValue - (pos.avgCost * pos.quantity);
+        const returnRate = ((currentPrice - pos.avgCost) / pos.avgCost) * 100;
+        
+        const pnlClass = unrealizedPnl >= 0 ? 'positive' : 'negative';
+        const pnlSign = unrealizedPnl >= 0 ? '+' : '';
+        
+        // 价格变化指示
+        const priceChangeIndicator = quote ? 
+            `<span class="${quote.change >= 0 ? 'positive' : 'negative'}" style="font-size:0.8em;">
+                (${quote.change >= 0 ? '+' : ''}${quote.changePercent.toFixed(2)}%)
+            </span>` : '';
         
         html += `
             <tr>
                 <td><strong>${pos.symbol}</strong></td>
                 <td>${pos.quantity}</td>
                 <td>¥${pos.avgCost.toFixed(2)}</td>
-                <td>¥${pos.marketValue.toFixed(2)}</td>
-                <td class="${pnlClass}">${pnlSign}¥${pos.unrealizedPnl.toFixed(2)}</td>
-                <td class="${pnlClass}">${pnlSign}${pos.returnRate.toFixed(2)}%</td>
+                <td>
+                    ¥${currentPrice.toFixed(2)}
+                    ${priceChangeIndicator}
+                </td>
+                <td>¥${marketValue.toFixed(2)}</td>
+                <td class="${pnlClass}">${pnlSign}¥${unrealizedPnl.toFixed(2)}</td>
+                <td class="${pnlClass}">${pnlSign}${returnRate.toFixed(2)}%</td>
             </tr>
         `;
     });
@@ -377,21 +484,45 @@ function displayHistory(history) {
     container.innerHTML = html;
 }
 
-// 更新账户显示
-function updateAccountDisplay() {
+// 更新账户显示（基于实时行情计算总盈亏）
+async function updateAccountDisplay() {
     if (!currentAccount) return;
 
     document.getElementById('accountBalance').textContent = `¥${currentAccount.balance.toFixed(2)}`;
     document.getElementById('initialBalance').textContent = `¥${currentAccount.initialBalance.toFixed(2)}`;
     
-    // 这里简化处理，实际应该从持仓计算
-    const positionsValue = 0; // TODO: 从持仓数据计算
-    document.getElementById('positionsValue').textContent = `¥${positionsValue.toFixed(2)}`;
-    
-    const totalPnl = currentAccount.balance - currentAccount.initialBalance + positionsValue;
-    const pnlElement = document.getElementById('totalPnl');
-    pnlElement.textContent = `${totalPnl >= 0 ? '+' : ''}¥${totalPnl.toFixed(2)}`;
-    pnlElement.className = `info-value ${totalPnl >= 0 ? 'positive' : 'negative'}`;
+    // 从持仓数据计算总市值（基于实时价格）
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_BASE}/trading/accounts/${currentAccount.accountId}/positions`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        const data = await response.json();
+        let positionsValue = 0;
+
+        if (response.ok && data.positions) {
+            data.positions.forEach(pos => {
+                // 使用实时价格计算市值
+                const quote = marketDataCache[pos.symbol];
+                const currentPrice = quote ? quote.price : pos.avgCost;
+                positionsValue += currentPrice * pos.quantity;
+            });
+        }
+
+        document.getElementById('positionsValue').textContent = `¥${positionsValue.toFixed(2)}`;
+        
+        // 总盈亏 = 当前余额 + 持仓市值 - 初始资金
+        const totalAssets = currentAccount.balance + positionsValue;
+        const totalPnl = totalAssets - currentAccount.initialBalance;
+        const pnlElement = document.getElementById('totalPnl');
+        pnlElement.textContent = `${totalPnl >= 0 ? '+' : ''}¥${totalPnl.toFixed(2)}`;
+        pnlElement.className = `info-value ${totalPnl >= 0 ? 'positive' : 'negative'}`;
+    } catch (error) {
+        console.error('更新账户显示失败:', error);
+    }
 }
 
 // 显示/隐藏区域
