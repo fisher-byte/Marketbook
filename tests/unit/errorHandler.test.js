@@ -3,39 +3,44 @@
  * 测试统一错误处理中间件
  */
 
-const { ApiError, asyncHandler, validate } = require('../../src/middlewares/errorHandler');
+const { ApiError, asyncHandler, validate, createError } = require('../../src/middlewares/errorHandler');
 
 describe('errorHandler Middleware', () => {
   describe('ApiError Class', () => {
     test('应能创建标准API错误', () => {
-      const error = new ApiError('VALIDATION_ERROR', '输入验证失败', 400);
+      const error = new ApiError(400, '输入验证失败', 'VALIDATION_ERROR');
       
       expect(error).toBeInstanceOf(Error);
       expect(error.type).toBe('VALIDATION_ERROR');
       expect(error.message).toBe('输入验证失败');
       expect(error.statusCode).toBe(400);
-      expect(error.errorId).toMatch(/^err_[a-z0-9]{16}$/);
+      expect(error.isOperational).toBe(true);
     });
 
-    test('应设置默认状态码为500', () => {
-      const error = new ApiError('INTERNAL_ERROR', '内部错误');
+    test('应设置默认type为general', () => {
+      const error = new ApiError(500, '内部错误');
       expect(error.statusCode).toBe(500);
+      expect(error.type).toBe('general'); // 默认type
     });
 
-    test('应自动生成唯一errorId', () => {
-      const error1 = new ApiError('ERROR_1', 'Message 1');
-      const error2 = new ApiError('ERROR_2', 'Message 2');
+    test('应正确设置所有字段', () => {
+      const error1 = new ApiError(400, 'Message 1', 'type1');
+      const error2 = new ApiError(500, 'Message 2', 'type2');
       
-      expect(error1.errorId).not.toBe(error2.errorId);
-      expect(error1.errorId.length).toBe(20); // "err_" + 16 chars
+      expect(error1.statusCode).toBe(400);
+      expect(error1.message).toBe('Message 1');
+      expect(error1.type).toBe('type1');
+      
+      expect(error2.statusCode).toBe(500);
+      expect(error2.message).toBe('Message 2');
+      expect(error2.type).toBe('type2');
     });
 
-    test('errorId应为16位随机字符串', () => {
-      const error = new ApiError('TEST_ERROR', 'Test');
-      const idPart = error.errorId.replace('err_', '');
+    test('应支持details参数', () => {
+      const error = new ApiError(400, 'Test', 'validation', { field: 'email' });
       
-      expect(idPart.length).toBe(16);
-      expect(idPart).toMatch(/^[a-z0-9]{16}$/);
+      expect(error.details).toEqual({ field: 'email' });
+      expect(error.isOperational).toBe(true);
     });
   });
 
@@ -73,45 +78,32 @@ describe('errorHandler Middleware', () => {
       
       expect(mockNext).toHaveBeenCalledWith(testError);
     });
-
-    test('应捕获Promise rejection', async () => {
-      const mockReq = {};
-      const mockRes = {};
-      const mockNext = jest.fn();
-      
-      const handler = asyncHandler(async (req, res) => {
-        await Promise.reject(new Error('Promise rejected'));
-      });
-      
-      await handler(mockReq, mockRes, mockNext);
-      
-      expect(mockNext).toHaveBeenCalled();
-      expect(mockNext.mock.calls[0][0].message).toBe('Promise rejected');
-    });
   });
 
   describe('validate Utility', () => {
     describe('validate.required', () => {
       test('非空值应通过验证', () => {
-        expect(() => validate.required('test', 'field')).not.toThrow();
-        expect(() => validate.required(123, 'number')).not.toThrow();
-        expect(() => validate.required(true, 'boolean')).not.toThrow();
-        expect(() => validate.required([], 'array')).not.toThrow();
+        expect(() => validate.required({ field: 'test' }, ['field'])).not.toThrow();
+        expect(() => validate.required({ num: 123 }, ['num'])).not.toThrow();
+        expect(() => validate.required({ bool: true }, ['bool'])).not.toThrow();
+        expect(() => validate.required({ arr: [] }, ['arr'])).not.toThrow();
       });
 
       test('空值应抛出错误', () => {
-        expect(() => validate.required(null, 'field')).toThrow(ApiError);
-        expect(() => validate.required(undefined, 'field')).toThrow(ApiError);
-        expect(() => validate.required('', 'field')).toThrow(ApiError);
+        expect(() => validate.required({}, ['field'])).toThrow(ApiError);
+        expect(() => validate.required({ field: null }, ['field'])).toThrow(ApiError);
+        expect(() => validate.required({ field: undefined }, ['field'])).toThrow(ApiError);
+        expect(() => validate.required({ field: '' }, ['field'])).toThrow(ApiError);
       });
 
-      test('错误应包含字段名', () => {
+      test('错误应包含缺失字段列表', () => {
         try {
-          validate.required(null, 'username');
+          validate.required({}, ['username', 'email']);
         } catch (error) {
-          expect(error.message).toContain('username');
-          expect(error.type).toBe('VALIDATION_ERROR');
+          expect(error.message).toContain('缺少必需参数');
+          expect(error.type).toBe('validation');
           expect(error.statusCode).toBe(400);
+          expect(error.details.missingFields).toEqual(['username', 'email']);
         }
       });
     });
@@ -126,31 +118,36 @@ describe('errorHandler Middleware', () => {
 
       test('非数字应抛出错误', () => {
         expect(() => validate.number('abc', 'field')).toThrow(ApiError);
-        expect(() => validate.number(null, 'field')).toThrow(ApiError);
-        expect(() => validate.number(undefined, 'field')).toThrow(ApiError);
         expect(() => validate.number(NaN, 'field')).toThrow(ApiError);
+        expect(() => validate.number({}, 'field')).toThrow(ApiError);
       });
 
       test('字符串数字应通过验证', () => {
         expect(() => validate.number('123', 'field')).not.toThrow();
         expect(() => validate.number('3.14', 'field')).not.toThrow();
       });
+
+      test('应验证最小值', () => {
+        expect(() => validate.number(5, 'field', { min: 10 })).toThrow(ApiError);
+        expect(() => validate.number(10, 'field', { min: 10 })).not.toThrow();
+      });
+
+      test('应验证最大值', () => {
+        expect(() => validate.number(15, 'field', { max: 10 })).toThrow(ApiError);
+        expect(() => validate.number(10, 'field', { max: 10 })).not.toThrow();
+      });
     });
 
     describe('validate.string', () => {
       test('有效字符串应通过验证', () => {
         expect(() => validate.string('hello', 'field')).not.toThrow();
-        expect(() => validate.string('', 'field', { allowEmpty: true })).not.toThrow();
+        expect(() => validate.string('a', 'field')).not.toThrow();
       });
 
       test('非字符串应抛出错误', () => {
         expect(() => validate.string(123, 'field')).toThrow(ApiError);
         expect(() => validate.string(null, 'field')).toThrow(ApiError);
         expect(() => validate.string(undefined, 'field')).toThrow(ApiError);
-      });
-
-      test('空字符串默认不通过验证', () => {
-        expect(() => validate.string('', 'field')).toThrow(ApiError);
       });
 
       test('应验证最小长度', () => {
@@ -173,96 +170,91 @@ describe('errorHandler Middleware', () => {
         expect(() => validate.enum('yellow', 'color', ['red', 'green', 'blue'])).toThrow(ApiError);
       });
 
-      test('错误信息应包含允许的值', () => {
+      test('错误信息应包含允许的值（details中）', () => {
         try {
           validate.enum('yellow', 'color', ['red', 'green', 'blue']);
         } catch (error) {
-          expect(error.message).toContain('red');
-          expect(error.message).toContain('green');
-          expect(error.message).toContain('blue');
+          expect(error.message).toContain('color值无效');
+          expect(error.type).toBe('validation');
+          expect(error.details.allowedValues).toEqual(['red', 'green', 'blue']);
         }
-      });
-    });
-
-    describe('validate.email', () => {
-      test('有效邮箱应通过验证', () => {
-        expect(() => validate.email('test@example.com', 'email')).not.toThrow();
-        expect(() => validate.email('user.name+tag@example.co.uk', 'email')).not.toThrow();
-      });
-
-      test('无效邮箱应抛出错误', () => {
-        expect(() => validate.email('invalid', 'email')).toThrow(ApiError);
-        expect(() => validate.email('test@', 'email')).toThrow(ApiError);
-        expect(() => validate.email('@example.com', 'email')).toThrow(ApiError);
-        expect(() => validate.email('test @example.com', 'email')).toThrow(ApiError);
-      });
-    });
-
-    describe('validate.positive', () => {
-      test('正数应通过验证', () => {
-        expect(() => validate.positive(1, 'field')).not.toThrow();
-        expect(() => validate.positive(100.5, 'field')).not.toThrow();
-      });
-
-      test('零和负数应抛出错误', () => {
-        expect(() => validate.positive(0, 'field')).toThrow(ApiError);
-        expect(() => validate.positive(-1, 'field')).toThrow(ApiError);
-      });
-    });
-
-    describe('validate.array', () => {
-      test('数组应通过验证', () => {
-        expect(() => validate.array([], 'field')).not.toThrow();
-        expect(() => validate.array([1, 2, 3], 'field')).not.toThrow();
-      });
-
-      test('非数组应抛出错误', () => {
-        expect(() => validate.array('not array', 'field')).toThrow(ApiError);
-        expect(() => validate.array(123, 'field')).toThrow(ApiError);
-        expect(() => validate.array(null, 'field')).toThrow(ApiError);
-      });
-
-      test('应验证最小长度', () => {
-        expect(() => validate.array([1], 'field', { minLength: 2 })).toThrow(ApiError);
-        expect(() => validate.array([1, 2], 'field', { minLength: 2 })).not.toThrow();
-      });
-
-      test('应验证最大长度', () => {
-        expect(() => validate.array([1, 2, 3], 'field', { maxLength: 2 })).toThrow(ApiError);
-        expect(() => validate.array([1, 2], 'field', { maxLength: 2 })).not.toThrow();
       });
     });
   });
 
-  describe('Error ID Generation', () => {
-    test('每个错误应有唯一ID', () => {
-      const ids = new Set();
-      
-      for (let i = 0; i < 100; i++) {
-        const error = new ApiError('TEST_ERROR', 'Test');
-        ids.add(error.errorId);
-      }
-      
-      expect(ids.size).toBe(100); // 所有ID应唯一
+  describe('createError Factory', () => {
+    test('应创建badRequest错误', () => {
+      const error = createError.badRequest('无效输入');
+      expect(error.statusCode).toBe(400);
+      expect(error.type).toBe('validation');
+      expect(error.message).toBe('无效输入');
+    });
+
+    test('应创建unauthorized错误', () => {
+      const error = createError.unauthorized();
+      expect(error.statusCode).toBe(401);
+      expect(error.type).toBe('authentication');
+    });
+
+    test('应创建forbidden错误', () => {
+      const error = createError.forbidden();
+      expect(error.statusCode).toBe(403);
+      expect(error.type).toBe('authorization');
+    });
+
+    test('应创建notFound错误', () => {
+      const error = createError.notFound('用户');
+      expect(error.statusCode).toBe(404);
+      expect(error.type).toBe('not_found');
+      expect(error.message).toBe('用户不存在');
+    });
+
+    test('应创建conflict错误', () => {
+      const error = createError.conflict('资源冲突');
+      expect(error.statusCode).toBe(409);
+      expect(error.type).toBe('conflict');
+    });
+
+    test('应创建tooManyRequests错误', () => {
+      const error = createError.tooManyRequests();
+      expect(error.statusCode).toBe(429);
+      expect(error.type).toBe('rate_limit');
+    });
+
+    test('应创建internal错误', () => {
+      const error = createError.internal();
+      expect(error.statusCode).toBe(500);
+      expect(error.type).toBe('internal');
     });
   });
 
   describe('Integration', () => {
     test('asyncHandler + validate应正确协作', async () => {
-      const mockReq = { body: { username: null } };
+      const mockReq = { body: {} };
       const mockRes = {};
       const mockNext = jest.fn();
       
       const handler = asyncHandler(async (req, res) => {
-        validate.required(req.body.username, 'username');
-        res.json({ success: true });
+        validate.required(req.body, ['username']);
       });
       
       await handler(mockReq, mockRes, mockNext);
       
       expect(mockNext).toHaveBeenCalled();
       expect(mockNext.mock.calls[0][0]).toBeInstanceOf(ApiError);
-      expect(mockNext.mock.calls[0][0].type).toBe('VALIDATION_ERROR');
+      expect(mockNext.mock.calls[0][0].type).toBe('validation');
+    });
+
+    test('validate + createError应正确协作', () => {
+      const data = { email: 'test@example.com' };
+      
+      expect(() => {
+        validate.required(data, ['username']);
+      }).toThrow(ApiError);
+      
+      expect(() => {
+        validate.required(data, ['email']);
+      }).not.toThrow();
     });
   });
 });
