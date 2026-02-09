@@ -30,7 +30,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^7.5.0",
     "multer": "^1.4.5-lts.1",
-    "nodemailer": "^6.9.7",
+    "nodemailer": "^8.0.1",
     "winston": "^3.19.0",
     "yahoo-finance2": "^3.13.0"
   },
