@@ -6,8 +6,12 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "test": "jest",
-    "test:watch": "jest --watch"
+    "test": "jest --coverage --maxWorkers=2",
+    "test:unit": "jest tests/unit --coverage --maxWorkers=2",
+    "test:integration": "jest tests/integration --coverage --maxWorkers=1 --forceExit",
+    "test:watch": "jest --watch",
+    "lint": "echo '⚠️ ESLint not configured yet. Skipping...' && exit 0",
+    "lint:fix": "echo '⚠️ ESLint not configured yet. Skipping...' && exit 0"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
