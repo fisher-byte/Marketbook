@@ -1,67 +1,65 @@
-# MarketBook Dockerfile
-# 多阶段构建，优化镜像大小
+# MarketBook Production Dockerfile
+# Multi-stage build for optimized image size
 
-# ============================
 # Stage 1: Dependencies
-# ============================
-FROM node:22-alpine AS dependencies
+FROM node:18-alpine AS dependencies
 
 WORKDIR /app
 
-# 安装依赖（利用缓存层）
-COPY package.json package-lock.json ./
+# Install production dependencies
+COPY package*.json ./
 RUN npm ci --only=production && npm cache clean --force
 
-# ============================
-# Stage 2: Builder
-# ============================
-FROM node:22-alpine AS builder
+# Stage 2: Build
+FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-# 复制依赖
-COPY --from=dependencies /app/node_modules ./node_modules
+# Copy package files and install all dependencies (including dev)
+COPY package*.json ./
+RUN npm ci
+
+# Copy source code
 COPY . .
 
-# 如果有构建步骤，在这里执行
-# RUN npm run build
+# Optional: Run tests in build stage
+# RUN npm test
 
-# ============================
 # Stage 3: Production
-# ============================
-FROM node:22-alpine AS production
+FROM node:18-alpine AS production
 
-# 安全加固
+# Install dumb-init for proper signal handling
+RUN apk add --no-cache dumb-init
+
+# Create app user for security
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nodejs -u 1001
 
 WORKDIR /app
 
-# 复制应用文件
-COPY --from=builder --chown=nodejs:nodejs /app/package.json ./
-COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
-COPY --from=builder --chown=nodejs:nodejs /app/src ./src
-COPY --from=builder --chown=nodejs:nodejs /app/app.js ./
-COPY --from=builder --chown=nodejs:nodejs /app/config ./config
+# Copy production dependencies from dependencies stage
+COPY --from=dependencies --chown=nodejs:nodejs /app/node_modules ./node_modules
 
-# 创建日志和数据目录
-RUN mkdir -p /app/logs /app/data && \
-    chown -R nodejs:nodejs /app/logs /app/data
+# Copy application code
+COPY --chown=nodejs:nodejs . .
 
-# 环境变量
+# Set environment variables
 ENV NODE_ENV=production \
     PORT=3000 \
-    HOST=0.0.0.0
+    LOG_LEVEL=info
 
-# 切换到非root用户
-USER nodejs
-
-# 暴露端口
+# Expose port
 EXPOSE 3000
 
-# 健康检查
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000/health/live', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:3000/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"
 
-# 启动命令
-CMD ["node", "app.js"]
+# Switch to non-root user
+USER nodejs
+
+# Use dumb-init to handle signals properly
+ENTRYPOINT ["dumb-init", "--"]
+
+# Start application
+CMD ["node", "src/app.js"]
