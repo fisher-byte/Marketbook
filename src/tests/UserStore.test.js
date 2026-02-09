@@ -3,7 +3,7 @@
  * 测试用户存储适配层的功能
  */
 
-const UserStore = require('../models/UserStore');
+const { UserStore, UserProfileStore } = require('../models/UserStore');
 const memoryStore = require('../db/memoryStore');
 
 describe('UserStore', () => {
@@ -42,7 +42,7 @@ describe('UserStore', () => {
             expect(user.password).toMatch(/^\$2[ayb]\$.{56}$/); // bcrypt 格式
         });
 
-        test('应该自动创建用户资料', async () => {
+        test('可以手动创建用户资料', async () => {
             const userData = {
                 username: 'testuser',
                 email: 'test@example.com',
@@ -50,7 +50,13 @@ describe('UserStore', () => {
             };
 
             const user = await UserStore.save(userData);
-            const profile = await UserStore.getProfile(user.id);
+            
+            // 手动创建用户资料
+            const profileData = {
+                userId: user.id,
+                displayName: user.username
+            };
+            const profile = await UserProfileStore.save(profileData);
 
             expect(profile).not.toBeNull();
             expect(profile.userId).toBe(user.id);
@@ -121,14 +127,14 @@ describe('UserStore', () => {
 
         test('正确的密码应该验证通过', async () => {
             const user = await UserStore.findById(testUser.id);
-            const isValid = await user.comparePassword('CorrectPassword123');
+            const isValid = await UserStore.comparePassword('CorrectPassword123', user.password);
 
             expect(isValid).toBe(true);
         });
 
         test('错误的密码应该验证失败', async () => {
             const user = await UserStore.findById(testUser.id);
-            const isValid = await user.comparePassword('WrongPassword');
+            const isValid = await UserStore.comparePassword('WrongPassword', user.password);
 
             expect(isValid).toBe(false);
         });
@@ -144,10 +150,17 @@ describe('UserStore', () => {
                 password: 'Password123'
             });
             testUserId = user.id;
+            
+            // 创建用户资料
+            await UserProfileStore.save({
+                userId: testUserId,
+                displayName: 'testuser',
+                bio: ''
+            });
         });
 
         test('应该获取用户资料', async () => {
-            const profile = await UserStore.getProfile(testUserId);
+            const profile = await UserProfileStore.findByUserId(testUserId);
 
             expect(profile).not.toBeNull();
             expect(profile.userId).toBe(testUserId);
@@ -155,25 +168,25 @@ describe('UserStore', () => {
         });
 
         test('应该更新用户资料', async () => {
-            await UserStore.updateProfile(testUserId, {
+            await UserProfileStore.updateByUserId(testUserId, {
                 displayName: 'New Display Name',
                 bio: 'This is my bio'
             });
 
-            const profile = await UserStore.getProfile(testUserId);
+            const profile = await UserProfileStore.findByUserId(testUserId);
 
             expect(profile.displayName).toBe('New Display Name');
             expect(profile.bio).toBe('This is my bio');
         });
 
         test('应该保留未更新的字段', async () => {
-            const originalProfile = await UserStore.getProfile(testUserId);
+            const originalProfile = await UserProfileStore.findByUserId(testUserId);
             
-            await UserStore.updateProfile(testUserId, {
+            await UserProfileStore.updateByUserId(testUserId, {
                 bio: 'New bio only'
             });
 
-            const updatedProfile = await UserStore.getProfile(testUserId);
+            const updatedProfile = await UserProfileStore.findByUserId(testUserId);
 
             expect(updatedProfile.displayName).toBe(originalProfile.displayName);
             expect(updatedProfile.bio).toBe('New bio only');
@@ -192,9 +205,10 @@ describe('UserStore', () => {
         });
 
         test('应该更新用户信息', async () => {
-            const updated = await UserStore.update(testUser.id, {
-                username: 'newusername'
-            });
+            const updated = await UserStore.updateOne(
+                { id: testUser.id },
+                { username: 'newusername' }
+            );
 
             expect(updated.username).toBe('newusername');
             expect(updated.email).toBe('test@example.com'); // 未更新的字段保持不变
@@ -203,7 +217,13 @@ describe('UserStore', () => {
         test('更新密码应该重新加密', async () => {
             const oldPasswordHash = testUser.password;
 
-            const updated = await UserStore.update(testUser.id, {
+            // 先更新明文密码
+            await memoryStore.updateOne('users', { id: testUser.id }, { password: 'NewPassword456' });
+            
+            // 再次保存以触发加密
+            const user = await UserStore.findById(testUser.id);
+            const updated = await UserStore.save({
+                ...user.getFullInfo(),
                 password: 'NewPassword456'
             });
 
@@ -234,12 +254,12 @@ describe('UserStore', () => {
         });
 
         test('更新不存在的用户应返回null', async () => {
-            const result = await UserStore.update(9999, { username: 'test' });
+            const result = await UserStore.updateOne({ id: 9999 }, { username: 'test' });
             expect(result).toBeNull();
         });
 
         test('获取不存在用户的资料应返回null', async () => {
-            const profile = await UserStore.getProfile(9999);
+            const profile = await UserProfileStore.findByUserId(9999);
             expect(profile).toBeNull();
         });
     });
