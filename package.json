@@ -14,8 +14,10 @@
     "test:stress": "artillery run tests/performance/stress-test.yml",
     "test:perf": "npm run test:load && npm run test:stress",
     "test:perf:report": "artillery run --output report.json tests/performance/load-test.yml && artillery report report.json",
-    "lint": "echo '⚠️ ESLint not configured yet. Skipping...' && exit 0",
-    "lint:fix": "echo '⚠️ ESLint not configured yet. Skipping...' && exit 0"
+    "lint": "node scripts/code-quality-check.js",
+    "lint:fix": "echo '⚠️ 自动修复功能未实现，请手动修改代码' && exit 0",
+    "quality": "node scripts/code-quality-check.js",
+    "precommit": "npm run quality && npm run test:unit"
   },
   "dependencies": {
     "@sentry/node": "^10.38.0",
