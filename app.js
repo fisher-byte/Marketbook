@@ -5,9 +5,12 @@
 
 const express = require('express');
 const path = require('path');
+const helmet = require('helmet');
+const cors = require('cors');
 const config = require('./src/config');
 const logger = require('./src/utils/logger');
 const apiRoutes = require('./src/routes');
+const healthRoutes = require('./src/routes/health');
 const { globalErrorHandler } = require('./src/middlewares/errorHandler');
 
 const app = express();
@@ -16,6 +19,61 @@ const PORT = config.server.port;
 // 静态资源目录
 const publicPath = path.join(__dirname, 'src', 'public');
 const viewsPath = path.join(__dirname, 'src', 'views');
+
+// 🔒 安全头配置（Helmet）
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com"],
+        imgSrc: ["'self'", "data:", "https:"],
+        connectSrc: ["'self'"],
+        frameSrc: ["'none'"],
+        objectSrc: ["'none'"],
+      },
+    },
+    hsts: {
+      maxAge: 31536000, // 1年
+      includeSubDomains: true,
+      preload: true,
+    },
+    referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+  })
+);
+
+// 🌐 CORS 配置
+const corsOptions = {
+  origin: function (origin, callback) {
+    // 允许无 origin 的请求（如同源请求、Postman、curl）
+    if (!origin) return callback(null, true);
+
+    // 开发环境：允许所有来源
+    if (config.server.isDevelopment) {
+      return callback(null, true);
+    }
+
+    // 生产环境：白名单验证
+    const allowedOrigins = (config.security.cors.origin || '')
+      .split(',')
+      .map((o) => o.trim())
+      .filter(Boolean);
+
+    if (allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`Origin ${origin} not allowed by CORS policy`));
+    }
+  },
+  credentials: config.security.cors.credentials,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['X-Total-Count', 'X-Page-Count'],
+  maxAge: 86400, // 24小时
+};
+app.use(cors(corsOptions));
 
 // 中间件
 app.use(express.json());
@@ -29,6 +87,9 @@ app.use(express.static(publicPath));
 
 // API 路由挂载
 app.use('/api', apiRoutes);
+
+// 健康检查路由（独立挂载，支持 Docker/K8s 监控）
+app.use('/health', healthRoutes);
 
 // 首页 - 展示优化后的设计页面
 app.get('/', (req, res) => {
@@ -61,16 +122,6 @@ app.get('/strategies', (req, res) => {
 });
 app.get('/community', (req, res) => {
   res.sendFile(path.join(viewsPath, 'community-demo.html'));
-});
-
-// 健康检查接口（供前端探测）
-app.get('/api/health', (req, res) => {
-  res.json({
-    status: 'ok',
-    timestamp: new Date().toISOString(),
-    service: 'MarketBook',
-    message: '演示模式运行中'
-  });
 });
 
 // ⚠️ 全局错误处理中间件（必须放在所有路由之后）

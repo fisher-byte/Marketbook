@@ -1,0 +1,67 @@
+# Git 相关
+.git
+.gitignore
+.gitattributes
+
+# 依赖
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# 测试和覆盖率
+test
+tests
+coverage
+*.test.js
+*.spec.js
+jest.config.json
+test-*.js
+test-*.sh
+
+# 文档和配置
+README.md
+README_PRODUCTION.md
+AGENTS.md
+SOUL.md
+USER.md
+TOOLS.md
+IDENTITY.md
+BOOTSTRAP.md
+HEARTBEAT.md
+开发*.md
+报告*.md
+项目*.md
+docs
+SOP
+
+# 环境变量和配置
+.env
+.env.local
+.env.*.local
+.env.example
+
+# 日志和数据
+logs
+*.log
+data
+memory
+
+# IDE 和编辑器
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Docker 相关
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# 其他
+robots.txt
+sitemap.xml
+*.bak
