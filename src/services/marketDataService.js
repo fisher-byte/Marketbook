@@ -1,15 +1,23 @@
 /**
  * 行情数据服务 - 提供实时行情查询
- * @fileoverview 封装行情数据获取逻辑，支持多个数据源
+ * @fileoverview 封装行情数据获取逻辑，支持真实数据源和模拟模式
+ * 
+ * 真实模式：使用 Yahoo Finance API
+ * 模拟模式：内存缓存 + 随机波动
+ * 
+ * 环境变量控制：
+ * MARKET_DATA_MODE=real - 使用真实API（生产环境）
+ * MARKET_DATA_MODE=simulation - 使用模拟数据（开发环境，默认）
  */
 
+const yahooFinance = require('./yahooFinanceService');
+const logger = require('../utils/logger');
+
+// 运行模式（从环境变量读取，默认为模拟模式）
+const MODE = process.env.MARKET_DATA_MODE || 'simulation';
+
 /**
- * 内存行情缓存（模拟实时行情）
- * 真实场景应接入：
- * - Alpha Vantage API
- * - Yahoo Finance API
- * - IEX Cloud API
- * - 新浪/腾讯财经接口
+ * 内存行情缓存（仅模拟模式使用）
  */
 const marketCache = new Map();
 
@@ -72,15 +80,33 @@ function simulatePriceChange(symbol) {
 }
 
 /**
- * 获取股票实时行情
+ * 获取股票实时行情（智能路由：真实/模拟）
  * @param {string} symbol - 股票代码
- * @returns {Object|null} 行情数据
+ * @returns {Promise<Object|null>} 行情数据
  */
-function getQuote(symbol) {
+async function getQuote(symbol) {
     if (!symbol) return null;
 
     // 标准化大写
     symbol = symbol.toUpperCase();
+
+    // 真实模式：调用 Yahoo Finance API
+    if (MODE === 'real') {
+        try {
+            const quote = await yahooFinance.getQuote(symbol);
+            if (quote) {
+                logger.info(`[MarketData] Real quote fetched: ${symbol} @ $${quote.currentPrice}`);
+                return quote;
+            }
+            // API失败，降级到模拟模式
+            logger.warn(`[MarketData] Real API failed for ${symbol}, falling back to simulation`);
+        } catch (error) {
+            logger.error(`[MarketData] Real API error for ${symbol}:`, error);
+        }
+    }
+
+    // 模拟模式 或 真实模式降级
+    logger.debug(`[MarketData] Using simulation mode for ${symbol}`);
 
     // 如果缓存中没有，尝试初始化
     if (!marketCache.has(symbol)) {
@@ -92,7 +118,7 @@ function getQuote(symbol) {
     
     if (!data) {
         // 如果还是没有数据，返回默认值
-        console.warn(`[MarketData] Symbol not found: ${symbol}, using fallback price`);
+        logger.warn(`[MarketData] Symbol not found: ${symbol}, using fallback price`);
         return {
             symbol,
             name: symbol,
@@ -112,16 +138,37 @@ function getQuote(symbol) {
 }
 
 /**
- * 批量获取行情
+ * 批量获取行情（智能路由：真实/模拟）
  * @param {string[]} symbols - 股票代码数组
- * @returns {Object[]} 行情数据数组
+ * @returns {Promise<Object[]>} 行情数据数组
  */
-function getBatchQuotes(symbols) {
+async function getBatchQuotes(symbols) {
     if (!Array.isArray(symbols) || symbols.length === 0) {
         return [];
     }
 
-    return symbols.map(symbol => getQuote(symbol)).filter(Boolean);
+    // 真实模式：调用 Yahoo Finance API
+    if (MODE === 'real') {
+        try {
+            const quotes = await yahooFinance.getBatchQuotes(symbols);
+            if (quotes && quotes.length > 0) {
+                logger.info(`[MarketData] Real batch quotes fetched: ${quotes.length}/${symbols.length}`);
+                return quotes;
+            }
+            logger.warn(`[MarketData] Real batch API failed, falling back to simulation`);
+        } catch (error) {
+            logger.error(`[MarketData] Real batch API error:`, error);
+        }
+    }
+
+    // 模拟模式 或 降级
+    logger.debug(`[MarketData] Using simulation mode for batch quotes`);
+    
+    // 使用 Promise.all 并发获取模拟数据
+    const promises = symbols.map(symbol => Promise.resolve(getQuote(symbol)));
+    const results = await Promise.all(promises);
+    
+    return results.filter(Boolean);
 }
 
 /**
@@ -142,14 +189,34 @@ function getAvailableSymbols() {
 }
 
 /**
- * 搜索股票（模糊匹配）
+ * 搜索股票（智能路由：真实/模拟）
  * @param {string} keyword - 搜索关键词
- * @returns {Object[]} 匹配的股票列表
+ * @returns {Promise<Object[]>} 匹配的股票列表
  */
-function searchSymbols(keyword) {
-    if (!keyword) return getAvailableSymbols();
+async function searchSymbols(keyword) {
+    if (!keyword) {
+        // 无关键词时返回可用列表
+        return getAvailableSymbols();
+    }
 
     keyword = keyword.toUpperCase();
+
+    // 真实模式：调用 Yahoo Finance API
+    if (MODE === 'real') {
+        try {
+            const results = await yahooFinance.searchSymbols(keyword);
+            if (results && results.length > 0) {
+                logger.info(`[MarketData] Real search results: ${results.length} for "${keyword}"`);
+                return results;
+            }
+            logger.warn(`[MarketData] Real search API failed for "${keyword}", falling back to simulation`);
+        } catch (error) {
+            logger.error(`[MarketData] Real search API error:`, error);
+        }
+    }
+
+    // 模拟模式 或 降级
+    logger.debug(`[MarketData] Using simulation mode for search: ${keyword}`);
     
     if (marketCache.size === 0) {
         initializeMarketData();
@@ -186,26 +253,33 @@ function resetDailyData() {
     console.log('[MarketData] Daily data reset completed');
 }
 
-// 初始化市场数据
-initializeMarketData();
+// 初始化模拟市场数据（仅模拟模式需要）
+if (MODE === 'simulation') {
+    initializeMarketData();
+    logger.info('[MarketData] Running in SIMULATION mode');
 
-// 定时模拟价格波动（每5秒）
-setInterval(() => {
-    for (const symbol of marketCache.keys()) {
-        simulatePriceChange(symbol);
-    }
-}, 5000);
+    // 定时模拟价格波动（每5秒）
+    setInterval(() => {
+        for (const symbol of marketCache.keys()) {
+            simulatePriceChange(symbol);
+        }
+    }, 5000);
 
-// 每天凌晨重置数据（生产环境应使用cron）
-// 这里简化为每24小时重置一次
-setInterval(() => {
-    resetDailyData();
-}, 24 * 60 * 60 * 1000);
+    // 每天凌晨重置数据（生产环境应使用cron）
+    // 这里简化为每24小时重置一次
+    setInterval(() => {
+        resetDailyData();
+    }, 24 * 60 * 60 * 1000);
+} else {
+    logger.info('[MarketData] Running in REAL mode (Yahoo Finance API)');
+}
 
 module.exports = {
     getQuote,
     getBatchQuotes,
     getAvailableSymbols,
     searchSymbols,
-    resetDailyData
+    resetDailyData,
+    // 新增：运行模式查询
+    getMode: () => MODE
 };

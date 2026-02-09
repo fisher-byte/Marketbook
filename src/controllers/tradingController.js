@@ -127,8 +127,8 @@ const executeTrade = asyncHandler(async (req, res) => {
         throw createError.forbidden('交易账户状态异常，无法执行交易');
     }
 
-    // 获取实时行情
-    const quoteData = marketDataService.getQuote(symbol);
+    // 获取实时行情（异步）
+    const quoteData = await marketDataService.getQuote(symbol);
     if (!quoteData) {
         throw createError.badRequest(`无法获取 ${symbol} 的实时行情，股票代码可能不存在`);
     }
@@ -332,8 +332,8 @@ const getQuote = asyncHandler(async (req, res) => {
     validate.required(req.params, ['symbol']);
     validate.string(symbol, '股票代码', { maxLength: 10 });
 
-    // 查询行情数据
-    const quote = marketDataService.getQuote(symbol.toUpperCase());
+    // 查询行情数据（异步）
+    const quote = await marketDataService.getQuote(symbol.toUpperCase());
     
     if (!quote) {
         throw createError.notFound(`股票 ${symbol.toUpperCase()}`);
@@ -391,8 +391,8 @@ const getBatchQuotes = asyncHandler(async (req, res) => {
         throw createError.badRequest('单次查询最多支持50个股票代码');
     }
 
-    // 批量查询行情
-    const quotesArray = marketDataService.getBatchQuotes(symbolArray);
+    // 批量查询行情（异步）
+    const quotesArray = await marketDataService.getBatchQuotes(symbolArray);
 
     // 构建结果对象（方便查找已找到和未找到的）
     const quotesMap = {};
@@ -443,7 +443,7 @@ const searchSymbols = asyncHandler(async (req, res) => {
     }
 
     // 允许空关键词（返回所有股票）
-    const results = marketDataService.searchSymbols(keyword || '');
+    const results = await marketDataService.searchSymbols(keyword || '');
 
     res.status(200).json({
         success: true,
