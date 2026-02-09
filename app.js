@@ -12,8 +12,15 @@ const logger = require('./src/utils/logger');
 const apiRoutes = require('./src/routes');
 const healthRoutes = require('./src/routes/health');
 const { globalErrorHandler } = require('./src/middlewares/errorHandler');
+const { initSentry, requestHandler, errorHandler } = require('./src/config/sentry');
 
 const app = express();
+
+// 🔍 Sentry 初始化（必须最早执行）
+initSentry(app);
+
+// 🔍 Sentry 请求处理器（必须在所有路由之前）
+app.use(requestHandler());
 const PORT = config.server.port;
 
 // 静态资源目录
@@ -123,6 +130,9 @@ app.get('/strategies', (req, res) => {
 app.get('/community', (req, res) => {
   res.sendFile(path.join(viewsPath, 'community-demo.html'));
 });
+
+// 🔍 Sentry 错误处理器（必须在所有路由之后、自定义错误处理器之前）
+app.use(errorHandler());
 
 // ⚠️ 全局错误处理中间件（必须放在所有路由之后）
 app.use(globalErrorHandler);

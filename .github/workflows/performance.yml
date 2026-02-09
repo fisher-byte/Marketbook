@@ -1,0 +1,165 @@
+name: Performance Tests
+
+on:
+  # 手动触发
+  workflow_dispatch:
+    inputs:
+      test_type:
+        description: '测试类型'
+        required: true
+        default: 'load'
+        type: choice
+        options:
+          - load
+          - stress
+          - all
+  
+  # 每周日凌晨2点自动运行
+  schedule:
+    - cron: '0 18 * * 0'  # UTC 18:00 = 北京时间周一凌晨2:00
+  
+  # PR合并到main分支后运行
+  pull_request:
+    branches:
+      - main
+    types: [closed]
+
+jobs:
+  performance-test:
+    # 仅在PR合并后或手动触发时运行
+    if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [20.x]
+    
+    steps:
+      - name: 📥 检出代码
+        uses: actions/checkout@v4
+      
+      - name: 🔧 设置 Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      
+      - name: 📦 安装依赖
+        run: npm ci
+      
+      - name: 🚀 启动服务器（后台）
+        run: |
+          npm start &
+          echo $! > server.pid
+          # 等待服务器启动
+          sleep 10
+        env:
+          NODE_ENV: test
+          JWT_SECRET: ${{ secrets.JWT_SECRET || 'test-secret-key-for-ci' }}
+          PORT: 3000
+      
+      - name: 🔍 验证服务器运行
+        run: |
+          curl --retry 5 --retry-delay 2 --retry-connrefused http://localhost:3000/health
+      
+      - name: 🏃 运行性能测试（负载测试）
+        if: github.event.inputs.test_type == 'load' || github.event.inputs.test_type == '' || github.event_name != 'workflow_dispatch'
+        run: |
+          npm run test:performance
+        continue-on-error: true
+      
+      - name: 🏃 运行性能测试（压力测试）
+        if: github.event.inputs.test_type == 'stress'
+        run: |
+          npm run test:performance:stress
+        continue-on-error: true
+      
+      - name: 🏃 运行性能测试（全部测试）
+        if: github.event.inputs.test_type == 'all'
+        run: |
+          npm run test:performance:all
+        continue-on-error: true
+      
+      - name: 📊 生成性能报告
+        if: always()
+        run: |
+          # 查找最新的JSON结果文件
+          LATEST_JSON=$(ls -t tests/performance/results/*.json 2>/dev/null | head -n1)
+          if [ -f "$LATEST_JSON" ]; then
+            echo "生成HTML报告: $LATEST_JSON"
+            npx artillery report "$LATEST_JSON" --output tests/performance/results/report.html
+          else
+            echo "未找到测试结果文件"
+          fi
+      
+      - name: 📤 上传性能测试结果
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-test-results-${{ matrix.node-version }}
+          path: |
+            tests/performance/results/*.json
+            tests/performance/results/*.log
+            tests/performance/results/*.html
+          retention-days: 30
+      
+      - name: 📈 生成性能摘要
+        if: always()
+        run: |
+          echo "## 性能测试结果摘要 🚀" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**测试时间**: $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "**Node版本**: ${{ matrix.node-version }}" >> $GITHUB_STEP_SUMMARY
+          echo "**测试类型**: ${{ github.event.inputs.test_type || 'load' }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # 提取最新日志文件的关键指标
+          LATEST_LOG=$(ls -t tests/performance/results/*.log 2>/dev/null | head -n1)
+          if [ -f "$LATEST_LOG" ]; then
+            echo "### 关键指标" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            grep -E "(Scenarios launched|Scenarios completed|Response time|p95|p99|Codes)" "$LATEST_LOG" | head -n 20 >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📊 完整报告请查看 [Artifacts](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
+      
+      - name: 🛑 停止服务器
+        if: always()
+        run: |
+          if [ -f server.pid ]; then
+            kill $(cat server.pid) || true
+          fi
+          pkill -f "node app.js" || true
+      
+      - name: 💬 发送通知（可选）
+        if: always() && github.event_name == 'schedule'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let summary = '性能测试已完成';
+            
+            try {
+              const latestLog = fs.readdirSync('tests/performance/results/')
+                .filter(f => f.endsWith('.log'))
+                .sort()
+                .reverse()[0];
+              
+              if (latestLog) {
+                const content = fs.readFileSync(`tests/performance/results/${latestLog}`, 'utf8');
+                const scenarios = content.match(/Scenarios completed: (\d+)/);
+                const p95 = content.match(/p95: (\d+)/);
+                
+                if (scenarios && p95) {
+                  summary = `✅ 性能测试完成\n- 完成场景: ${scenarios[1]}\n- P95响应时间: ${p95[1]}ms`;
+                }
+              }
+            } catch (e) {
+              console.log('无法读取测试结果:', e.message);
+            }
+            
+            console.log(summary);
+            // 在这里可以集成 Slack/Discord/企业微信等通知

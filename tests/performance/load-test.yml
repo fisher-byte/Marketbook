@@ -1,0 +1,162 @@
+# Artillery 负载测试配置
+# 用法: artillery run tests/performance/load-test.yml
+
+config:
+  target: "http://localhost:3000"
+  phases:
+    # 阶段1: 预热阶段 (10秒, 5用户/秒)
+    - duration: 10
+      arrivalRate: 5
+      name: "Warm-up"
+    
+    # 阶段2: 正常负载 (30秒, 20用户/秒)
+    - duration: 30
+      arrivalRate: 20
+      name: "Normal Load"
+    
+    # 阶段3: 高峰负载 (30秒, 50用户/秒)
+    - duration: 30
+      arrivalRate: 50
+      name: "Peak Load"
+    
+    # 阶段4: 压力测试 (20秒, 100用户/秒)
+    - duration: 20
+      arrivalRate: 100
+      name: "Stress Test"
+  
+  # 性能指标阈值
+  ensure:
+    maxErrorRate: 1        # 错误率 < 1%
+    p95: 500               # 95%请求 < 500ms
+    p99: 1000              # 99%请求 < 1s
+  
+  # 负载测试引擎配置
+  processor: "./tests/performance/load-test-processor.js"
+
+# 测试场景
+scenarios:
+  # 场景1: 健康检查 (10% 流量)
+  - name: "Health Check"
+    weight: 10
+    flow:
+      - get:
+          url: "/health"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: status
+
+  # 场景2: 用户注册+登录 (20% 流量)
+  - name: "User Registration & Login"
+    weight: 20
+    flow:
+      # 注册
+      - post:
+          url: "/api/auth/register"
+          json:
+            email: "{{ $randomEmail() }}"
+            password: "Test1234"
+            username: "user_{{ $randomString() }}"
+          capture:
+            - json: "$.token"
+              as: "authToken"
+          expect:
+            - statusCode: 201
+            - hasProperty: token
+      
+      # 登录
+      - post:
+          url: "/api/auth/login"
+          json:
+            email: "{{ email }}"
+            password: "Test1234"
+          expect:
+            - statusCode: 200
+            - hasProperty: token
+
+  # 场景3: 模拟盘完整流程 (40% 流量)
+  - name: "Trading Simulation Flow"
+    weight: 40
+    flow:
+      # 登录获取token
+      - post:
+          url: "/api/auth/login"
+          json:
+            email: "testuser@example.com"
+            password: "Test1234"
+          capture:
+            - json: "$.token"
+              as: "authToken"
+      
+      # 创建模拟盘账户
+      - post:
+          url: "/api/trading/accounts"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            initialBalance: 100000
+          capture:
+            - json: "$.data.accountId"
+              as: "accountId"
+      
+      # 查询行情
+      - get:
+          url: "/api/trading/quotes/AAPL"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          capture:
+            - json: "$.data.currentPrice"
+              as: "stockPrice"
+      
+      # 买入
+      - post:
+          url: "/api/trading/orders/buy"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            accountId: "{{ accountId }}"
+            symbol: "AAPL"
+            quantity: 10
+            price: "{{ stockPrice }}"
+      
+      # 查询持仓
+      - get:
+          url: "/api/trading/accounts/{{ accountId }}/positions"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+      
+      # 查询交易历史
+      - get:
+          url: "/api/trading/accounts/{{ accountId }}/history"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+
+  # 场景4: 行情查询高频场景 (30% 流量)
+  - name: "High-Frequency Market Data Query"
+    weight: 30
+    flow:
+      # 登录
+      - post:
+          url: "/api/auth/login"
+          json:
+            email: "testuser@example.com"
+            password: "Test1234"
+          capture:
+            - json: "$.token"
+              as: "authToken"
+      
+      # 批量查询行情
+      - get:
+          url: "/api/trading/quotes?symbols=AAPL,GOOGL,MSFT,TSLA"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+      
+      # 搜索股票
+      - get:
+          url: "/api/trading/market/symbols?q=Apple"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200

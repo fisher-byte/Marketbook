@@ -1,0 +1,85 @@
+# Artillery 压力测试配置
+# 用法: artillery run tests/performance/stress-test.yml
+# 目标: 找到系统的极限并发能力
+
+config:
+  target: "http://localhost:3000"
+  phases:
+    # 阶段1: 预热 (10秒)
+    - duration: 10
+      arrivalRate: 10
+      name: "Warm-up"
+    
+    # 阶段2: 递增负载 (60秒, 10→100用户/秒)
+    - duration: 60
+      arrivalRate: 10
+      rampTo: 100
+      name: "Ramp-up"
+    
+    # 阶段3: 极限压力 (60秒, 200用户/秒)
+    - duration: 60
+      arrivalRate: 200
+      name: "Extreme Load"
+    
+    # 阶段4: 峰值冲击 (30秒, 500用户/秒)
+    - duration: 30
+      arrivalRate: 500
+      name: "Spike Test"
+    
+    # 阶段5: 恢复测试 (30秒, 500→10用户/秒)
+    - duration: 30
+      arrivalRate: 500
+      rampTo: 10
+      name: "Recovery"
+  
+  # 压力测试放宽错误率限制
+  ensure:
+    maxErrorRate: 5        # 允许 5% 错误率
+  
+  processor: "./tests/performance/load-test-processor.js"
+
+scenarios:
+  # 聚焦核心API压力测试
+  - name: "Core API Stress"
+    weight: 50
+    flow:
+      - post:
+          url: "/api/auth/login"
+          json:
+            email: "testuser@example.com"
+            password: "Test1234"
+          capture:
+            - json: "$.token"
+              as: "authToken"
+      
+      - get:
+          url: "/api/trading/quotes/AAPL"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+  
+  - name: "Database Write Stress"
+    weight: 30
+    flow:
+      - post:
+          url: "/api/auth/register"
+          json:
+            email: "{{ $randomEmail() }}"
+            password: "Test1234"
+            username: "stress_{{ $randomString() }}"
+  
+  - name: "Complex Query Stress"
+    weight: 20
+    flow:
+      - post:
+          url: "/api/auth/login"
+          json:
+            email: "testuser@example.com"
+            password: "Test1234"
+          capture:
+            - json: "$.token"
+              as: "authToken"
+      
+      - get:
+          url: "/api/trading/quotes?symbols=AAPL,GOOGL,MSFT,TSLA,META,NVDA,NFLX,AMZN"
+          headers:
+            Authorization: "Bearer {{ authToken }}"

@@ -1,0 +1,102 @@
+config:
+  target: "http://localhost:3000"
+  phases:
+    # 持久化负载：维持中等负载24小时（模拟1小时）
+    - duration: 3600
+      arrivalRate: 10
+      name: "Sustained load for 1 hour"
+
+  timeout: 30
+
+  # 耐久性测试的性能阈值
+  ensure:
+    maxErrorRate: 2
+    p95: 1000
+    p99: 3000
+
+scenarios:
+  # 典型用户行为模拟
+  - name: "Typical User Behavior"
+    weight: 70
+    flow:
+      - think: 2  # 用户思考时间2秒
+      
+      - post:
+          url: "/api/auth/register"
+          json:
+            name: "Endurance User"
+            email: "endurance-{{ $randomString() }}@test.com"
+            password: "Test123456"
+            phone: "13800138000"
+          capture:
+            - json: "$.token"
+              as: "authToken"
+      
+      - think: 5
+      
+      - post:
+          url: "/api/trading/accounts"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            name: "Endurance Account"
+            type: "simulation"
+            initialBalance: 100000
+          capture:
+            - json: "$.account.accountId"
+              as: "accountId"
+      
+      - think: 3
+      
+      - get:
+          url: "/api/trading/quotes/AAPL"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+      
+      - think: 10
+      
+      - post:
+          url: "/api/trading/orders/buy"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            accountId: "{{ accountId }}"
+            symbol: "AAPL"
+            quantity: 5
+            orderType: "market"
+      
+      - think: 5
+      
+      - get:
+          url: "/api/trading/accounts/{{ accountId }}/positions"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+      
+      - think: 30
+
+  # 空闲用户（仅定期检查行情）
+  - name: "Idle User Monitoring"
+    weight: 30
+    flow:
+      - post:
+          url: "/api/auth/register"
+          json:
+            name: "Idle User"
+            email: "idle-{{ $randomString() }}@test.com"
+            password: "Test123456"
+            phone: "13800138000"
+          capture:
+            - json: "$.token"
+              as: "authToken"
+      
+      - think: 60
+      
+      - get:
+          url: "/api/trading/quotes?symbols=AAPL,GOOGL,MSFT"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+      
+      - think: 120
+      
+      - get:
+          url: "/health"
